@@ -4,15 +4,14 @@ import { SITE } from '@/lib/constants';
 export default function HeroSection() {
   return (
     <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Background image placeholder - 협회 보유 사진으로 교체 */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/images/hero-placeholder.jpg')`,
+          backgroundImage: `url('/images/hero.png')`,
           backgroundColor: '#0A3D62',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean/60 via-ocean/40 to-ocean/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
       </div>
 
       {/* Content */}

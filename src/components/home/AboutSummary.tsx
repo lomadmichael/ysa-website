@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AboutSummary() {
   return (
@@ -7,10 +8,7 @@ export default function AboutSummary() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* 사진 */}
           <div className="relative aspect-[4/3] bg-foam rounded-lg overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center text-navy/20 text-sm">
-              협회 활동 사진
-            </div>
-            {/* 실제 사진으로 교체: <Image src="..." alt="양양군서핑협회 활동" fill className="object-cover" /> */}
+            <Image src="/images/about.jpg" alt="SURFING YANGYANG 조형물" fill className="object-cover" />
           </div>
 
           {/* 텍스트 */}

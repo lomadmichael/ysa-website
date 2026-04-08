@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
@@ -21,23 +22,8 @@ export default function AboutPage() {
           <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-start">
             {/* 회장 사진 */}
             <div className="w-full md:w-[320px] shrink-0">
-              <div className="aspect-[3/4] bg-foam rounded-2xl flex items-center justify-center border border-foam">
-                <div className="text-center text-navy/40">
-                  <svg
-                    className="w-16 h-16 mx-auto mb-3 opacity-40"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                    />
-                  </svg>
-                  <p className="text-sm font-medium">회장 사진</p>
-                </div>
+              <div className="relative aspect-[3/4] bg-foam rounded-2xl overflow-hidden border border-foam">
+                <Image src="/images/president.jpg" alt="양양군서핑협회 회장" fill className="object-cover" />
               </div>
               <div className="mt-4 text-center">
                 <p className="text-lg font-bold text-navy">양양군서핑협회 회장</p>

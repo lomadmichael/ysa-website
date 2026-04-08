@@ -1,27 +1,33 @@
+import Image from 'next/image';
+
 const values = [
   {
     quote: '서핑은 경쟁이 아니라 자연과의 교감이다. 파도를 기다리는 시간에서 감정이 흘러가도록 두는 태도를 배운다.',
     title: '자연과의 조화',
     description: '양양의 파도와 함께 자연을 존중하는 태도를 전합니다.',
-    imageAlt: '양양 바다 파도',
+    imageAlt: '양양 바다에서 서핑을 즐기는 모습',
+    imageSrc: '/images/value-1.png',
   },
   {
     quote: '좋은 문화는 좋은 사람을 통해 이어집니다. 교육은 기술 전수가 아니라 안전과 존중을 가르치는 일입니다.',
     title: '사람을 키우는 교육',
     description: '강사, 심판, 선수 양성을 통해 서핑문화의 기반을 만듭니다.',
     imageAlt: '서핑 교육 현장',
+    imageSrc: '/images/value-2.png',
   },
   {
     quote: '해변의 자유가 지속되려면, 여행객과 원주민과 이주민이 서로를 존중하는 문화가 먼저입니다.',
     title: '존중의 해변문화',
     description: '모두가 함께 즐기는 건강한 해변환경을 조성합니다.',
-    imageAlt: '양양 해변 풍경',
+    imageAlt: '서퍼들이 해변에서 하이파이브하는 모습',
+    imageSrc: '/images/value-3.png',
   },
   {
     quote: '서핑은 양양이라는 지역의 정체성이 되었습니다. 함께 성장하는 것이 협회의 존재 이유입니다.',
     title: '지역과 함께하는 성장',
     description: '양양의 지속 가능한 서핑 생태계를 만들어갑니다.',
-    imageAlt: '양양 서핑 커뮤니티',
+    imageAlt: '양양군서핑협회 단체 사진',
+    imageSrc: '/images/value-4.png',
   },
 ];
 
@@ -46,12 +52,10 @@ export default function ValuesSection() {
             >
               {/* 사진 */}
               <div
-                className="aspect-[16/10] bg-foam rounded-lg overflow-hidden"
+                className="relative aspect-[16/10] bg-foam rounded-lg overflow-hidden"
                 style={{ direction: 'ltr' }}
               >
-                <div className="w-full h-full flex items-center justify-center text-navy/20 text-sm">
-                  {value.imageAlt}
-                </div>
+                <Image src={value.imageSrc} alt={value.imageAlt} fill className="object-cover" />
               </div>
 
               {/* 텍스트 */}

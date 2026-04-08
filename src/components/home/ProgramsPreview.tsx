@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const programs = [
   {
@@ -7,6 +8,7 @@ const programs = [
     schedule: '5일 과정, 총 30시간',
     href: '/programs/instructor',
     imageAlt: '강사 교육 현장',
+    imageSrc: '/images/program-instructor.png',
   },
   {
     title: '심판 교육',
@@ -14,6 +16,7 @@ const programs = [
     schedule: '5일 과정, 총 30시간',
     href: '/programs/referee',
     imageAlt: '심판 교육 현장',
+    imageSrc: '/images/program-referee.png',
   },
   {
     title: '서핑특화 교육',
@@ -21,6 +24,7 @@ const programs = [
     schedule: '시즌별 운영',
     href: '/programs/specialized',
     imageAlt: '서핑특화 교육 현장',
+    imageSrc: '/images/program-special.png',
   },
 ];
 
@@ -50,9 +54,7 @@ export default function ProgramsPreview() {
             >
               {/* 이미지 */}
               <div className="aspect-[16/9] bg-foam relative overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-navy/20 text-sm">
-                  {program.imageAlt}
-                </div>
+                <Image src={program.imageSrc} alt={program.imageAlt} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
               </div>
 
               {/* 콘텐츠 */}
