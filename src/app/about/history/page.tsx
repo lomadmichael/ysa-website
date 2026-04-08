@@ -79,8 +79,12 @@ export default function HistoryPage() {
                   <div key={index} className="relative flex gap-6 md:gap-8">
                     {/* 연도 마커 */}
                     <div className="relative z-10 shrink-0">
-                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-ocean text-white flex items-center justify-center font-bold text-xs md:text-sm">
-                        {item.year}
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-ocean text-white flex items-center justify-center font-bold text-[10px] md:text-xs leading-tight text-center">
+                        {item.year.includes('~')
+                          ? item.year.split('~').map((y, i) => (
+                              <span key={i}>{i > 0 && <><br />~<br /></>}{y}</span>
+                            ))
+                          : item.year}
                       </div>
                     </div>
 
