@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
+import { IconCheck } from '@/components/icons';
 
 export const metadata: Metadata = {
   title: '회원안내',
@@ -64,9 +65,7 @@ export default function MembershipPage() {
               <ul className="space-y-3">
                 {benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start gap-3 text-[15px] text-navy/80">
-                    <svg className="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
+                    <IconCheck className="w-5 h-5 text-teal shrink-0 mt-0.5" />
                     {benefit}
                   </li>
                 ))}

@@ -1,43 +1,50 @@
 import type { Metadata } from 'next';
+import { type ReactNode } from 'react';
 import PageHeader from '@/components/shared/PageHeader';
+import { IconRescue, IconSkate, IconYoga, IconAthlete, IconGym } from '@/components/icons';
 
 export const metadata: Metadata = {
   title: '서핑특화 교육',
   description: '양양군서핑협회 서핑특화 교육 - 서프레스큐, 랜드서핑, 서핑요가, 선수교육, 전문체육교실',
 };
 
-const CATEGORIES = [
+const CATEGORIES: { title: string; description: string; color: string; icon: ReactNode }[] = [
   {
     title: '서프레스큐',
     description: '서핑보드를 활용한 수상 인명구조 기법을 교육합니다. 해양 사고 발생 시 신속하고 효과적인 구조 활동을 수행할 수 있는 역량을 갖추게 됩니다.',
     color: 'sunset',
+    icon: <IconRescue className="w-7 h-7" />,
   },
   {
     title: '랜드서핑',
     description: '육상에서 서핑보드의 밸런스와 기본 동작을 연습합니다. 서핑 입문자나 비수기 훈련에 효과적인 프로그램입니다.',
     color: 'teal',
+    icon: <IconSkate className="w-7 h-7" />,
   },
   {
     title: '서핑요가',
     description: '서핑에 필요한 유연성, 균형감각, 코어 근력을 강화하는 요가 프로그램입니다. 서핑 전후 컨디셔닝에 최적화되어 있습니다.',
     color: 'ocean',
+    icon: <IconYoga className="w-7 h-7" />,
   },
   {
     title: '선수교육',
     description: '경기력 향상을 위한 전문 선수 교육 과정입니다. 기술 분석, 전략 수립, 멘탈 트레이닝 등 대회 준비에 필요한 종합적인 교육을 제공합니다.',
     color: 'sunset',
+    icon: <IconAthlete className="w-7 h-7" />,
   },
   {
     title: '전문체육교실',
     description: '서핑을 전문 체육 종목으로 배우고자 하는 분들을 위한 체계적인 교육 과정입니다. 단계별 커리큘럼을 통해 안정적인 실력 향상을 돕습니다.',
     color: 'teal',
+    icon: <IconGym className="w-7 h-7" />,
   },
 ];
 
-const colorMap: Record<string, { bg: string; dot: string }> = {
-  sunset: { bg: 'bg-sunset/10', dot: 'bg-sunset' },
-  teal: { bg: 'bg-teal/10', dot: 'bg-teal' },
-  ocean: { bg: 'bg-ocean/10', dot: 'bg-ocean' },
+const colorMap: Record<string, { bg: string; text: string }> = {
+  sunset: { bg: 'bg-sunset/10', text: 'text-sunset' },
+  teal: { bg: 'bg-teal/10', text: 'text-teal' },
+  ocean: { bg: 'bg-ocean/10', text: 'text-ocean' },
 };
 
 export default function SpecializedPage() {
@@ -83,7 +90,9 @@ export default function SpecializedPage() {
                   className="bg-white rounded-2xl p-8 border border-foam hover:border-teal/20 transition-colors"
                 >
                   <div className="flex items-start gap-6">
-                    <div className={`w-3 h-3 rounded-full ${colors.dot} mt-2 shrink-0`} />
+                    <div className={`w-10 h-10 rounded-xl ${colors.bg} ${colors.text} flex items-center justify-center shrink-0`}>
+                      {cat.icon}
+                    </div>
                     <div>
                       <h3 className="text-lg font-bold text-navy mb-3">{cat.title}</h3>
                       <p className="text-navy/60 text-sm leading-relaxed max-w-2xl">

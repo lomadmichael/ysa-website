@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
+import { IconSafety, IconRescue, IconEducation } from '@/components/icons';
 
 export const metadata: Metadata = {
   title: '안전문화 조성',
@@ -44,9 +45,7 @@ export default function SafetyPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
             <div className="bg-white rounded-2xl p-8 border border-foam">
               <div className="w-12 h-12 rounded-xl bg-sunset/10 text-sunset flex items-center justify-center mb-5">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286Zm0 13.036h.008v.008H12v-.008Z" />
-                </svg>
+                <IconSafety className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-navy mb-3">해양 안전 교육</h3>
               <p className="text-navy/60 text-sm leading-relaxed">
@@ -55,9 +54,7 @@ export default function SafetyPage() {
             </div>
             <div className="bg-white rounded-2xl p-8 border border-foam">
               <div className="w-12 h-12 rounded-xl bg-teal/10 text-teal flex items-center justify-center mb-5">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 0 1-1.161.886l-.143.048a1.107 1.107 0 0 0-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 0 1-1.652.928l-.679-.906a1.125 1.125 0 0 0-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 1 0 6.72 14.94M12.75 3.031a9 9 0 0 1 6.72 14.94m0 0-.177.823A3 3 0 0 1 16.5 21H13.5a3 3 0 0 1-2.793-1.896" />
-                </svg>
+                <IconRescue className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-navy mb-3">비치클린 캠페인</h3>
               <p className="text-navy/60 text-sm leading-relaxed">
@@ -66,9 +63,7 @@ export default function SafetyPage() {
             </div>
             <div className="bg-white rounded-2xl p-8 border border-foam">
               <div className="w-12 h-12 rounded-xl bg-ocean/10 text-ocean flex items-center justify-center mb-5">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                </svg>
+                <IconEducation className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-navy mb-3">서핑 에티켓 교육</h3>
               <p className="text-navy/60 text-sm leading-relaxed">
