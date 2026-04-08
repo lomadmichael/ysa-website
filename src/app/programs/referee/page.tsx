@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
@@ -32,9 +33,8 @@ export default function RefereePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Main content */}
             <div className="lg:col-span-2">
-              {/* Placeholder image */}
-              <div className="w-full aspect-[16/9] bg-foam rounded-2xl mb-12 flex items-center justify-center">
-                <p className="text-navy/30 text-lg">심판 교육 현장 이미지</p>
+              <div className="relative w-full aspect-[16/9] bg-foam rounded-2xl mb-12 overflow-hidden">
+                <Image src="/images/program-referee.png" alt="심판 교육 현장" fill className="object-cover" />
               </div>
 
               <h2 className="text-2xl font-bold text-navy mb-6">교육 목적</h2>

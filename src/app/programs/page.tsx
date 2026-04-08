@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
@@ -14,6 +15,8 @@ const PROGRAMS = [
     href: '/programs/instructor',
     duration: '5일 / 30시간',
     badge: '전문자격',
+    imageSrc: '/images/program-instructor.png',
+    imageAlt: '강사 교육 현장',
   },
   {
     title: '심판 교육',
@@ -21,6 +24,8 @@ const PROGRAMS = [
     href: '/programs/referee',
     duration: '교육 일정 별도 공지',
     badge: '심판자격',
+    imageSrc: '/images/program-referee.png',
+    imageAlt: '심판 교육 현장',
   },
   {
     title: '서핑특화 교육',
@@ -28,6 +33,8 @@ const PROGRAMS = [
     href: '/programs/specialized',
     duration: '프로그램별 상이',
     badge: '특화과정',
+    imageSrc: '/images/program-special.png',
+    imageAlt: '서핑특화 교육 현장',
   },
 ];
 
@@ -52,9 +59,8 @@ export default function ProgramsPage() {
                 href={program.href}
                 className="group bg-white rounded-2xl overflow-hidden border border-foam hover:border-teal/30 hover:shadow-lg transition-all duration-300"
               >
-                {/* Placeholder image */}
-                <div className="w-full aspect-[4/3] bg-foam flex items-center justify-center">
-                  <p className="text-navy/30">{program.title} 이미지</p>
+                <div className="relative w-full aspect-[4/3] bg-foam overflow-hidden">
+                  <Image src={program.imageSrc} alt={program.imageAlt} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-8">
                   <div className="flex items-center gap-3 mb-4">

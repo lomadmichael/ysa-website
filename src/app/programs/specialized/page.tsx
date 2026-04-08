@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { type ReactNode } from 'react';
+import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
 import { IconRescue, IconSkate, IconYoga, IconAthlete, IconGym } from '@/components/icons';
 
@@ -75,9 +76,8 @@ export default function SpecializedPage() {
             </p>
           </div>
 
-          {/* Placeholder image */}
-          <div className="w-full aspect-[21/9] bg-foam rounded-2xl mb-16 flex items-center justify-center">
-            <p className="text-navy/30 text-lg">서핑특화 교육 이미지</p>
+          <div className="relative w-full aspect-[21/9] bg-foam rounded-2xl mb-16 overflow-hidden">
+            <Image src="/images/program-special.png" alt="서핑특화 교육 현장" fill className="object-cover" />
           </div>
 
           {/* Categories */}
