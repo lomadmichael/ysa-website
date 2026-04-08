@@ -1,29 +1,58 @@
 import Link from 'next/link';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { NOTICE_CATEGORY_LABEL, type Notice } from '@/lib/database.types';
 
-// TODO: Supabase 연동 후 실제 데이터로 교체
-const notices = [
+const mockNotices = [
   {
     id: 1,
     title: '2025 서핑심판/강사 양성교육 모집 안내',
-    category: '교육',
-    date: '2025-05-12',
+    category: 'education' as const,
+    created_at: '2025-05-12',
     pinned: true,
+    content: '',
+    updated_at: '',
+    author: null,
+    thumbnail_url: null,
   },
   {
     id: 2,
     title: '숏/롱보드, SUP서핑 전문 선수 등록안내',
-    category: '협회',
-    date: '2025-11-05',
+    category: 'association' as const,
+    created_at: '2025-11-05',
     pinned: false,
+    content: '',
+    updated_at: '',
+    author: null,
+    thumbnail_url: null,
   },
   {
     id: 3,
     title: 'YY 랜드서핑 무료 체험 이벤트',
-    category: '행사',
-    date: '2025-05-13',
+    category: 'event' as const,
+    created_at: '2025-05-13',
     pinned: false,
+    content: '',
+    updated_at: '',
+    author: null,
+    thumbnail_url: null,
   },
 ];
+
+async function getLatestNotices(): Promise<Notice[]> {
+  try {
+    if (!isSupabaseConfigured) return mockNotices;
+    const { data, error } = await supabase
+      .from('notices')
+      .select('*')
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (error) throw error;
+    return data && data.length > 0 ? data : mockNotices;
+  } catch {
+    return mockNotices;
+  }
+}
 
 const categoryColor: Record<string, string> = {
   '대회': 'bg-sunset/10 text-sunset',
@@ -32,7 +61,9 @@ const categoryColor: Record<string, string> = {
   '협회': 'bg-navy/10 text-navy',
 };
 
-export default function LatestNotices() {
+export default async function LatestNotices() {
+  const notices = await getLatestNotices();
+
   return (
     <section className="py-24 md:py-32 bg-foam/50">
       <div className="max-w-[1200px] mx-auto px-4">
@@ -52,26 +83,29 @@ export default function LatestNotices() {
         </div>
 
         <div className="space-y-3">
-          {notices.map((notice) => (
-            <Link
-              key={notice.id}
-              href={`/notice/${notice.id}`}
-              className="flex items-center gap-4 p-5 bg-white rounded-lg hover:bg-ocean/5 transition-colors group"
-            >
-              {notice.pinned && (
-                <span className="text-sunset text-xs font-bold shrink-0">고정</span>
-              )}
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-sm shrink-0 ${categoryColor[notice.category] || 'bg-foam text-navy/60'}`}>
-                {notice.category}
-              </span>
-              <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
-                {notice.title}
-              </span>
-              <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
-                {notice.date}
-              </span>
-            </Link>
-          ))}
+          {notices.map((notice) => {
+            const categoryLabel = NOTICE_CATEGORY_LABEL[notice.category] || notice.category;
+            return (
+              <Link
+                key={notice.id}
+                href={`/notice/${notice.id}`}
+                className="flex items-center gap-4 p-5 bg-white rounded-lg hover:bg-ocean/5 transition-colors group"
+              >
+                {notice.pinned && (
+                  <span className="text-sunset text-xs font-bold shrink-0">고정</span>
+                )}
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-sm shrink-0 ${categoryColor[categoryLabel] || 'bg-foam text-navy/60'}`}>
+                  {categoryLabel}
+                </span>
+                <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
+                  {notice.title}
+                </span>
+                <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
+                  {new Date(notice.created_at).toLocaleDateString('ko-KR')}
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         {notices.length === 0 && (

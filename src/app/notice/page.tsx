@@ -1,10 +1,63 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { NOTICE_CATEGORY_LABEL, type Notice } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: '공지사항',
 };
+
+const mockNotices: Notice[] = [
+  {
+    id: 1,
+    title: '2025 서핑심판/강사 양성교육 모집 안내',
+    category: 'education',
+    created_at: '2025-05-12',
+    pinned: true,
+    content: '',
+    updated_at: '',
+    author: null,
+    thumbnail_url: null,
+  },
+  {
+    id: 2,
+    title: '숏/롱보드, SUP서핑 전문 선수 등록안내',
+    category: 'association',
+    created_at: '2025-11-05',
+    pinned: false,
+    content: '',
+    updated_at: '',
+    author: null,
+    thumbnail_url: null,
+  },
+  {
+    id: 3,
+    title: 'YY 랜드서핑 무료 체험 이벤트',
+    category: 'event',
+    created_at: '2025-05-13',
+    pinned: false,
+    content: '',
+    updated_at: '',
+    author: null,
+    thumbnail_url: null,
+  },
+];
+
+async function getNotices(): Promise<Notice[]> {
+  try {
+    if (!isSupabaseConfigured) return mockNotices;
+    const { data, error } = await supabase
+      .from('notices')
+      .select('*')
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data && data.length > 0 ? data : mockNotices;
+  } catch {
+    return mockNotices;
+  }
+}
 
 const categories = ['전체', '대회', '교육', '행사', '협회'];
 
@@ -15,30 +68,6 @@ const categoryColor: Record<string, string> = {
   '협회': 'bg-navy/10 text-navy',
 };
 
-const notices = [
-  {
-    id: 1,
-    title: '2025 서핑심판/강사 양성교육 모집 안내',
-    category: '교육',
-    date: '2025-05-12',
-    pinned: true,
-  },
-  {
-    id: 2,
-    title: '숏/롱보드, SUP서핑 전문 선수 등록안내',
-    category: '협회',
-    date: '2025-11-05',
-    pinned: false,
-  },
-  {
-    id: 3,
-    title: 'YY 랜드서핑 무료 체험 이벤트',
-    category: '행사',
-    date: '2025-05-13',
-    pinned: false,
-  },
-];
-
 const subNav = [
   { label: '공지사항', href: '/notice', active: true },
   { label: '보도자료', href: '/notice/press', active: false },
@@ -47,7 +76,9 @@ const subNav = [
   { label: 'FAQ', href: '/notice/faq', active: false },
 ];
 
-export default function NoticePage() {
+export default async function NoticePage() {
+  const notices = await getNotices();
+
   return (
     <>
       <PageHeader
@@ -95,32 +126,35 @@ export default function NoticePage() {
 
           {/* Notice List */}
           <div className="space-y-3">
-            {notices.map((notice) => (
-              <Link
-                key={notice.id}
-                href={`/notice/${notice.id}`}
-                className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
-              >
-                {notice.pinned && (
-                  <span className="text-sunset text-xs font-bold shrink-0">
-                    고정
-                  </span>
-                )}
-                <span
-                  className={`text-xs font-medium px-2 py-0.5 rounded-sm shrink-0 ${
-                    categoryColor[notice.category] || 'bg-foam text-navy/60'
-                  }`}
+            {notices.map((notice) => {
+              const categoryLabel = NOTICE_CATEGORY_LABEL[notice.category] || notice.category;
+              return (
+                <Link
+                  key={notice.id}
+                  href={`/notice/${notice.id}`}
+                  className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
                 >
-                  {notice.category}
-                </span>
-                <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
-                  {notice.title}
-                </span>
-                <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
-                  {notice.date}
-                </span>
-              </Link>
-            ))}
+                  {notice.pinned && (
+                    <span className="text-sunset text-xs font-bold shrink-0">
+                      고정
+                    </span>
+                  )}
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 rounded-sm shrink-0 ${
+                      categoryColor[categoryLabel] || 'bg-foam text-navy/60'
+                    }`}
+                  >
+                    {categoryLabel}
+                  </span>
+                  <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
+                    {notice.title}
+                  </span>
+                  <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
+                    {new Date(notice.created_at).toLocaleDateString('ko-KR')}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
 
           {notices.length === 0 && (

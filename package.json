@@ -9,6 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.102.1",
+    "@tiptap/extension-image": "^3.22.2",
+    "@tiptap/extension-link": "^3.22.2",
+    "@tiptap/pm": "^3.22.2",
+    "@tiptap/react": "^3.22.2",
+    "@tiptap/starter-kit": "^3.22.2",
     "next": "16.2.2",
     "react": "19.2.4",
     "react-dom": "19.2.4"
