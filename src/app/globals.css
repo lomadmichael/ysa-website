@@ -3,7 +3,8 @@
 :root {
   --color-ocean: #0A3D62;
   --color-teal: #1B9AAA;
-  --color-sunset: #393d7d;
+  --color-sunset: #F27830;
+  --color-purple: #393d7d;
   --color-sand: #FAFAF5;
   --color-navy: #1A1A2E;
   --color-foam: #E8ECF0;
@@ -20,6 +21,7 @@
   --color-foam: var(--color-foam);
   --color-ocean-light: var(--color-ocean-light);
   --color-teal-light: var(--color-teal-light);
+  --color-purple: var(--color-purple);
 }
 
 body {
@@ -44,7 +46,7 @@ body {
   background: var(--color-foam);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-teal);
+  background: var(--color-purple);
   border-radius: 4px;
 }
 

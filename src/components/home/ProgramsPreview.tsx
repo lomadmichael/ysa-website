@@ -32,7 +32,7 @@ export default function ProgramsPreview() {
   return (
     <section className="py-24 md:py-32">
       <div className="max-w-[1200px] mx-auto px-4">
-        <p className="text-sm font-semibold text-teal tracking-widest uppercase mb-4">PROGRAMS</p>
+        <p className="text-sm font-semibold text-purple tracking-widest uppercase mb-4">PROGRAMS</p>
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-navy">
             프로그램 안내

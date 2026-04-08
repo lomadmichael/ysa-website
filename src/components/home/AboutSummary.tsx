@@ -13,7 +13,7 @@ export default function AboutSummary() {
 
           {/* 텍스트 */}
           <div>
-            <p className="text-sm font-semibold text-teal tracking-widest uppercase mb-4">ABOUT YSA</p>
+            <p className="text-sm font-semibold text-purple tracking-widest uppercase mb-4">ABOUT YSA</p>
             <h2 className="text-2xl md:text-3xl font-bold text-navy mb-6 leading-snug">
               2013년부터,<br />
               양양의 서핑문화를 함께 만들어왔습니다

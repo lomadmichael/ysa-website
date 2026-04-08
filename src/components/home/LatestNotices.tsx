@@ -69,7 +69,7 @@ export default async function LatestNotices() {
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
           <div>
-            <p className="text-sm font-semibold text-teal tracking-widest uppercase mb-4">NOTICE</p>
+            <p className="text-sm font-semibold text-purple tracking-widest uppercase mb-4">NOTICE</p>
             <h2 className="text-2xl md:text-3xl font-bold text-navy">
               최신 공지
             </h2>

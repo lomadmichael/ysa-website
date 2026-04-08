@@ -16,7 +16,7 @@ export default function GalleryPreview() {
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
           <div>
-            <p className="text-sm font-semibold text-teal tracking-widest uppercase mb-4">GALLERY</p>
+            <p className="text-sm font-semibold text-purple tracking-widest uppercase mb-4">GALLERY</p>
             <h2 className="text-2xl md:text-3xl font-bold text-navy">
               양양의 파도 위에 쌓인 시간
             </h2>

@@ -13,7 +13,7 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, breadcrumbs, description }: PageHeaderProps) {
   return (
-    <section className="bg-ocean text-white py-20 md:py-28">
+    <section className="bg-purple text-white py-20 md:py-28">
       <div className="max-w-[1200px] mx-auto px-4">
         <nav className="flex items-center gap-2 text-sm text-white/60 mb-6">
           {breadcrumbs.map((crumb, i) => (

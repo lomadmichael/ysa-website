@@ -35,7 +35,7 @@ export default function ValuesSection() {
   return (
     <section className="py-24 md:py-32 bg-white">
       <div className="max-w-[1200px] mx-auto px-4">
-        <p className="text-sm font-semibold text-teal tracking-widest uppercase mb-4 text-center">OUR VALUES</p>
+        <p className="text-sm font-semibold text-purple tracking-widest uppercase mb-4 text-center">OUR VALUES</p>
         <h2 className="text-2xl md:text-3xl font-bold text-navy mb-16 text-center">
           서핑은 자연을 존중하는 태도이자<br className="hidden md:block" />
           사람과 지역을 연결하는 문화입니다
@@ -60,7 +60,7 @@ export default function ValuesSection() {
 
               {/* 텍스트 */}
               <div style={{ direction: 'ltr' }}>
-                <blockquote className="text-navy/60 italic text-sm leading-relaxed mb-6 border-l-2 border-teal pl-4">
+                <blockquote className="text-navy/60 italic text-sm leading-relaxed mb-6 border-l-2 border-purple pl-4">
                   &ldquo;{value.quote}&rdquo;
                 </blockquote>
                 <h3 className="text-xl font-bold text-navy mb-2">{value.title}</h3>

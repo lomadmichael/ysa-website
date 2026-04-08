@@ -37,7 +37,7 @@ export default function QuickAccess() {
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-[1200px] mx-auto px-4">
-        <h2 className="text-sm font-semibold text-teal tracking-widest uppercase mb-8 text-center">
+        <h2 className="text-sm font-semibold text-purple tracking-widest uppercase mb-8 text-center">
           자주 찾는 안내
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
