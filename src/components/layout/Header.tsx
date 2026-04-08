@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { NAV_ITEMS, SITE } from '@/lib/constants';
+import Image from 'next/image';
+import { NAV_ITEMS } from '@/lib/constants';
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -12,9 +13,8 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-foam">
       <nav className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between" aria-label="메인 네비게이션">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-ocean text-lg tracking-tight">
-          <span className="text-xl">🏄</span>
-          <span>{SITE.nameEn}</span>
+        <Link href="/" className="flex items-center shrink-0">
+          <Image src="/images/ysa_logo_blk.png" alt="양양군서핑협회" width={160} height={36} className="h-8 w-auto" priority />
         </Link>
 
         {/* Desktop Nav */}
