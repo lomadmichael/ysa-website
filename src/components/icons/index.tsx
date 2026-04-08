@@ -1,267 +1,342 @@
 /**
- * Hand-drawn style SVG icon library
- * viewBox="0 0 48 48", stroke-based line art
+ * Hand-drawn surf-style SVG icon library
+ * Inspired by V2 classic surf icons (moon, sun, spiral, waves, starfish)
+ * viewBox="0 0 64 64", strokeWidth 2.5, organic curves
  */
 
 interface IconProps {
   className?: string;
 }
 
-const defaults = {
-  viewBox: '0 0 48 48',
+const d = {
+  viewBox: '0 0 64 64',
   fill: 'none',
   stroke: 'currentColor',
-  strokeWidth: 2,
+  strokeWidth: 2.5,
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
 };
 
-/* ── 1. Competition: trophy with handles ── */
+/* ═══════════════════════════════════ */
+/* ── 자연물 기본 아이콘 (V2 원본) ── */
+/* ═══════════════════════════════════ */
+
+export function IconMoon({ className = 'w-8 h-8' }: IconProps) {
+  return (
+    <svg {...d} className={className}>
+      <path d="M40 12c-12 2-20 12-18 24s14 20 26 18c-6 4-14 4-20-1S18 40 20 28s10-16 20-16z" />
+      <circle cx="36" cy="22" r="3" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function IconSun({ className = 'w-8 h-8' }: IconProps) {
+  return (
+    <svg {...d} className={className}>
+      <circle cx="32" cy="32" r="8" />
+      <path d="M32 12v6M32 46v6M12 32h6M46 32h6M19 19l4 4M41 41l4 4M45 19l-4 4M23 41l-4 4" />
+      <path d="M26 14l2 4M38 46l2 4M14 38l4-2M46 26l4-2" />
+    </svg>
+  );
+}
+
+export function IconSpiral({ className = 'w-8 h-8' }: IconProps) {
+  return (
+    <svg {...d} className={className}>
+      <path d="M32 28a4 4 0 0 1 4 4 8 8 0 0 1-8 8 12 12 0 0 1-12-12 16 16 0 0 1 16-16 20 20 0 0 1 20 20 24 24 0 0 1-24 24" />
+    </svg>
+  );
+}
+
+export function IconWaves({ className = 'w-8 h-8' }: IconProps) {
+  return (
+    <svg {...d} className={className}>
+      <path d="M8 24c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" />
+      <path d="M8 34c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" />
+      <path d="M8 44c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0" />
+    </svg>
+  );
+}
+
+export function IconStarfish({ className = 'w-8 h-8' }: IconProps) {
+  return (
+    <svg {...d} className={className}>
+      <path d="M32 8l4 16 16-4-12 12 12 12-16-4-4 16-4-16-16 4 12-12-12-12 16 4z" />
+    </svg>
+  );
+}
+
+/* ═══════════════════════════════════ */
+/* ── 기능 아이콘 (서프 스타일) ────── */
+/* ═══════════════════════════════════ */
+
+/* 대회 운영: 파도 위 깃발 */
 export function IconCompetition({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M16 8h16v12c0 4-4 8-8 8s-8-4-8-8V8z" />
-      <path d="M16 12h-4c-2 0-4 2-4 4v2c0 3 3 6 6 6h2" />
-      <path d="M32 12h4c2 0 4 2 4 4v2c0 3-3 6-6 6h-2" />
-      <line x1="24" y1="28" x2="24" y2="34" />
-      <path d="M18 34h12v4H18z" />
+    <svg {...d} className={className}>
+      <path d="M16 56V20" />
+      <path d="M16 20c8-6 16 2 24-4v18c-8 6-16-2-24 4" />
+      <path d="M8 56c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 2. Education: person at a board ── */
+/* 교육 운영: 파도 위 태양 (배움의 빛) */
 export function IconEducation({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <rect x="6" y="6" width="24" height="18" rx="2" />
-      <line x1="12" y1="12" x2="24" y2="12" />
-      <line x1="12" y1="17" x2="20" y2="17" />
-      <circle cx="38" cy="18" r="4" />
-      <path d="M32 36c0-4 2.5-7 6-7s6 3 6 7" />
-      <line x1="18" y1="24" x2="18" y2="30" />
+    <svg {...d} className={className}>
+      <circle cx="32" cy="22" r="7" />
+      <path d="M32 9v3M32 32v3M19 22h3M42 22h3M22 14l2 2M40 30l2 2M42 14l-2 2M22 30l-2 2" />
+      <path d="M8 46c5-5 10-5 15 0s10 5 15 0 10-5 15 0" />
     </svg>
   );
 }
 
-/* ── 3. Youth: sprout / young growth ── */
+/* 선수·청소년 육성: 새싹 + 파도 */
 export function IconYouth({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M24 40V24" />
-      <path d="M24 24c-4-8-14-8-14-2s8 10 14 2z" />
-      <path d="M24 20c4-8 14-8 14-2s-8 10-14 2z" />
-      <circle cx="24" cy="12" r="4" />
-      <path d="M18 42h12" />
+    <svg {...d} className={className}>
+      <path d="M32 52V30" />
+      <path d="M32 30c-6-10-18-8-16 0s12 6 16 0z" />
+      <path d="M32 24c6-10 18-8 16 0s-12 6-16 0z" />
+      <path d="M26 14c0-4 3-8 6-8s6 4 6 8" />
+      <path d="M8 56c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 4. Safety: shield with check ── */
+/* 안전문화 조성: 조개 껍질 (보호) */
 export function IconSafety({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M24 4L8 12v10c0 12 16 20 16 20s16-8 16-20V12L24 4z" />
-      <path d="M18 24l4 4 8-8" />
+    <svg {...d} className={className}>
+      <path d="M32 10c-14 0-22 12-22 22 0 6 4 12 10 14h24c6-2 10-8 10-14 0-10-8-22-22-22z" />
+      <path d="M32 10v36" />
+      <path d="M32 16c-6 4-10 10-12 18" />
+      <path d="M32 16c6 4 10 10 12 18" />
+      <path d="M32 22c-4 3-7 7-9 14" />
+      <path d="M32 22c4 3 7 7 9 14" />
     </svg>
   );
 }
 
-/* ── 5. Instructor: person with star ── */
+/* 강사 교육: 사람 + 파도 */
 export function IconInstructor({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
+    <svg {...d} className={className}>
       <circle cx="24" cy="14" r="6" />
-      <path d="M12 38c0-7 5-12 12-12s12 5 12 12" />
-      <path d="M30 8l4-4M34 4l-2 6 6-2" />
+      <path d="M14 40c0-6 4-11 10-11s10 5 10 11" />
+      <path d="M38 16l6-4M44 12l-2 6" />
+      <path d="M6 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0 8 3 12 0" />
     </svg>
   );
 }
 
-/* ── 6. Referee: clipboard with whistle ── */
+/* 심판 교육: 호루라기 */
 export function IconReferee({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <rect x="14" y="6" width="20" height="28" rx="2" />
-      <line x1="20" y1="14" x2="28" y2="14" />
-      <line x1="20" y1="20" x2="28" y2="20" />
-      <line x1="20" y1="26" x2="25" y2="26" />
-      <path d="M24 34v8M18 42h12" />
+    <svg {...d} className={className}>
+      <circle cx="24" cy="28" r="10" />
+      <path d="M24 18v-8" />
+      <path d="M20 10h8" />
+      <circle cx="24" cy="28" r="3" fill="currentColor" />
+      <path d="M34 24l8-4" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 7. Surf: wave with surfer ── */
+/* 서핑특화 교육: 서핑보드 */
 export function IconSurf({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M8 36c4-4 8-4 12 0s8 4 12 0 8-4 12 0" />
-      <path d="M32 10c-2 6-6 14-14 22" />
-      <path d="M28 8c2 0 6 2 6 6" />
-      <circle cx="22" cy="18" r="3" />
+    <svg {...d} className={className}>
+      <path d="M18 8c-4 10-6 24 0 36 2 4 6 8 14 8s12-4 14-8c6-12 4-26 0-36-2-4-8-4-14-4s-12 0-14 4z" />
+      <path d="M32 16v32" />
+      <path d="M26 20c2 2 4 4 6 4s4-2 6-4" />
     </svg>
   );
 }
 
-/* ── 8. Trophy: trophy for competitions ── */
+/* 대회 일정: 트로피 + 파도 */
 export function IconTrophy({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M16 8h16v12c0 4-4 8-8 8s-8-4-8-8V8z" />
-      <path d="M16 12h-4c-2 0-4 2-4 4v2c0 3 3 6 6 6h2" />
-      <path d="M32 12h4c2 0 4 2 4 4v2c0 3-3 6-6 6h-2" />
-      <line x1="24" y1="28" x2="24" y2="34" />
-      <path d="M18 34h12v4H18z" />
+    <svg {...d} className={className}>
+      <path d="M20 10h24v14c0 6-5 10-12 10s-12-4-12-10V10z" />
+      <path d="M20 16h-6c-2 0-3 2-3 4v2c0 4 3 6 6 6h3" />
+      <path d="M44 16h6c2 0 3 2 3 4v2c0 4-3 6-6 6h-3" />
+      <path d="M32 34v6" />
+      <path d="M24 40h16" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 9. Notice: envelope ── */
+/* 공지사항: 조가비 열린 모양 (소식) */
 export function IconNotice({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M10 12l14 8 14-8" />
-      <path d="M10 12v20c0 2 2 4 4 4h20c2 0 4-2 4-4V12" />
-      <path d="M10 12c0-2 2-4 4-4h20c2 0 4 2 4 4" />
+    <svg {...d} className={className}>
+      <path d="M12 20c0-6 9-12 20-12s20 6 20 12" />
+      <path d="M12 20c0 6 9 12 20 12s20-6 20-12" />
+      <path d="M32 8v24" />
+      <path d="M22 12c2 4 6 8 10 10" />
+      <path d="M42 12c-2 4-6 8-10 10" />
+      <path d="M8 48c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 10. Phone ── */
+/* 전화: 소라 껍데기 모양 */
 export function IconPhone({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M12 6h6l3 8-4 3c2 5 6 9 11 11l3-4 8 3v6c0 2-2 4-4 4C18 36 6 24 6 10c0-2 2-4 4-4h2z" />
+    <svg {...d} className={className}>
+      <path d="M44 8c-12 2-24 14-30 30" />
+      <path d="M44 8c2 4 4 10 2 16" />
+      <path d="M14 38c4 2 10 4 16 2" />
+      <path d="M46 24c-2 4-6 6-10 6" />
+      <path d="M30 44c-4-2-6-6-6-10" />
+      <circle cx="32" cy="32" r="2" fill="currentColor" />
     </svg>
   );
 }
 
-/* ── 11. Email ── */
+/* 이메일: 유리병 편지 */
 export function IconEmail({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <rect x="6" y="10" width="36" height="26" rx="3" />
-      <path d="M6 14l18 10 18-10" />
+    <svg {...d} className={className}>
+      <path d="M18 14c-2 0-4 4-4 10s4 20 10 24c4 2 8 2 12 0 6-4 10-18 10-24s-2-10-4-10c-4 0-8 4-12 4s-8-4-12-4z" />
+      <path d="M24 28h16" />
+      <path d="M26 34h12" />
+      <path d="M28 22h8" />
     </svg>
   );
 }
 
-/* ── 12. Clock ── */
+/* 시간: 해시계 */
 export function IconClock({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <circle cx="24" cy="24" r="18" />
-      <path d="M24 12v12l8 4" />
+    <svg {...d} className={className}>
+      <circle cx="32" cy="28" r="18" />
+      <path d="M32 16v12l8 6" />
+      <circle cx="32" cy="28" r="2" fill="currentColor" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 13. Location: map pin ── */
+/* 위치: 등대 */
 export function IconLocation({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M24 42s14-10 14-20a14 14 0 1 0-28 0c0 10 14 20 14 20z" />
-      <circle cx="24" cy="20" r="5" />
+    <svg {...d} className={className}>
+      <path d="M26 6h12l-2 28H28L26 6z" />
+      <path d="M32 6v-2" />
+      <circle cx="32" cy="14" r="3" />
+      <path d="M22 34h20" />
+      <path d="M20 42h24" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 14. Partnership: handshake ── */
+/* 제휴·협업: 매듭/로프 */
 export function IconPartnership({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M6 20l8-8h6l4 4-8 8" />
-      <path d="M42 20l-8-8h-6l-4 4 8 8" />
-      <path d="M16 24l4 4 4-4 4 4 4-4" />
-      <line x1="6" y1="20" x2="14" y2="28" />
-      <line x1="42" y1="20" x2="34" y2="28" />
+    <svg {...d} className={className}>
+      <path d="M8 20c6 0 10 4 14 4s8-4 14-4" />
+      <path d="M22 24c-4 4-8 12-8 16" />
+      <path d="M42 24c4 4 8 12 8 16" />
+      <path d="M14 40c6-4 12-4 18 0s12 4 18 0" />
+      <circle cx="22" cy="24" r="3" />
+      <circle cx="42" cy="24" r="3" />
     </svg>
   );
 }
 
-/* ── 15. Membership: person with plus ── */
+/* 회원안내: 산호 (커뮤니티) */
 export function IconMembership({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <circle cx="20" cy="16" r="6" />
-      <path d="M8 38c0-7 5-12 12-12s12 5 12 12" />
-      <line x1="38" y1="16" x2="38" y2="26" />
-      <line x1="33" y1="21" x2="43" y2="21" />
+    <svg {...d} className={className}>
+      <circle cx="26" cy="16" r="7" />
+      <path d="M14 42c0-7 5-13 12-13s12 6 12 13" />
+      <path d="M44 22a5 5 0 1 0 0-10" />
+      <path d="M44 22c4 0 8 4 8 9" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 16. Rescue: lifesaver ring ── */
+/* 서프레스큐: 구명부표 */
 export function IconRescue({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <circle cx="24" cy="24" r="16" />
-      <circle cx="24" cy="24" r="7" />
-      <line x1="12" y1="12" x2="19" y2="19" />
-      <line x1="36" y1="12" x2="29" y2="19" />
-      <line x1="12" y1="36" x2="19" y2="29" />
-      <line x1="36" y1="36" x2="29" y2="29" />
+    <svg {...d} className={className}>
+      <circle cx="32" cy="24" r="14" />
+      <circle cx="32" cy="24" r="5" />
+      <path d="M22 14l-6-6M42 14l6-6M22 34l-6 6M42 34l6 6" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 17. Skate: skateboard / land surfing ── */
+/* 랜드서핑: 스케이트보드 + 파도 */
 export function IconSkate({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M10 30h28c2 0 3 1 3 2s-1 2-3 2H10c-2 0-3-1-3-2s1-2 3-2z" />
-      <circle cx="14" cy="38" r="3" />
-      <circle cx="34" cy="38" r="3" />
-      <path d="M18 30l-2-12h16l-2 12" />
-      <path d="M20 18c0-4 4-8 4-8s4 4 4 8" />
+    <svg {...d} className={className}>
+      <path d="M14 34h36c2 0 3 2 2 4H12c-1-2 0-4 2-4z" />
+      <circle cx="20" cy="42" r="3" />
+      <circle cx="44" cy="42" r="3" />
+      <path d="M24 34c2-8 6-18 8-22" />
+      <path d="M40 34c-2-8-4-14-6-18" />
+      <path d="M8 54c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 18. Yoga: person in yoga pose ── */
+/* 서핑요가: 연꽃 */
 export function IconYoga({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <circle cx="24" cy="10" r="4" />
-      <path d="M24 14v12" />
-      <path d="M16 22l8 4 8-4" />
-      <path d="M18 42l6-16 6 16" />
+    <svg {...d} className={className}>
+      <path d="M32 36c-6 0-12-4-12-10s6-10 12-10 12 4 12 10-6 10-12 10z" />
+      <path d="M32 16c-2-6-8-8-12-6s-4 8 0 12" />
+      <path d="M32 16c2-6 8-8 12-6s4 8 0 12" />
+      <path d="M20 22c-6-2-10 0-10 4s4 6 10 6" />
+      <path d="M44 22c6-2 10 0 10 4s-4 6-10 6" />
+      <path d="M32 36v10" />
+      <path d="M8 54c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 19. Athlete: running person ── */
+/* 선수교육: 돌고래 */
 export function IconAthlete({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <circle cx="28" cy="8" r="4" />
-      <path d="M20 18l8-2 6 8" />
-      <path d="M14 24l6-6 4 6-4 8" />
-      <path d="M20 32l-6 10" />
-      <path d="M26 26l8 8" />
+    <svg {...d} className={className}>
+      <path d="M10 30c4-14 16-20 26-16 4 2 8 6 10 12" />
+      <path d="M46 26c2-4 6-8 10-8" />
+      <path d="M10 30c-2 4-4 8 0 10s8-2 10-6" />
+      <circle cx="42" cy="22" r="2" fill="currentColor" />
+      <path d="M36 28c2 2 6 2 8 0" />
+      <path d="M8 48c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
 
-/* ── 20. Gym: dumbbell ── */
+/* 전문체육교실: 닻 */
 export function IconGym({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <line x1="14" y1="24" x2="34" y2="24" />
-      <rect x="8" y="18" width="6" height="12" rx="1" />
-      <rect x="34" y="18" width="6" height="12" rx="1" />
-      <line x1="5" y1="20" x2="8" y2="20" />
-      <line x1="5" y1="28" x2="8" y2="28" />
-      <line x1="40" y1="20" x2="43" y2="20" />
-      <line x1="40" y1="28" x2="43" y2="28" />
+    <svg {...d} className={className}>
+      <circle cx="32" cy="10" r="4" />
+      <path d="M32 14v28" />
+      <path d="M24 8h16" />
+      <path d="M18 34c0 8 6 14 14 14s14-6 14-14" />
+      <path d="M26 26h12" />
     </svg>
   );
 }
 
-/* ── Checkmark: for benefit lists ── */
+/* 체크마크: 파도 위 체크 */
 export function IconCheck({ className = 'w-8 h-8' }: IconProps) {
   return (
-    <svg {...defaults} className={className}>
-      <path d="M10 26l8 8 20-20" />
+    <svg {...d} className={className}>
+      <path d="M14 32l8 8 20-20" />
+      <path d="M8 52c4-3 8-3 12 0s8 3 12 0 8-3 12 0" />
     </svg>
   );
 }
