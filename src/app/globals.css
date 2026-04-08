@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --color-ocean: #0A3D62;
+  --color-teal: #1B9AAA;
+  --color-sunset: #F27830;
+  --color-sand: #FAFAF5;
+  --color-navy: #1A1A2E;
+  --color-foam: #E8ECF0;
+  --color-ocean-light: #0E4D7A;
+  --color-teal-light: #22B5C8;
+}
+
+@theme inline {
+  --color-ocean: var(--color-ocean);
+  --color-teal: var(--color-teal);
+  --color-sunset: var(--color-sunset);
+  --color-sand: var(--color-sand);
+  --color-navy: var(--color-navy);
+  --color-foam: var(--color-foam);
+  --color-ocean-light: var(--color-ocean-light);
+  --color-teal-light: var(--color-teal-light);
+}
+
+body {
+  background: var(--color-sand);
+  color: var(--color-navy);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+}
+
+/* Pretendard font-face */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-foam);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-teal);
+  border-radius: 4px;
+}
+
+/* Skip to content */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: var(--color-ocean);
+  color: white;
+  border-radius: 0 0 8px 8px;
+  transition: top 0.2s;
+}
+.skip-to-content:focus {
+  top: 0;
+}
