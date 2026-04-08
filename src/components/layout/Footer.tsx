@@ -3,7 +3,7 @@ import { SITE, NAV_ITEMS } from '@/lib/constants';
 
 export default function Footer() {
   return (
-    <footer className="bg-ocean text-white mt-auto">
+    <footer className="text-white mt-auto" style={{ backgroundColor: '#393d7d' }}>
       <div className="max-w-[1200px] mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* 협회 정보 */}
