@@ -27,7 +27,7 @@ const values = [
     title: '지역과 함께하는 성장',
     description: '양양의 지속 가능한 서핑 생태계를 만들어갑니다.',
     imageAlt: '양양군서핑협회 단체 사진',
-    imageSrc: '/images/value-4.png',
+    imageSrc: '/images/value-4-2.jpg',
   },
 ];
 
