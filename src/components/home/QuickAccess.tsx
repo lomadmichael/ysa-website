@@ -11,7 +11,7 @@ const items: { title: string; description: string; href: string; icon: ReactNode
   },
   {
     title: '심판 교육',
-    description: '공정한 경기 운영을 위한 심판 교육',
+    description: '공정한 경기운영을 위한 교육',
     href: '/programs/referee',
     icon: <IconReferee className="w-9 h-9" />,
   },

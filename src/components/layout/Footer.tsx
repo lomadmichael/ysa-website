@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <p className="text-xl font-bold mb-4">{SITE.nameEn}</p>
             <p className="text-sm text-white/70 leading-relaxed">
-              {SITE.description.slice(0, 80)}...
+              양양군 서핑협회는 양양의 지속 가능한 서핑 생태계를 만들어갑니다.
             </p>
           </div>
 

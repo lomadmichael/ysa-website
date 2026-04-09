@@ -20,7 +20,8 @@ export default function HeroSection() {
           {SITE.nameEn}
         </p>
         <h1 className="text-[32px] md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-          {SITE.slogan}
+          파도를 넘어<br />
+          사람과 문화를 잇다
         </h1>
         <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
           양양군서핑협회는 대회 운영, 교육, 체험, 안전문화 조성을 통해<br className="hidden md:block" />

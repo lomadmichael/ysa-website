@@ -4,8 +4,8 @@ import Image from 'next/image';
 const programs = [
   {
     title: '강사 교육',
-    description: '서핑 서비스 품질과 안전성을 높이기 위한 전문인력 양성 프로그램. ISA 자격 강사진이 지도합니다.',
-    schedule: '5일 과정, 총 30시간',
+    description: '서핑 서비스 품질과 안전성을 높이기 위한 전문인력 양성 프로그램. KSA 자격 강사진이 지도합니다.',
+    schedule: '2일 과정, 총 16시간',
     href: '/programs/instructor',
     imageAlt: '강사 교육 현장',
     imageSrc: '/images/program-instructor_01.jpg',
@@ -13,7 +13,7 @@ const programs = [
   {
     title: '심판 교육',
     description: '공정하고 전문적인 경기 운영을 위한 교육 과정. 채점 환경 이해부터 자격 검증까지.',
-    schedule: '5일 과정, 총 30시간',
+    schedule: '2일 과정, 총 16시간',
     href: '/programs/referee',
     imageAlt: '심판 교육 현장',
     imageSrc: '/images/program-referee.png',
