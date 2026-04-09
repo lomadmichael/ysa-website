@@ -15,7 +15,7 @@ const PROGRAMS = [
     href: '/programs/instructor',
     duration: '5일 / 30시간',
     badge: '전문자격',
-    imageSrc: '/images/program-instructor.png',
+    imageSrc: '/images/program-instructor_01.jpg',
     imageAlt: '강사 교육 현장',
   },
   {

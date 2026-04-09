@@ -208,7 +208,7 @@ export default function V2HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { title: '강사 교육', desc: 'ISA 자격 강사진 지도\n5일, 30시간 과정', src: '/images/program-instructor.png' },
+              { title: '강사 교육', desc: 'ISA 자격 강사진 지도\n5일, 30시간 과정', src: '/images/program-instructor_01.jpg' },
               { title: '심판 교육', desc: '공정한 경기 운영을 위한\n전문 심판 양성', src: '/images/program-referee.png' },
               { title: '서핑특화 교육', desc: '서프레스큐, 랜드서핑\n서핑요가, 선수교육', src: '/images/program-special.png' },
             ].map((prog) => (

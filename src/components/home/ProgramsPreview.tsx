@@ -8,7 +8,7 @@ const programs = [
     schedule: '5일 과정, 총 30시간',
     href: '/programs/instructor',
     imageAlt: '강사 교육 현장',
-    imageSrc: '/images/program-instructor.png',
+    imageSrc: '/images/program-instructor_01.jpg',
   },
   {
     title: '심판 교육',

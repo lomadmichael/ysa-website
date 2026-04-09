@@ -34,7 +34,7 @@ export default function InstructorPage() {
             {/* Main content */}
             <div className="lg:col-span-2">
               <div className="relative w-full aspect-[16/9] bg-foam rounded-2xl mb-12 overflow-hidden">
-                <Image src="/images/program-instructor.png" alt="강사 교육 현장" fill className="object-cover" />
+                <Image src="/images/program-instructor_01.jpg" alt="강사 교육 현장" fill className="object-cover" />
               </div>
 
               <h2 className="text-2xl font-bold text-navy mb-6">교육 목적</h2>
