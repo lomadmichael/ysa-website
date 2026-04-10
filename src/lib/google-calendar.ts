@@ -28,6 +28,20 @@ const CALENDAR_ID =
 const ICAL_URL = `https://calendar.google.com/calendar/ical/${encodeURIComponent(CALENDAR_ID)}/public/basic.ics`;
 
 /**
+ * description에서 [변경] 이력 줄 제거
+ * Google Calendar에 관리자가 수동으로 남긴 변경 이력(예: "[변경] 4/13→4/20 ...")은
+ * 방문자에게 불필요한 정보이므로 숨김.
+ */
+function cleanDescription(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .split(/\r?\n/)
+    .filter((line) => !line.trim().startsWith('[변경]'))
+    .join('\n')
+    .trim();
+}
+
+/**
  * 일정 상태 판정 (오늘 기준)
  * - upcoming: 시작일이 내일 이후
  * - ongoing: 오늘이 시작~종료 범위 안
@@ -88,7 +102,7 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
       events.push({
         uid: vevent.uid || key,
         title: (vevent.summary as string) || '제목 없음',
-        description: (vevent.description as string) || '',
+        description: cleanDescription((vevent.description as string) || ''),
         location: (vevent.location as string) || '',
         start,
         end,
