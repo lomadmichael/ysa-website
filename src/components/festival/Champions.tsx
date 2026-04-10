@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import {
-  CHAMPIONS_SAMPLE,
+  CHAMPIONS,
   CHAMPION_CATEGORY_LABEL,
   CHAMPION_GENDER_LABEL,
   type ChampionCategory,
@@ -13,7 +13,6 @@ const CATEGORIES: { value: ChampionCategory; label: string }[] = [
   { value: 'shortboard', label: '숏보드' },
   { value: 'longboard', label: '롱보드' },
   { value: 'sup', label: 'SUP' },
-  { value: 'junior', label: '주니어' },
 ];
 
 const RANK_STYLE: Record<number, { bg: string; text: string; medal: string }> = {
@@ -27,7 +26,7 @@ export default function Champions() {
 
   // 카테고리별 필터 + 연도 내림차순 정렬
   const filtered = useMemo(() => {
-    return CHAMPIONS_SAMPLE.filter((r) => r.category === category).sort(
+    return CHAMPIONS.filter((r) => r.category === category).sort(
       (a, b) => b.year - a.year,
     );
   }, [category]);
@@ -50,25 +49,17 @@ export default function Champions() {
             CHAMPIONS
           </p>
           <h2 className="text-3xl md:text-5xl font-bold text-navy leading-tight mb-4">
-            역대 우승자
+            역대 입상자
           </h2>
           <p className="text-sm text-navy/50">
-            부문별로 역대 우승 기록을 확인하실 수 있습니다.
-          </p>
-        </div>
-
-        {/* 샘플 데이터 안내 */}
-        <div className="max-w-2xl mx-auto mb-10 p-4 bg-foam/50 border border-foam rounded-lg text-center">
-          <p className="text-xs text-navy/50">
-            ⚠️ 현재 표시된 우승자 정보는 샘플 데이터입니다. 실제 우승자 기록은
-            협회에서 자료 정리 후 업데이트될 예정입니다.
+            2014년부터 이어진 양양 서핑 페스티벌의 역대 입상자 기록입니다.
           </p>
         </div>
 
         {/* 카테고리 탭 */}
         <div className="flex flex-wrap gap-2 justify-center mb-12">
           {CATEGORIES.map((cat) => {
-            const count = CHAMPIONS_SAMPLE.filter((r) => r.category === cat.value).length;
+            const count = CHAMPIONS.filter((r) => r.category === cat.value).length;
             const isActive = category === cat.value;
             return (
               <button

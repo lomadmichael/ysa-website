@@ -207,18 +207,90 @@ export const CHAMPION_GENDER_LABEL: Record<ChampionGender, string> = {
   open: '오픈',
 };
 
-/** ⚠️ 샘플 데이터 — 실제 우승자 정보 아님. 협회에서 자료 전달 받은 후 교체 필요. */
-export const CHAMPIONS_SAMPLE: ChampionRecord[] = [
-  // 2024
+/**
+ * 역대 양양서핑페스티벌 입상자 명단
+ * 출처: 양양군서핑협회 (2025-10-16 제공)
+ * 2020~2021년은 COVID-19로 미개최
+ */
+export const CHAMPIONS: ChampionRecord[] = [
+  // ── 2025 · 제10회 ──────────────────────────
+  {
+    year: 2025,
+    edition: 10,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '카노아 희재 팔미아노' },
+      { rank: 2, name: '박류태' },
+      { rank: 3, name: '조준희' },
+    ],
+  },
+  {
+    year: 2025,
+    edition: 10,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '김비주' },
+      { rank: 2, name: '임수정' },
+      { rank: 3, name: '이나라' },
+    ],
+  },
+  {
+    year: 2025,
+    edition: 10,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '김준호' },
+      { rank: 2, name: '전형주' },
+      { rank: 3, name: '김동균' },
+    ],
+  },
+  {
+    year: 2025,
+    edition: 10,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '최로주' },
+      { rank: 2, name: '정단희' },
+      { rank: 3, name: '박수진' },
+    ],
+  },
+  {
+    year: 2025,
+    edition: 10,
+    category: 'sup',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '송교선' },
+      { rank: 2, name: '안대석' },
+      { rank: 3, name: '이재호' },
+    ],
+  },
+  {
+    year: 2025,
+    edition: 10,
+    category: 'sup',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '최지원' },
+      { rank: 2, name: '김나연' },
+      { rank: 3, name: '송명진' },
+    ],
+  },
+
+  // ── 2024 · 제9회 ──────────────────────────
   {
     year: 2024,
     edition: 9,
     category: 'shortboard',
     gender: 'men',
     rankings: [
-      { rank: 1, name: '선수 A' },
-      { rank: 2, name: '선수 B' },
-      { rank: 3, name: '선수 C' },
+      { rank: 1, name: '정의종' },
+      { rank: 2, name: 'Irawan Wau' },
+      { rank: 3, name: '양진혁' },
     ],
   },
   {
@@ -227,9 +299,9 @@ export const CHAMPIONS_SAMPLE: ChampionRecord[] = [
     category: 'shortboard',
     gender: 'women',
     rankings: [
-      { rank: 1, name: '선수 D' },
-      { rank: 2, name: '선수 E' },
-      { rank: 3, name: '선수 F' },
+      { rank: 1, name: '이나라' },
+      { rank: 2, name: '임수정' },
+      { rank: 3, name: '신주빈' },
     ],
   },
   {
@@ -238,9 +310,9 @@ export const CHAMPIONS_SAMPLE: ChampionRecord[] = [
     category: 'longboard',
     gender: 'men',
     rankings: [
-      { rank: 1, name: '선수 G' },
-      { rank: 2, name: '선수 H' },
-      { rank: 3, name: '선수 I' },
+      { rank: 1, name: '김동균' },
+      { rank: 2, name: '김재현' },
+      { rank: 3, name: '손성훈' },
     ],
   },
   {
@@ -249,55 +321,442 @@ export const CHAMPIONS_SAMPLE: ChampionRecord[] = [
     category: 'longboard',
     gender: 'women',
     rankings: [
-      { rank: 1, name: '선수 J' },
-      { rank: 2, name: '선수 K' },
-      { rank: 3, name: '선수 L' },
+      { rank: 1, name: '김예은' },
+      { rank: 2, name: '선주현' },
+      { rank: 3, name: '이예령' },
     ],
   },
   {
     year: 2024,
     edition: 9,
     category: 'sup',
-    gender: 'open',
+    gender: 'men',
     rankings: [
-      { rank: 1, name: '선수 M' },
-      { rank: 2, name: '선수 N' },
-      { rank: 3, name: '선수 O' },
+      { rank: 1, name: '신태준' },
+      { rank: 2, name: '김용수' },
+      { rank: 3, name: '이재호' },
     ],
   },
-  // 2023
+  {
+    year: 2024,
+    edition: 9,
+    category: 'sup',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '남상은' },
+      { rank: 2, name: '최지원' },
+      { rank: 3, name: '김나연' },
+    ],
+  },
+
+  // ── 2023 · 제8회 ──────────────────────────
   {
     year: 2023,
     edition: 8,
     category: 'shortboard',
     gender: 'men',
     rankings: [
-      { rank: 1, name: '선수 P' },
-      { rank: 2, name: '선수 Q' },
-      { rank: 3, name: '선수 R' },
+      { rank: 1, name: '카노아 희재 팔미아노' },
+      { rank: 2, name: '목하진' },
+      { rank: 3, name: '원동진' },
+    ],
+  },
+  {
+    year: 2023,
+    edition: 8,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '김비주' },
+      { rank: 2, name: '임수정' },
+      { rank: 3, name: '이나라' },
     ],
   },
   {
     year: 2023,
     edition: 8,
     category: 'longboard',
-    gender: 'open',
+    gender: 'men',
     rankings: [
-      { rank: 1, name: '선수 S' },
-      { rank: 2, name: '선수 T' },
-      { rank: 3, name: '선수 U' },
+      { rank: 1, name: '김동균' },
+      { rank: 2, name: '김태은' },
+      { rank: 3, name: '정필수' },
     ],
   },
-  // 2022
+  {
+    year: 2023,
+    edition: 8,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '정단희' },
+      { rank: 2, name: '한아름' },
+      { rank: 3, name: '문리나' },
+    ],
+  },
+  {
+    year: 2023,
+    edition: 8,
+    category: 'sup',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '신태준' },
+      { rank: 2, name: '이재호' },
+      { rank: 3, name: '안대석' },
+    ],
+  },
+  {
+    year: 2023,
+    edition: 8,
+    category: 'sup',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '김나연' },
+      { rank: 2, name: '남상은' },
+    ],
+  },
+
+  // ── 2022 · 제7회 ──────────────────────────
   {
     year: 2022,
     edition: 7,
     category: 'shortboard',
     gender: 'men',
     rankings: [
-      { rank: 1, name: '선수 V' },
-      { rank: 2, name: '선수 W' },
-      { rank: 3, name: '선수 X' },
+      { rank: 1, name: '카노아 희재 팔미아노' },
+      { rank: 2, name: '임수현' },
+      { rank: 3, name: 'Novrianto Sarumaha' },
+    ],
+  },
+  {
+    year: 2022,
+    edition: 7,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '이나라' },
+      { rank: 2, name: '임수정' },
+      { rank: 3, name: '홍수옥' },
+    ],
+  },
+  {
+    year: 2022,
+    edition: 7,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '김동균' },
+      { rank: 2, name: '송재형' },
+      { rank: 3, name: '김준호' },
+    ],
+  },
+  {
+    year: 2022,
+    edition: 7,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '정단희' },
+      { rank: 2, name: '성보경' },
+      { rank: 3, name: '박수진' },
+    ],
+  },
+  {
+    year: 2022,
+    edition: 7,
+    category: 'sup',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '이재호' },
+      { rank: 2, name: '이봉훈' },
+      { rank: 3, name: '신태준' },
+    ],
+  },
+  {
+    year: 2022,
+    edition: 7,
+    category: 'sup',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '김나연' },
+      { rank: 2, name: '강영주' },
+      { rank: 3, name: '송원선' },
+    ],
+  },
+
+  // ── 2019 · 제6회 ──────────────────────────
+  {
+    year: 2019,
+    edition: 6,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '임수현' },
+      { rank: 2, name: '설재웅' },
+      { rank: 3, name: '정민채' },
+    ],
+  },
+  {
+    year: 2019,
+    edition: 6,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '임수정' },
+      { rank: 2, name: '박수연' },
+      { rank: 3, name: '이나라' },
+    ],
+  },
+  {
+    year: 2019,
+    edition: 6,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '이승현' },
+      { rank: 2, name: '김태은' },
+      { rank: 3, name: '김준호' },
+    ],
+  },
+  {
+    year: 2019,
+    edition: 6,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '송혜현' },
+      { rank: 2, name: '문리나' },
+      { rank: 3, name: '김희연' },
+    ],
+  },
+
+  // ── 2018 · 제5회 ──────────────────────────
+  {
+    year: 2018,
+    edition: 5,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: 'Hector Sedano' },
+      { rank: 2, name: '임수현' },
+      { rank: 3, name: '김민우' },
+    ],
+  },
+  {
+    year: 2018,
+    edition: 5,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '이나라' },
+      { rank: 2, name: '박수연' },
+      { rank: 3, name: '임지혜' },
+    ],
+  },
+  {
+    year: 2018,
+    edition: 5,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: 'Hector Sedano' },
+      { rank: 2, name: '김준호' },
+      { rank: 3, name: '송재형' },
+    ],
+  },
+  {
+    year: 2018,
+    edition: 5,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '박수진' },
+      { rank: 2, name: '송혜현' },
+      { rank: 3, name: '문리나' },
+    ],
+  },
+
+  // ── 2017 · 제4회 ──────────────────────────
+  {
+    year: 2017,
+    edition: 4,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: 'Shindo Akira' },
+      { rank: 2, name: '김민우' },
+      { rank: 3, name: 'Tomoyuki Onozuka' },
+    ],
+  },
+  {
+    year: 2017,
+    edition: 4,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '이나라' },
+      { rank: 2, name: '임수정' },
+      { rank: 3, name: '김지은' },
+    ],
+  },
+  {
+    year: 2017,
+    edition: 4,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '김준호' },
+      { rank: 2, name: '최정훈' },
+      { rank: 3, name: '김태은' },
+    ],
+  },
+  {
+    year: 2017,
+    edition: 4,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '문리나' },
+      { rank: 2, name: '송혜현' },
+      { rank: 3, name: '황혜진' },
+    ],
+  },
+
+  // ── 2016 · 제3회 ──────────────────────────
+  {
+    year: 2016,
+    edition: 3,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '김민우' },
+      { rank: 2, name: '김민기' },
+      { rank: 3, name: '김용문' },
+    ],
+  },
+  {
+    year: 2016,
+    edition: 3,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '이나라' },
+      { rank: 2, name: '서재희' },
+      { rank: 3, name: '임수정' },
+    ],
+  },
+  {
+    year: 2016,
+    edition: 3,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '김준호' },
+      { rank: 2, name: '신종수' },
+      { rank: 3, name: '송재형' },
+    ],
+  },
+  {
+    year: 2016,
+    edition: 3,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '임수정' },
+      { rank: 2, name: '송혜현' },
+      { rank: 3, name: '나예림' },
+    ],
+  },
+
+  // ── 2015 · 제2회 ──────────────────────────
+  {
+    year: 2015,
+    edition: 2,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '고성용' },
+      { rank: 2, name: '민경식' },
+      { rank: 3, name: '홍성원' },
+    ],
+  },
+  {
+    year: 2015,
+    edition: 2,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '임수정' },
+      { rank: 2, name: '신문경' },
+      { rank: 3, name: '김보영' },
+    ],
+  },
+  {
+    year: 2015,
+    edition: 2,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '박성준' },
+      { rank: 2, name: '이상진' },
+      { rank: 3, name: '이기훈' },
+    ],
+  },
+  {
+    year: 2015,
+    edition: 2,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '전은경' },
+      { rank: 2, name: '임수정' },
+      { rank: 3, name: '최윤영' },
+    ],
+  },
+
+  // ── 2014 · 제1회 ──────────────────────────
+  {
+    year: 2014,
+    edition: 1,
+    category: 'shortboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '민경식' },
+      { rank: 2, name: '임수현' },
+      { rank: 3, name: '유경호' },
+    ],
+  },
+  {
+    year: 2014,
+    edition: 1,
+    category: 'shortboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '임수정' },
+      { rank: 2, name: '김수지' },
+      { rank: 3, name: '임세랑' },
+    ],
+  },
+  {
+    year: 2014,
+    edition: 1,
+    category: 'longboard',
+    gender: 'men',
+    rankings: [
+      { rank: 1, name: '김준호' },
+      { rank: 2, name: '박성준' },
+      { rank: 3, name: '최정훈' },
+    ],
+  },
+  {
+    year: 2014,
+    edition: 1,
+    category: 'longboard',
+    gender: 'women',
+    rankings: [
+      { rank: 1, name: '전은경' },
+      { rank: 2, name: '최윤영' },
+      { rank: 3, name: '신수현' },
     ],
   },
 ];

@@ -39,7 +39,7 @@ export default function FestivalHero() {
             href="#champions"
             className="px-8 py-3.5 bg-white/10 text-white font-semibold border border-white/30 hover:bg-white/20 transition-colors text-sm"
           >
-            역대 우승자
+            역대 입상자
           </a>
         </div>
       </div>
