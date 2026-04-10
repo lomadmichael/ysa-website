@@ -22,9 +22,9 @@ const items: { title: string; description: string; href: string; icon: ReactNode
     icon: <IconSurf className="w-9 h-9" />,
   },
   {
-    title: '대회 일정',
-    description: '연간 대회 일정과 참가 안내',
-    href: '/competitions',
+    title: '일정안내',
+    description: '연간 일정과 참가 안내',
+    href: '/schedule',
     icon: <IconTrophy className="w-9 h-9" />,
   },
   {

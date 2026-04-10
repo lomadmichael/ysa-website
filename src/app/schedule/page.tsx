@@ -10,16 +10,16 @@ import {
 } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
-  title: '대회정보',
+  title: '일정안내',
 };
 
 export const revalidate = 3600;
 
 const tabs = [
-  { label: '연간 일정', href: '/competitions', active: true },
-  { label: '모집중 대회', href: '/competitions/open', active: false },
-  { label: '종료된 대회', href: '/competitions/closed', active: false },
-  { label: '결과·기록', href: '/competitions/results', active: false },
+  { label: '연간 일정', href: '/schedule', active: true },
+  { label: '모집중 일정', href: '/schedule/open', active: false },
+  { label: '종료된 일정', href: '/schedule/closed', active: false },
+  { label: '결과·기록', href: '/schedule/results', active: false },
 ];
 
 function HeroNextEvent({ event }: { event: CalendarEvent }) {
@@ -88,7 +88,7 @@ function HeroNextEvent({ event }: { event: CalendarEvent }) {
   );
 }
 
-export default async function CompetitionsPage() {
+export default async function SchedulePage() {
   const events = await fetchCalendarEvents();
 
   // 다음 이벤트: ongoing 우선, 없으면 upcoming 첫 번째
@@ -97,16 +97,16 @@ export default async function CompetitionsPage() {
     events.find((e) => e.status === 'upcoming') ??
     null;
 
-  // 미래 일정만 (과거는 /competitions/closed에서)
+  // 미래 일정만 (과거는 /schedule/closed에서)
   const futureEvents = events.filter((e) => e.status !== 'past');
 
   return (
     <>
       <PageHeader
-        title="대회정보"
+        title="일정안내"
         breadcrumbs={[
           { label: '홈', href: '/' },
-          { label: '대회정보' },
+          { label: '일정안내' },
         ]}
       />
 
@@ -139,9 +139,9 @@ export default async function CompetitionsPage() {
                 <CompetitionList events={futureEvents} />
               ) : (
                 <div className="text-center py-16 text-navy/50">
-                  <p className="text-[15px] mb-2">예정된 대회가 없습니다.</p>
-                  <Link href="/competitions/closed" className="text-sm text-ocean hover:underline">
-                    종료된 대회 보기 →
+                  <p className="text-[15px] mb-2">예정된 일정이 없습니다.</p>
+                  <Link href="/schedule/closed" className="text-sm text-ocean hover:underline">
+                    종료된 일정 보기 →
                   </Link>
                 </div>
               )}
@@ -157,8 +157,8 @@ export default async function CompetitionsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                 </svg>
               </div>
-              <p className="text-[15px] font-medium mb-1">현재 등록된 대회 일정이 없습니다.</p>
-              <p className="text-sm text-navy/30">새로운 대회가 등록되면 이곳에서 확인하실 수 있습니다.</p>
+              <p className="text-[15px] font-medium mb-1">현재 등록된 일정이 없습니다.</p>
+              <p className="text-sm text-navy/30">새로운 일정이 등록되면 이곳에서 확인하실 수 있습니다.</p>
             </div>
           )}
         </div>

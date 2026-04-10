@@ -4,19 +4,19 @@ import PageHeader from '@/components/shared/PageHeader';
 import { fetchCalendarEvents, formatEventDate } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
-  title: '모집중 대회',
+  title: '모집중 일정',
 };
 
 export const revalidate = 3600;
 
 const tabs = [
-  { label: '연간 일정', href: '/competitions', active: false },
-  { label: '모집중 대회', href: '/competitions/open', active: true },
-  { label: '종료된 대회', href: '/competitions/closed', active: false },
-  { label: '결과·기록', href: '/competitions/results', active: false },
+  { label: '연간 일정', href: '/schedule', active: false },
+  { label: '모집중 일정', href: '/schedule/open', active: true },
+  { label: '종료된 일정', href: '/schedule/closed', active: false },
+  { label: '결과·기록', href: '/schedule/results', active: false },
 ];
 
-export default async function CompetitionsOpenPage() {
+export default async function ScheduleOpenPage() {
   const allEvents = await fetchCalendarEvents();
   // 모집중 = 예정 + 진행중 (오늘 이후 일정)
   const events = allEvents.filter(
@@ -26,11 +26,11 @@ export default async function CompetitionsOpenPage() {
   return (
     <>
       <PageHeader
-        title="대회정보"
+        title="일정안내"
         breadcrumbs={[
           { label: '홈', href: '/' },
-          { label: '대회정보', href: '/competitions' },
-          { label: '모집중 대회' },
+          { label: '일정안내', href: '/schedule' },
+          { label: '모집중 일정' },
         ]}
       />
 
@@ -53,7 +53,7 @@ export default async function CompetitionsOpenPage() {
           </nav>
 
           <p className="text-navy/70 mb-10 text-[15px] leading-relaxed">
-            현재 모집중이거나 진행중인 대회 목록입니다.
+            현재 모집중이거나 진행중인 일정 목록입니다.
           </p>
 
           {events.length > 0 ? (
@@ -76,6 +76,11 @@ export default async function CompetitionsOpenPage() {
                     <span className="text-xs text-navy/50 font-medium">
                       {formatEventDate(event)}
                     </span>
+                    {event.dayCount && event.dayCount > 1 && (
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
+                        {event.dayCount}일 과정
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-lg font-semibold text-navy mb-2">
                     {event.title}
@@ -98,12 +103,12 @@ export default async function CompetitionsOpenPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
               </div>
-              <p className="text-[15px] font-medium mb-1">현재 모집중인 대회가 없습니다.</p>
+              <p className="text-[15px] font-medium mb-1">현재 모집중인 일정이 없습니다.</p>
               <p className="text-sm text-navy/30">
-                <Link href="/competitions" className="text-ocean hover:underline">
+                <Link href="/schedule" className="text-ocean hover:underline">
                   연간 일정
                 </Link>
-                에서 전체 대회 정보를 확인하실 수 있습니다.
+                에서 전체 일정 정보를 확인하실 수 있습니다.
               </p>
             </div>
           )}

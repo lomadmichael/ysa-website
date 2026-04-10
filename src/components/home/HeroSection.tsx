@@ -35,10 +35,10 @@ export default function HeroSection() {
             프로그램 안내
           </Link>
           <Link
-            href="/competitions"
+            href="/schedule"
             className="px-8 py-3.5 bg-white/10 text-white font-semibold rounded-none border border-white/30 hover:bg-white/20 transition-colors text-sm"
           >
-            대회 일정
+            일정안내
           </Link>
           <Link
             href="/about"

@@ -43,13 +43,13 @@ export const NAV_ITEMS = [
     ],
   },
   {
-    label: '대회정보',
-    href: '/competitions',
+    label: '일정안내',
+    href: '/schedule',
     children: [
-      { label: '연간 일정', href: '/competitions' },
-      { label: '모집중 대회', href: '/competitions/open' },
-      { label: '종료된 대회', href: '/competitions/closed' },
-      { label: '결과·기록', href: '/competitions/results' },
+      { label: '연간 일정', href: '/schedule' },
+      { label: '모집중 일정', href: '/schedule/open' },
+      { label: '종료된 일정', href: '/schedule/closed' },
+      { label: '결과·기록', href: '/schedule/results' },
     ],
   },
   {

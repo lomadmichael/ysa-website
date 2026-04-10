@@ -316,7 +316,7 @@ export default function V2HomePage() {
               <div className="flex flex-col gap-1">
                 <Link href="/about" className="hover:opacity-100 transition-opacity">협회소개</Link>
                 <Link href="/programs" className="hover:opacity-100 transition-opacity">프로그램</Link>
-                <Link href="/competitions" className="hover:opacity-100 transition-opacity">대회정보</Link>
+                <Link href="/schedule" className="hover:opacity-100 transition-opacity">일정안내</Link>
                 <Link href="/notice" className="hover:opacity-100 transition-opacity">공지사항</Link>
               </div>
             </div>

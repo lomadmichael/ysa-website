@@ -119,14 +119,14 @@ export default function CompetitionPage() {
                 진행 중이거나 예정된 대회 정보가 궁금하신가요?
               </h3>
               <p className="text-sm text-navy/60">
-                연간 일정, 모집중 대회, 결과·기록은 대회정보 페이지에서 확인하실 수 있습니다.
+                연간 일정, 모집중 일정, 결과·기록은 일정안내 페이지에서 확인하실 수 있습니다.
               </p>
             </div>
             <Link
-              href="/competitions"
+              href="/schedule"
               className="inline-flex items-center gap-2 bg-ocean text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-ocean/90 transition-colors shrink-0"
             >
-              대회정보 바로가기
+              일정안내 바로가기
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
               </svg>

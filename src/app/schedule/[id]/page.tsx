@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const competition = await getCompetition(Number(id));
   return {
-    title: competition?.name || '대회정보',
+    title: competition?.name || '일정안내',
   };
 }
 
@@ -47,10 +47,10 @@ export default async function CompetitionDetailPage({ params }: { params: Promis
   return (
     <>
       <PageHeader
-        title="대회정보"
+        title="일정안내"
         breadcrumbs={[
           { label: '홈', href: '/' },
-          { label: '대회정보', href: '/competitions' },
+          { label: '일정안내', href: '/schedule' },
           { label: competition.name },
         ]}
       />
@@ -101,7 +101,7 @@ export default async function CompetitionDetailPage({ params }: { params: Promis
           {/* Back Button */}
           <div className="mt-12 pt-6 border-t border-foam">
             <Link
-              href="/competitions"
+              href="/schedule"
               className="inline-flex items-center gap-2 text-sm font-medium text-ocean hover:underline"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
