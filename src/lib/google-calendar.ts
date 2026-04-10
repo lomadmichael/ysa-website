@@ -42,15 +42,26 @@ function cleanDescription(raw: string): string {
 }
 
 /**
- * 일정 상태 판정 (오늘 기준)
+ * 일정 상태 판정 (한국 시간 기준)
  * - upcoming: 시작일이 내일 이후
  * - ongoing: 오늘이 시작~종료 범위 안
  * - past: 종료일이 어제 이전
  */
 function getStatus(start: Date, end: Date): CalendarEvent['status'] {
+  // KST의 "오늘 00:00"을 UTC epoch로 계산
+  // KST = UTC+9, 따라서 KST 자정 = UTC 전날 15:00
   const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+  const kstOffset = 9 * 60 * 60 * 1000;
+  const nowInKst = new Date(now.getTime() + kstOffset);
+  const kstMidnightUtcMs =
+    Date.UTC(
+      nowInKst.getUTCFullYear(),
+      nowInKst.getUTCMonth(),
+      nowInKst.getUTCDate(),
+    ) - kstOffset;
+
+  const todayStart = new Date(kstMidnightUtcMs);
+  const todayEnd = new Date(kstMidnightUtcMs + 24 * 60 * 60 * 1000);
 
   if (end < todayStart) return 'past';
   if (start >= todayEnd) return 'upcoming';
@@ -122,8 +133,46 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
   }
 }
 
+const TZ = 'Asia/Seoul';
+
+/** 서버 타임존과 무관하게 한국 시간 기준으로 연/월/일/시/분/요일을 추출 */
+function getKstParts(date: Date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'short',
+    hour12: false,
+  }).formatToParts(date);
+
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  // hour가 "24"로 나오는 경우가 있으므로 보정
+  const hour = get('hour') === '24' ? '00' : get('hour');
+  return {
+    year: Number(get('year')),
+    month: Number(get('month')),
+    day: Number(get('day')),
+    hour,
+    minute: get('minute'),
+    weekday: get('weekday'), // "Mon", "Tue", ...
+  };
+}
+
+const WEEKDAY_KO: Record<string, string> = {
+  Sun: '일',
+  Mon: '월',
+  Tue: '화',
+  Wed: '수',
+  Thu: '목',
+  Fri: '금',
+  Sat: '토',
+};
+
 /**
- * 날짜 범위 포맷 (한국어)
+ * 날짜 범위 포맷 (한국어, 한국 시간대 고정)
  * - 종일 하루: "2026.04.15"
  * - 종일 여러날: "2026.04.15 ~ 04.17"
  * - 시간 포함 하루: "2026.04.15 (월) 14:00 ~ 17:00"
@@ -139,26 +188,26 @@ export function formatEventDate(event: CalendarEvent): string {
     ? new Date(end.getTime() - 24 * 60 * 60 * 1000)
     : end;
 
-  const sameDay =
-    start.getFullYear() === actualEnd.getFullYear() &&
-    start.getMonth() === actualEnd.getMonth() &&
-    start.getDate() === actualEnd.getDate();
+  const s = getKstParts(start);
+  const e = getKstParts(actualEnd);
 
-  const startStr = `${start.getFullYear()}.${pad(start.getMonth() + 1)}.${pad(start.getDate())}`;
+  const sameDay = s.year === e.year && s.month === e.month && s.day === e.day;
+  const startStr = `${s.year}.${pad(s.month)}.${pad(s.day)}`;
 
   if (event.allDay) {
     if (sameDay) return startStr;
-    return `${startStr} ~ ${pad(actualEnd.getMonth() + 1)}.${pad(actualEnd.getDate())}`;
+    return `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
   }
 
-  const weekday = ['일', '월', '화', '수', '목', '금', '토'][start.getDay()];
-  const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
-  const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+  const weekday = WEEKDAY_KO[s.weekday] ?? s.weekday;
+  const endParts = getKstParts(end);
+  const startTime = `${s.hour}:${s.minute}`;
+  const endTime = `${endParts.hour}:${endParts.minute}`;
 
   if (sameDay) {
     return `${startStr} (${weekday}) ${startTime} ~ ${endTime}`;
   }
-  return `${startStr} ~ ${pad(actualEnd.getMonth() + 1)}.${pad(actualEnd.getDate())}`;
+  return `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
 }
 
 /**
@@ -167,7 +216,7 @@ export function formatEventDate(event: CalendarEvent): string {
 export function groupEventsByYear(events: CalendarEvent[]): Record<number, CalendarEvent[]> {
   const groups: Record<number, CalendarEvent[]> = {};
   for (const event of events) {
-    const year = event.start.getFullYear();
+    const { year } = getKstParts(event.start);
     if (!groups[year]) groups[year] = [];
     groups[year].push(event);
   }
@@ -175,7 +224,7 @@ export function groupEventsByYear(events: CalendarEvent[]): Record<number, Calen
 }
 
 /**
- * 월별로 이벤트 그룹화 (같은 연도 내)
+ * 월별로 이벤트 그룹화 (같은 연도 내, 한국 시간 기준)
  * 키: "2026-04" 형식
  */
 export function groupEventsByMonth(
@@ -183,8 +232,7 @@ export function groupEventsByMonth(
 ): { key: string; year: number; month: number; events: CalendarEvent[] }[] {
   const groupMap = new Map<string, CalendarEvent[]>();
   for (const event of events) {
-    const year = event.start.getFullYear();
-    const month = event.start.getMonth() + 1;
+    const { year, month } = getKstParts(event.start);
     const key = `${year}-${String(month).padStart(2, '0')}`;
     if (!groupMap.has(key)) groupMap.set(key, []);
     groupMap.get(key)!.push(event);
