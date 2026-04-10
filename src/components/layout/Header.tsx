@@ -32,7 +32,7 @@ export default function Header() {
               >
                 {item.label}
               </Link>
-              {item.children && activeDropdown === item.label && (
+              {'children' in item && activeDropdown === item.label && (
                 <ul className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-foam py-2 min-w-[180px]">
                   {item.children.map((child) => (
                     <li key={child.label}>
@@ -80,7 +80,7 @@ export default function Header() {
                 >
                   {item.label}
                 </Link>
-                {item.children && (
+                {'children' in item && (
                   <ul className="pl-4 pb-2">
                     {item.children.map((child) => (
                       <li key={child.label}>

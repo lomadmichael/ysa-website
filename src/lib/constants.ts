@@ -53,6 +53,10 @@ export const NAV_ITEMS = [
     ],
   },
   {
+    label: '10주년',
+    href: '/festival',
+  },
+  {
     label: '공지·자료실',
     href: '/notice',
     children: [
