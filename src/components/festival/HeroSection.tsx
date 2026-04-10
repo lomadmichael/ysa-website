@@ -1,15 +1,14 @@
 export default function FestivalHero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy">
-      {/* 배경 사진 자리 — 필요 이미지: /images/history/festival-hero.jpg (와이드 서핑 사진) */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url('/images/history/festival-hero.jpg')`,
+          backgroundImage: `url('/images/history/hero_02.jpg')`,
           backgroundColor: '#0A3D62',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/70 via-navy/50 to-navy" />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy" />
       </div>
 
       {/* 콘텐츠 */}
