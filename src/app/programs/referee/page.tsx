@@ -25,7 +25,7 @@ export default function RefereePage() {
           { label: '프로그램 안내', href: '/programs' },
           { label: '심판 교육' },
         ]}
-        description="심판 교육은 공정하고 전문적인 경기 운영을 위한 교육 과정입니다."
+        description="공정하고 전문적인 경기 운영을 위한 교육 과정입니다."
       />
 
       <section className="py-24 md:py-32">
@@ -78,7 +78,7 @@ export default function RefereePage() {
                   </div>
                   <div className="border-t border-foam pt-5">
                     <dt className="text-xs text-navy/40 uppercase tracking-wider mb-1">교육 기간</dt>
-                    <dd className="text-sm text-navy font-medium">별도 공지</dd>
+                    <dd className="text-sm text-navy font-medium">2일 / 16시간</dd>
                   </div>
                   <div className="border-t border-foam pt-5">
                     <dt className="text-xs text-navy/40 uppercase tracking-wider mb-1">교육 장소</dt>
@@ -96,14 +96,9 @@ export default function RefereePage() {
 
                 <a
                   href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="mt-8 w-full flex items-center justify-center gap-2 bg-sunset text-white px-6 py-4 rounded-xl font-medium hover:bg-sunset/90 transition-colors"
                 >
-                  외부 신청폼
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                  </svg>
+                  교육 신청
                 </a>
               </div>
             </div>

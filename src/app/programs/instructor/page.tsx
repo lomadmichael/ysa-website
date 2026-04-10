@@ -4,7 +4,7 @@ import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
   title: '강사 교육',
-  description: '양양군서핑협회 강사 교육 프로그램 - ISA 기준 전문 서핑 강사 양성',
+  description: '양양군서핑협회 강사 교육 프로그램 - KSA 기준 전문 서핑 강사 양성',
 };
 
 const CURRICULUM = [
@@ -25,7 +25,7 @@ export default function InstructorPage() {
           { label: '프로그램 안내', href: '/programs' },
           { label: '강사 교육' },
         ]}
-        description="강사 교육은 양양의 서핑 서비스 품질과 안전성을 높이기 위한 전문인력 양성 프로그램입니다."
+        description="양양의 서핑 교육 서비스 품질과 안전성을 높이기 위한 전문인력 양성 프로그램입니다."
       />
 
       <section className="py-24 md:py-32">
@@ -39,7 +39,7 @@ export default function InstructorPage() {
 
               <h2 className="text-2xl font-bold text-navy mb-6">교육 목적</h2>
               <p className="text-navy/70 leading-relaxed mb-10">
-                양양군서핑협회의 강사 교육은 ISA(국제서핑협회) 기준에 부합하는
+                양양군서핑협회의 강사 교육은 KSA(대한서핑협회) 기준에 부합하는
                 전문 서핑 강사를 양성하는 프로그램입니다.
                 안전한 서핑 교육 환경을 조성하고, 체계적인 지도 역량을 갖춘
                 전문 강사를 배출하여 양양 서핑 산업의 서비스 품질을 높이는 것을 목표로 합니다.
@@ -62,7 +62,7 @@ export default function InstructorPage() {
 
               <h2 className="text-2xl font-bold text-navy mb-6">강사진</h2>
               <p className="text-navy/70 leading-relaxed mb-10">
-                ISA 자격을 보유한 국내 최고 수준의 강사진이 교육을 진행합니다.
+                KSA 자격을 보유한 국내 최고 수준의 강사진이 교육을 진행합니다.
                 풍부한 현장 경험과 전문 지식을 바탕으로 실질적이고 체계적인 교육을 제공합니다.
               </p>
             </div>
@@ -78,7 +78,7 @@ export default function InstructorPage() {
                   </div>
                   <div className="border-t border-foam pt-5">
                     <dt className="text-xs text-navy/40 uppercase tracking-wider mb-1">교육 기간</dt>
-                    <dd className="text-sm text-navy font-medium">5일 / 30시간</dd>
+                    <dd className="text-sm text-navy font-medium">2일 / 16시간</dd>
                   </div>
                   <div className="border-t border-foam pt-5">
                     <dt className="text-xs text-navy/40 uppercase tracking-wider mb-1">교육 장소</dt>
@@ -96,14 +96,9 @@ export default function InstructorPage() {
 
                 <a
                   href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="mt-8 w-full flex items-center justify-center gap-2 bg-sunset text-white px-6 py-4 rounded-xl font-medium hover:bg-sunset/90 transition-colors"
                 >
-                  외부 신청폼
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                  </svg>
+                  교육 신청
                 </a>
               </div>
             </div>

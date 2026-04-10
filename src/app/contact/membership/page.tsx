@@ -14,11 +14,8 @@ const subNav = [
 ];
 
 const benefits = [
-  '협회 주관 대회 참가 자격 부여',
-  '서핑 교육 프로그램 우선 등록',
   '협회 행사 및 이벤트 참여 기회',
   '서핑 관련 최신 정보 우선 제공',
-  '제휴 업체 할인 혜택',
 ];
 
 export default function MembershipPage() {
