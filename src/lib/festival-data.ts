@@ -168,7 +168,7 @@ export const HIATUS_YEARS = [2020, 2021];
 /** 숫자로 보는 10년 */
 export const FESTIVAL_STATS = [
   { value: '10', label: 'YEARS', sub: '10년의 여정' },
-  { value: '9회', label: 'FESTIVALS', sub: '역대 페스티벌' },
+  { value: '10회', label: 'FESTIVALS', sub: '역대 페스티벌' },
   { value: '5,000+', label: 'PARTICIPANTS', sub: '누적 참가자' },
   { value: '12', label: 'CATEGORIES', sub: '경기 부문' },
 ];
