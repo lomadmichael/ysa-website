@@ -27,8 +27,8 @@ const MISSIONS = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
       </svg>
     ),
-    title: '주민 건강증진 및 여가생활',
-    description: '지역사회 주민의 건강증진과 활기찬 여가생활을 지원합니다.',
+    title: '군민 건강증진 및 여가생활',
+    description: '지역사회 군민의 건강증진과 활기찬 여가생활을 지원합니다.',
   },
   {
     icon: (
@@ -61,7 +61,7 @@ export default function PurposePage() {
           <div className="max-w-3xl mx-auto text-center mb-20">
             <p className="text-lg md:text-xl text-navy/80 leading-relaxed">
               양양군서핑협회는 서핑 종목을 널리 보급하고 이를 통해 지역사회
-              주민의 건강증진과 활기찬 여가생활, 협회 구성원 간의 교류를
+              군민의 건강증진과 활기찬 여가생활, 협회 구성원 간의 교류를
               도모하며 양양을 대표하는 해양레저 문화 기반을 만들어가기 위해
               설립되었습니다.
             </p>

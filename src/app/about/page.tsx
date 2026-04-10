@@ -26,7 +26,7 @@ export default function AboutPage() {
                 <Image src="/images/president.jpg" alt="양양군서핑협회 회장" fill className="object-cover" />
               </div>
               <div className="mt-4 text-center">
-                <p className="text-lg font-bold text-navy">양양군서핑협회 회장</p>
+                <p className="text-lg font-bold text-navy">양양군 서핑협회 장래홍 회장</p>
               </div>
             </div>
 
@@ -66,11 +66,6 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="mt-10 pt-8 border-t border-foam">
-                <p className="text-navy font-semibold text-lg">
-                  양양군서핑협회 회장
-                </p>
-              </div>
             </div>
           </div>
         </div>

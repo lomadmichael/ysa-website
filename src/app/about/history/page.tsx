@@ -11,52 +11,72 @@ const BREADCRUMBS = [
   { label: '연혁' },
 ];
 
-const TIMELINE = [
-  {
-    year: '2025',
-    events: [
-      '양양군서핑협회 10주년 기념 페스티벌 개최',
-      '서핑특화프로그램 운영 확대',
-    ],
-  },
-  {
-    year: '2024',
-    events: [
-      '서핑 강사 인증제도 고도화',
-      '청소년 서핑 육성 프로그램 운영',
-    ],
-  },
+/**
+ * 최신이 위, 오래된 것이 아래 순으로 배치
+ * 같은 그룹(같은 연도 또는 연속된 해) 안에서도 최신 월이 위
+ */
+const TIMELINE: { year: string; items: { date: string; text: string }[] }[] = [
   {
     year: '2022',
-    events: [
-      '서핑 강사 인증사업 시행',
-      '안전 교육 체계 구축',
+    items: [
+      { date: '2022. 10.', text: '해양수산부장관배 제7회 양양 서핑 페스티벌 결승전 및 시상식 (죽도)' },
+      { date: '2022. 09-10.', text: '해양수산부장관배 제7회 양양 서핑 페스티벌 예선대회 4회 (강현, 죽도, 남애, 서피비치)' },
+      { date: '2022. 05-11.', text: '서핑 강사 인증 사업 「나는 양양의 서핑강사다」 진행' },
     ],
   },
   {
     year: '2019',
-    events: [
-      '협회 명칭 변경 (양양군서핑협회)',
-      '국제서핑대회 운영',
+    items: [
+      { date: '2019. 10.', text: '제6회 \'양양 서핑 페스티벌\' 개최' },
+      { date: '2019. 02.', text: '국민생활체육 양양군서핑연합회를 「양양군서핑협회」로 명칭 변경' },
+      { date: '2019. 01.', text: '제4회 \'새해 일출 서핑\' 개최' },
     ],
   },
   {
-    year: '2017~2019',
-    events: [
-      '청소년 서핑체험 교실 운영',
-      '서핑 저변 확대 프로그램 시행',
+    year: '2018',
+    items: [
+      { date: '2018. 10.', text: '제5회 \'양양 서핑 페스티벌\' 개최' },
+      { date: '2018. 01.', text: '제3회 \'새해 일출 서핑\' 개최' },
+    ],
+  },
+  {
+    year: '2017 ~ 2019',
+    items: [
+      { date: '2017 ~ 2019', text: '양양군 관내 청소년 서핑 체험 프로그램 운영' },
+      { date: '2017 ~ 2019', text: '양양군 겨울 서핑 프로그램 운영' },
+    ],
+  },
+  {
+    year: '2017',
+    items: [
+      { date: '2017. 10.', text: '제4회 \'양양 서핑 페스티벌\' 개최' },
+      { date: '2017. 01.', text: '제2회 \'새해 일출 서핑\' 개최' },
+    ],
+  },
+  {
+    year: '2016',
+    items: [
+      { date: '2016. 10.', text: '제3회 \'양양 서핑 페스티벌\' 개최' },
+      { date: '2016. 01.', text: '제1회 \'새해 일출 서핑\' 개최' },
+    ],
+  },
+  {
+    year: '2015',
+    items: [
+      { date: '2015. 10.', text: '제2회 \'양양 서핑 페스티벌\' 개최' },
     ],
   },
   {
     year: '2014',
-    events: [
-      '제1회 국제서핑페스티벌 개최',
+    items: [
+      { date: '2014. 10.', text: '제1회 \'양양군수배 국제서핑 페스티벌\' 개최' },
+      { date: '2014. 07.', text: '양양군생활체육회 「국민생활체육 양양군서핑연합회」로 회원 단체 승인' },
     ],
   },
   {
     year: '2013',
-    events: [
-      '양양군서핑협회 발족',
+    items: [
+      { date: '2013. 11.', text: '양양군서핑연합회 발족' },
     ],
   },
 ];
@@ -69,35 +89,32 @@ export default function HistoryPage() {
       <section className="py-24 md:py-32">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            {/* 타임라인 */}
             <div className="relative">
               {/* 세로선 */}
-              <div className="absolute left-[23px] md:left-[31px] top-0 bottom-0 w-px bg-foam" />
+              <div className="absolute left-[55px] md:left-[71px] top-0 bottom-0 w-px bg-foam" />
 
-              <div className="space-y-12">
-                {TIMELINE.map((item, index) => (
-                  <div key={index} className="relative flex gap-6 md:gap-8">
+              <div className="space-y-14">
+                {TIMELINE.map((group) => (
+                  <div key={group.year} className="relative flex gap-6 md:gap-8">
                     {/* 연도 마커 */}
                     <div className="relative z-10 shrink-0">
-                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-ocean text-white flex items-center justify-center font-bold text-[10px] md:text-xs leading-tight text-center">
-                        {item.year.includes('~')
-                          ? item.year.split('~').map((y, i) => (
-                              <span key={i}>{i > 0 && <><br />~<br /></>}{y}</span>
-                            ))
-                          : item.year}
+                      <div className="w-[110px] md:w-[142px] h-12 md:h-14 rounded-full bg-ocean text-white flex items-center justify-center font-bold text-xs md:text-sm">
+                        {group.year}
                       </div>
                     </div>
 
                     {/* 이벤트 목록 */}
-                    <div className="pt-2 md:pt-4 pb-2">
-                      <ul className="space-y-3">
-                        {item.events.map((event, eventIndex) => (
+                    <div className="pt-1 md:pt-2 pb-2 flex-1">
+                      <ul className="space-y-4">
+                        {group.items.map((item, i) => (
                           <li
-                            key={eventIndex}
-                            className="text-navy/80 text-sm md:text-base leading-relaxed flex items-start gap-2"
+                            key={i}
+                            className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4 text-navy/80 text-sm md:text-[15px] leading-relaxed"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-teal mt-2 shrink-0" />
-                            {event}
+                            <span className="font-semibold text-navy/90 shrink-0 md:w-28">
+                              {item.date}
+                            </span>
+                            <span className="flex-1">{item.text}</span>
                           </li>
                         ))}
                       </ul>
