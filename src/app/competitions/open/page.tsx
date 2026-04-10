@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { type Competition } from '@/lib/database.types';
+import { fetchCalendarEvents, formatEventDate } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '모집중 대회',
 };
+
+export const revalidate = 3600;
 
 const tabs = [
   { label: '연간 일정', href: '/competitions', active: false },
@@ -15,23 +16,12 @@ const tabs = [
   { label: '결과·기록', href: '/competitions/results', active: false },
 ];
 
-async function getRecruitingCompetitions(): Promise<Competition[]> {
-  try {
-    if (!isSupabaseConfigured) return [];
-    const { data, error } = await supabase
-      .from('competitions')
-      .select('*')
-      .eq('status', 'recruiting')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function CompetitionsOpenPage() {
-  const competitions = await getRecruitingCompetitions();
+  const allEvents = await fetchCalendarEvents();
+  // 모집중 = 예정 + 진행중 (오늘 이후 일정)
+  const events = allEvents.filter(
+    (e) => e.status === 'upcoming' || e.status === 'ongoing',
+  );
 
   return (
     <>
@@ -62,26 +52,43 @@ export default async function CompetitionsOpenPage() {
             ))}
           </nav>
 
-          {competitions.length > 0 ? (
+          <p className="text-navy/70 mb-10 text-[15px] leading-relaxed">
+            현재 모집중이거나 진행중인 대회 목록입니다.
+          </p>
+
+          {events.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2">
-              {competitions.map((comp) => (
-                <Link
-                  key={comp.id}
-                  href={`/competitions/${comp.id}`}
-                  className="block bg-white border border-foam rounded-lg p-6 hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
+              {events.map((event) => (
+                <div
+                  key={event.uid}
+                  className="block bg-white border border-foam rounded-lg p-6 hover:border-ocean/20 transition-colors"
                 >
-                  {comp.image_url && (
-                    <div className="aspect-video rounded-md overflow-hidden mb-4 bg-foam">
-                      <img src={comp.image_url} alt={comp.name} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-teal/10 text-teal">모집중</span>
-                    {comp.schedule && <span className="text-xs text-navy/40">{comp.schedule}</span>}
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-sm ${
+                        event.status === 'ongoing'
+                          ? 'bg-sunset/10 text-sunset'
+                          : 'bg-teal/10 text-teal'
+                      }`}
+                    >
+                      {event.status === 'ongoing' ? '진행중' : '예정'}
+                    </span>
+                    <span className="text-xs text-navy/50 font-medium">
+                      {formatEventDate(event)}
+                    </span>
                   </div>
-                  <h3 className="text-lg font-semibold text-navy group-hover:text-ocean transition-colors">{comp.name}</h3>
-                  <p className="text-sm text-navy/60 mt-2 line-clamp-2">{comp.description}</p>
-                </Link>
+                  <h3 className="text-lg font-semibold text-navy mb-2">
+                    {event.title}
+                  </h3>
+                  {event.location && (
+                    <p className="text-xs text-navy/50 mb-2">📍 {event.location}</p>
+                  )}
+                  {event.description && (
+                    <p className="text-sm text-navy/60 line-clamp-3 leading-relaxed">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
               ))}
             </div>
           ) : (
@@ -92,7 +99,12 @@ export default async function CompetitionsOpenPage() {
                 </svg>
               </div>
               <p className="text-[15px] font-medium mb-1">현재 모집중인 대회가 없습니다.</p>
-              <p className="text-sm text-navy/30">모집이 시작되면 이곳에서 확인하실 수 있습니다.</p>
+              <p className="text-sm text-navy/30">
+                <Link href="/competitions" className="text-ocean hover:underline">
+                  연간 일정
+                </Link>
+                에서 전체 대회 정보를 확인하실 수 있습니다.
+              </p>
             </div>
           )}
         </div>

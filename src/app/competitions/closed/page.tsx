@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { type Competition } from '@/lib/database.types';
+import { fetchCalendarEvents, formatEventDate } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '종료된 대회',
 };
+
+export const revalidate = 3600;
 
 const tabs = [
   { label: '연간 일정', href: '/competitions', active: false },
@@ -15,23 +16,12 @@ const tabs = [
   { label: '결과·기록', href: '/competitions/results', active: false },
 ];
 
-async function getClosedCompetitions(): Promise<Competition[]> {
-  try {
-    if (!isSupabaseConfigured) return [];
-    const { data, error } = await supabase
-      .from('competitions')
-      .select('*')
-      .eq('status', 'closed')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function CompetitionsClosedPage() {
-  const competitions = await getClosedCompetitions();
+  const allEvents = await fetchCalendarEvents();
+  // 종료 = past 상태 (최신순으로 역정렬)
+  const events = allEvents
+    .filter((e) => e.status === 'past')
+    .sort((a, b) => b.start.getTime() - a.start.getTime());
 
   return (
     <>
@@ -62,22 +52,27 @@ export default async function CompetitionsClosedPage() {
             ))}
           </nav>
 
-          {competitions.length > 0 ? (
+          <p className="text-navy/70 mb-10 text-[15px] leading-relaxed">
+            양양군서핑협회가 운영하거나 연계했던 종료된 대회 목록입니다.
+          </p>
+
+          {events.length > 0 ? (
             <div className="space-y-3">
-              {competitions.map((comp) => (
-                <Link
-                  key={comp.id}
-                  href={`/competitions/${comp.id}`}
-                  className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
+              {events.map((event) => (
+                <div
+                  key={event.uid}
+                  className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 transition-colors"
                 >
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-navy/10 text-navy/50 shrink-0">종료</span>
-                  <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
-                    {comp.name}
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-navy/10 text-navy/50 shrink-0">
+                    종료
+                  </span>
+                  <span className="text-[15px] text-navy font-medium truncate flex-1">
+                    {event.title}
                   </span>
                   <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
-                    {comp.schedule || comp.year}
+                    {formatEventDate(event)}
                   </span>
-                </Link>
+                </div>
               ))}
             </div>
           ) : (

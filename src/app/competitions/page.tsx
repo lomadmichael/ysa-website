@@ -1,12 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { STATUS_LABEL, type Competition } from '@/lib/database.types';
+import {
+  fetchCalendarEvents,
+  formatEventDate,
+  groupEventsByYear,
+  type CalendarEvent,
+} from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '대회정보',
 };
+
+// ISR: 1시간마다 재검증
+export const revalidate = 3600;
 
 const tabs = [
   { label: '연간 일정', href: '/competitions', active: true },
@@ -15,28 +22,24 @@ const tabs = [
   { label: '결과·기록', href: '/competitions/results', active: false },
 ];
 
-async function getCompetitions(): Promise<Competition[]> {
-  try {
-    if (!isSupabaseConfigured) return [];
-    const { data, error } = await supabase
-      .from('competitions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  } catch {
-    return [];
-  }
-}
+const STATUS_LABEL: Record<CalendarEvent['status'], string> = {
+  upcoming: '예정',
+  ongoing: '진행중',
+  past: '종료',
+};
 
-const statusColor: Record<string, string> = {
-  '모집중': 'bg-teal/10 text-teal',
-  '진행중': 'bg-ocean/10 text-ocean',
-  '종료': 'bg-navy/10 text-navy/50',
+const STATUS_COLOR: Record<CalendarEvent['status'], string> = {
+  upcoming: 'bg-teal/10 text-teal',
+  ongoing: 'bg-sunset/10 text-sunset',
+  past: 'bg-navy/10 text-navy/40',
 };
 
 export default async function CompetitionsPage() {
-  const competitions = await getCompetitions();
+  const events = await fetchCalendarEvents();
+  const grouped = groupEventsByYear(events);
+  const years = Object.keys(grouped)
+    .map(Number)
+    .sort((a, b) => b - a); // 최신 연도 위로
 
   return (
     <>
@@ -69,43 +72,53 @@ export default async function CompetitionsPage() {
 
           <p className="text-navy/70 mb-10 text-[15px] leading-relaxed">
             양양군서핑협회가 운영하거나 연계하는 주요 대회 정보를 안내합니다.
+            일정은 파도와 기상 조건에 따라 변경될 수 있습니다.
           </p>
 
-          {competitions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-ocean/20">
-                    <th className="text-left py-3 px-4 font-semibold text-navy">날짜</th>
-                    <th className="text-left py-3 px-4 font-semibold text-navy">대회명</th>
-                    <th className="text-left py-3 px-4 font-semibold text-navy hidden sm:table-cell">연도</th>
-                    <th className="text-left py-3 px-4 font-semibold text-navy">상태</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {competitions.map((comp) => {
-                    const statusLabel = STATUS_LABEL[comp.status] || comp.status;
-                    return (
-                      <tr key={comp.id} className="border-b border-foam hover:bg-ocean/5 transition-colors">
-                        <td className="py-3 px-4 text-navy/60 whitespace-nowrap">
-                          {comp.schedule || new Date(comp.created_at).toLocaleDateString('ko-KR')}
-                        </td>
-                        <td className="py-3 px-4">
-                          <Link href={`/competitions/${comp.id}`} className="text-navy font-medium hover:text-ocean transition-colors">
-                            {comp.name}
-                          </Link>
-                        </td>
-                        <td className="py-3 px-4 text-navy/60 hidden sm:table-cell">{comp.year}</td>
-                        <td className="py-3 px-4">
-                          <span className={`text-xs font-medium px-2 py-0.5 rounded-sm ${statusColor[statusLabel] || 'bg-foam text-navy/60'}`}>
-                            {statusLabel}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          {events.length > 0 ? (
+            <div className="space-y-16">
+              {years.map((year) => (
+                <div key={year}>
+                  <h2 className="text-2xl md:text-3xl font-bold text-navy mb-6 pb-3 border-b-2 border-ocean/20">
+                    {year}
+                  </h2>
+                  <ul className="divide-y divide-foam">
+                    {grouped[year].map((event) => (
+                      <li key={event.uid}>
+                        <div className="flex flex-col md:flex-row md:items-start md:gap-6 py-5">
+                          <div className="md:w-52 shrink-0 mb-2 md:mb-0">
+                            <p className="text-sm font-semibold text-navy/80">
+                              {formatEventDate(event)}
+                            </p>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span
+                                className={`text-[11px] font-medium px-2 py-0.5 rounded-sm ${STATUS_COLOR[event.status]}`}
+                              >
+                                {STATUS_LABEL[event.status]}
+                              </span>
+                              <h3 className="text-[15px] font-semibold text-navy">
+                                {event.title}
+                              </h3>
+                            </div>
+                            {event.location && (
+                              <p className="text-xs text-navy/50 mt-1">
+                                📍 {event.location}
+                              </p>
+                            )}
+                            {event.description && (
+                              <p className="text-sm text-navy/60 mt-2 leading-relaxed line-clamp-2">
+                                {event.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-20 text-navy/40">
