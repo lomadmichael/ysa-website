@@ -16,6 +16,12 @@ export interface CalendarEvent {
   url: string | null;
   /** 오늘 기준 상태 */
   status: 'upcoming' | 'ongoing' | 'past';
+  /** 다일차 시리즈일 경우 총 일수. 단일 일정은 1 */
+  dayCount?: number;
+  /** 다일차일 경우 매일 시작 시간 (일관될 때만) */
+  dailyStartTime?: string;
+  /** 다일차일 경우 매일 종료 시간 (일관될 때만) */
+  dailyEndTime?: string;
 }
 
 const TZ = 'Asia/Seoul';
@@ -108,6 +114,13 @@ const WEEKDAY_KO: Record<string, string> = {
 
 /**
  * 날짜 범위 포맷 (한국어, 한국 시간대 고정)
+ *
+ * - 단일 종일 하루: "2026.04.15"
+ * - 단일 종일 여러날: "2026.04.15 ~ 04.17"
+ * - 단일 시간제 하루: "2026.04.15 (월) 14:00 ~ 17:00"
+ * - 단일 시간제 여러날: "2026.04.15 ~ 04.17"
+ * - 다일차 시리즈 (시간 일관): "2026.04.20 ~ 04.21 · 09:00~18:00"
+ * - 다일차 시리즈 (시간 다름): "2026.04.20 ~ 04.21"
  */
 export function formatEventDate(event: CalendarEvent): string {
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -124,6 +137,15 @@ export function formatEventDate(event: CalendarEvent): string {
   const sameDay = s.year === e.year && s.month === e.month && s.day === e.day;
   const startStr = `${s.year}.${pad(s.month)}.${pad(s.day)}`;
 
+  // 다일차 시리즈
+  if (event.dayCount && event.dayCount > 1) {
+    const range = `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
+    if (event.dailyStartTime && event.dailyEndTime) {
+      return `${range} · 매일 ${event.dailyStartTime}~${event.dailyEndTime}`;
+    }
+    return range;
+  }
+
   if (event.allDay) {
     if (sameDay) return startStr;
     return `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
@@ -138,6 +160,103 @@ export function formatEventDate(event: CalendarEvent): string {
     return `${startStr} (${weekday}) ${startTime} ~ ${endTime}`;
   }
   return `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
+}
+
+/**
+ * 제목에서 "(Day N)", "(N일차)", "(N일)", "(N/M)" 등의 차수 정보 추출
+ * @returns base 제목 + day 번호. 매치 안 되면 null
+ */
+function extractSeriesInfo(
+  title: string,
+): { base: string; day: number } | null {
+  const patterns: RegExp[] = [
+    /^(.+?)\s*\(\s*Day\s*(\d+)\s*\)\s*$/i,
+    /^(.+?)\s*\(\s*(\d+)\s*일차\s*\)\s*$/,
+    /^(.+?)\s*\(\s*(\d+)\s*일\s*\)\s*$/,
+    /^(.+?)\s*\(\s*(\d+)\s*\/\s*\d+\s*\)\s*$/,
+    /^(.+?)\s+Day\s*(\d+)\s*$/i,
+    /^(.+?)\s+(\d+)\s*일차\s*$/,
+  ];
+  for (const p of patterns) {
+    const m = title.match(p);
+    if (m && m[1] && m[2]) {
+      return { base: m[1].trim(), day: Number(m[2]) };
+    }
+  }
+  return null;
+}
+
+/**
+ * 같은 base 제목을 가진 다일차 일정을 하나로 병합
+ *
+ * 예시:
+ * - "서프레스큐 교실 1기 (Day1)" 4/20
+ * - "서프레스큐 교실 1기 (Day2)" 4/21
+ * → "서프레스큐 교실 1기" (4/20 ~ 4/21, 2일 과정)
+ *
+ * 단, 차수 정보가 있어도 단독 일정(시리즈에 1개뿐)은 Day 표기만 제거하고 병합 안 함.
+ */
+export function mergeEventSeries(events: CalendarEvent[]): CalendarEvent[] {
+  const seriesMap = new Map<string, CalendarEvent[]>();
+  const standalone: CalendarEvent[] = [];
+
+  for (const event of events) {
+    const parsed = extractSeriesInfo(event.title);
+    if (parsed) {
+      if (!seriesMap.has(parsed.base)) seriesMap.set(parsed.base, []);
+      seriesMap.get(parsed.base)!.push(event);
+    } else {
+      standalone.push(event);
+    }
+  }
+
+  const merged: CalendarEvent[] = [...standalone];
+
+  for (const [base, series] of seriesMap) {
+    if (series.length === 1) {
+      // 단독이면 "(DayN)" 접미사만 제거
+      merged.push({ ...series[0]!, title: base });
+      continue;
+    }
+
+    series.sort((a, b) => a.start.getTime() - b.start.getTime());
+    const first = series[0]!;
+    const last = series[series.length - 1]!;
+
+    // 매일 시작/종료 시간이 일관되는지 확인
+    const startParts = series.map((e) => getKstParts(e.start));
+    const endParts = series.map((e) => getKstParts(e.end));
+    const allStartSame = startParts.every(
+      (p) => p.hour === startParts[0]!.hour && p.minute === startParts[0]!.minute,
+    );
+    const allEndSame = endParts.every(
+      (p) => p.hour === endParts[0]!.hour && p.minute === endParts[0]!.minute,
+    );
+
+    merged.push({
+      uid: `series-${base}-${first.uid}`,
+      title: base,
+      description: first.description,
+      location: first.location,
+      start: first.start,
+      end: last.end,
+      allDay: first.allDay,
+      url: first.url,
+      status: first.status,
+      dayCount: series.length,
+      dailyStartTime:
+        allStartSame && !first.allDay
+          ? `${startParts[0]!.hour}:${startParts[0]!.minute}`
+          : undefined,
+      dailyEndTime:
+        allEndSame && !first.allDay
+          ? `${endParts[0]!.hour}:${endParts[0]!.minute}`
+          : undefined,
+    });
+  }
+
+  merged.sort((a, b) => a.start.getTime() - b.start.getTime());
+  return merged;
 }
 
 /** 연도별 그룹화 (KST 기준) */

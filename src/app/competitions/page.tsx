@@ -53,9 +53,16 @@ function HeroNextEvent({ event }: { event: CalendarEvent }) {
           )}
         </div>
 
-        <p className="text-white/70 text-sm md:text-base font-medium mb-3">
-          {formatEventDate(event)}
-        </p>
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
+          <p className="text-white/70 text-sm md:text-base font-medium">
+            {formatEventDate(event)}
+          </p>
+          {event.dayCount && event.dayCount > 1 && (
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white">
+              {event.dayCount}일 과정
+            </span>
+          )}
+        </div>
 
         <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-6">
           {event.title}

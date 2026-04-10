@@ -8,6 +8,7 @@ import ical, { type VEvent } from 'node-ical';
 import {
   type CalendarEvent,
   getEventStatus,
+  mergeEventSeries,
 } from './calendar-utils';
 
 // 편의상 re-export (서버 컴포넌트에서 한 번의 import로 쓰도록)
@@ -18,6 +19,7 @@ export {
   getKstParts,
   groupEventsByYear,
   groupEventsByMonth,
+  mergeEventSeries,
 } from './calendar-utils';
 
 // 환경변수로 덮어쓸 수 있게 하되, 기본값으로 주신 캘린더 ID 사용
@@ -92,7 +94,8 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
 
     events.sort((a, b) => a.start.getTime() - b.start.getTime());
 
-    return events;
+    // 다일차 시리즈 병합 ((Day1), (Day2) 등을 하나로 묶음)
+    return mergeEventSeries(events);
   } catch (e) {
     console.warn('[google-calendar] error:', e);
     return [];

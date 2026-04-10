@@ -140,7 +140,7 @@ export default function CompetitionList({ events }: Props) {
                           : 'bg-white border border-foam hover:border-ocean/30 hover:shadow-sm'
                       }`}
                     >
-                      <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center gap-2 mb-4 flex-wrap">
                         <span
                           className={`text-[11px] font-semibold px-2 py-0.5 rounded-sm ${STATUS_BADGE[event.status]}`}
                         >
@@ -154,6 +154,11 @@ export default function CompetitionList({ events }: Props) {
                         {isToday && (
                           <span className="text-[11px] font-bold text-sunset uppercase tracking-wider">
                             Today
+                          </span>
+                        )}
+                        {event.dayCount && event.dayCount > 1 && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
+                            {event.dayCount}일 과정
                           </span>
                         )}
                       </div>
