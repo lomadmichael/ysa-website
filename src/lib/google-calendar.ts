@@ -22,12 +22,36 @@ export {
   mergeEventSeries,
 } from './calendar-utils';
 
-// 환경변수로 덮어쓸 수 있게 하되, 기본값으로 주신 캘린더 ID 사용
-const CALENDAR_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID ??
-  'fecd0424bafe81fc689a66b47881ef925085a618b83b82bcadb3213c21a4b9d0@group.calendar.google.com';
+/**
+ * 사이트에 표시할 Google Calendar ID 목록.
+ *
+ * 환경변수 NEXT_PUBLIC_GOOGLE_CALENDAR_IDS (쉼표 구분)로 덮어쓸 수 있음.
+ * 기본값:
+ * - 양양군서핑협회 메인 (대회/교육)
+ * - 후반기 프로그램 접수 일정
+ */
+const DEFAULT_CALENDAR_IDS = [
+  'fecd0424bafe81fc689a66b47881ef925085a618b83b82bcadb3213c21a4b9d0@group.calendar.google.com',
+  '58339465c94c749d2b23e272800602b3c201b204526ea4a2501e3861972e496b@group.calendar.google.com',
+];
 
-const ICAL_URL = `https://calendar.google.com/calendar/ical/${encodeURIComponent(CALENDAR_ID)}/public/basic.ics`;
+function getCalendarIds(): string[] {
+  const envValue = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_IDS;
+  if (envValue) {
+    return envValue
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  // 단일 캘린더 환경변수 fallback (이전 버전 호환)
+  const single = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID;
+  if (single) return [single];
+  return DEFAULT_CALENDAR_IDS;
+}
+
+function icalUrl(calendarId: string): string {
+  return `https://calendar.google.com/calendar/ical/${encodeURIComponent(calendarId)}/public/basic.ics`;
+}
 
 /**
  * description에서 [변경] 이력 줄 제거
@@ -41,17 +65,19 @@ function cleanDescription(raw: string): string {
     .trim();
 }
 
-/**
- * Google Calendar iCal 피드를 가져와서 이벤트 배열로 변환
- */
-export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
+/** 단일 캘린더 iCal 페치 → CalendarEvent[] */
+async function fetchSingleCalendar(calendarId: string): Promise<CalendarEvent[]> {
   try {
-    const res = await fetch(ICAL_URL, {
+    const res = await fetch(icalUrl(calendarId), {
       next: { revalidate: 3600 },
     });
 
     if (!res.ok) {
-      console.warn('[google-calendar] fetch failed:', res.status, res.statusText);
+      console.warn(
+        `[google-calendar] fetch failed for ${calendarId}:`,
+        res.status,
+        res.statusText,
+      );
       return [];
     }
 
@@ -92,12 +118,35 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
       });
     }
 
-    events.sort((a, b) => a.start.getTime() - b.start.getTime());
-
-    // 다일차 시리즈 병합 ((Day1), (Day2) 등을 하나로 묶음)
-    return mergeEventSeries(events);
+    return events;
   } catch (e) {
-    console.warn('[google-calendar] error:', e);
+    console.warn(`[google-calendar] error for ${calendarId}:`, e);
     return [];
   }
+}
+
+/**
+ * 모든 Google Calendar iCal 피드를 병렬로 페치해서 병합, 정렬, 시리즈 묶기까지 처리.
+ */
+export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
+  const calendarIds = getCalendarIds();
+  const results = await Promise.all(calendarIds.map(fetchSingleCalendar));
+
+  // 여러 캘린더 합치기
+  const allEvents = results.flat();
+
+  // uid 중복 제거 (같은 일정이 여러 캘린더에 등록된 경우)
+  const seen = new Set<string>();
+  const unique: CalendarEvent[] = [];
+  for (const event of allEvents) {
+    if (seen.has(event.uid)) continue;
+    seen.add(event.uid);
+    unique.push(event);
+  }
+
+  // 시작일 오름차순 정렬
+  unique.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+  // 다일차 시리즈 병합 ((Day1), (Day2) 등을 하나로 묶음)
+  return mergeEventSeries(unique);
 }
