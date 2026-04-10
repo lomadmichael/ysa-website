@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const EDUCATION_PROGRAMS = [
   {
     title: '강사 교육',
-    description: 'ISA 기준의 전문 서핑 강사를 양성하는 프로그램입니다. 5일간 30시간의 집중 교육을 통해 안전하고 체계적인 서핑 지도 역량을 갖춘 강사를 배출합니다.',
+    description: 'KSA 기준의 전문 서핑 강사를 양성하는 프로그램입니다. 2일간 16시간의 집중 교육을 통해 안전하고 체계적인 서핑 지도 역량을 갖춘 강사를 배출합니다.',
     href: '/programs/instructor',
   },
   {
