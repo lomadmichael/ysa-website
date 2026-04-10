@@ -50,6 +50,11 @@ body {
   border-radius: 4px;
 }
 
+/* 카카오맵 하단 주소/전화 영역 숨김 (페이지에서 별도로 노출하므로 중복 방지) */
+.root_daum_roughmap .section_address {
+  display: none !important;
+}
+
 /* Skip to content */
 .skip-to-content {
   position: absolute;
