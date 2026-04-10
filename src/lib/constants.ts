@@ -27,7 +27,7 @@ export const NAV_ITEMS = [
     label: '협회사업',
     href: '/business',
     children: [
-      { label: '대회 운영', href: '/business' },
+      { label: '대회 운영', href: '/business/competition' },
       { label: '교육 운영', href: '/business/education' },
       { label: '선수·청소년 육성', href: '/business/youth' },
       { label: '안전문화 조성', href: '/business/safety' },
