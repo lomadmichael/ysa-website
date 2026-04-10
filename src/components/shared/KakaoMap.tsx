@@ -66,7 +66,7 @@ export default function KakaoMap({
         URL_KEY_DATA_LOAD_PRE: 'https://t1.kakaocdn.net/roughmap/',
         url_protocal: 'https:',
         url_cdn_domain: 't1.kakaocdn.net',
-      } as typeof window.daum.roughmap;
+      };
     }
 
     const tryRender = () => {
