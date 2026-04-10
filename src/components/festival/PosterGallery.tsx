@@ -20,14 +20,13 @@ export default function PosterGallery() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
           {years.map((year) => (
             <div key={year.year} className="group">
-              {/* 필요 이미지: /images/history/{year}-poster.jpg (포스터 스캔, 3:4 비율) */}
-              <div className="relative aspect-[3/4] bg-foam rounded-lg overflow-hidden mb-3 shadow-sm group-hover:shadow-md transition-shadow">
+              <div className="relative aspect-[3/4] bg-white rounded-lg overflow-hidden mb-3 shadow-sm group-hover:shadow-md transition-shadow border border-foam">
                 {year.posterImage ? (
                   <Image
                     src={year.posterImage}
                     alt={`${year.year} 양양 서핑 페스티벌 포스터`}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 50vw, 20vw"
                   />
                 ) : (

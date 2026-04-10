@@ -54,6 +54,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     edition: 9,
     period: '09.01 ~ 11.30',
     title: '제9회 양양군수배 국제서핑대회',
+    posterImage: '/images/history/Poster/2024-poster.jpg',
     thumbnail: '/images/history/2024-photo.jpg',
     descriptionKo:
       '양양 전역이 파도를 타는 축제의 장으로 자리매김하며 비치요가, 서핑 체험 등 다양한 해변 프로그램을 선보이며 양양만의 해양문화 활성화를 이끌었습니다.',
@@ -67,6 +68,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     period: '07.01 ~ 09.30',
     title: '제8회 해양수산부장관배 서핑대회',
     slogan: '파도 있는 날',
+    posterImage: '/images/history/Poster/2023-poster.jpg',
     thumbnail: '/images/history/2023-photo.jpg',
     descriptionKo:
       '서핑 페스티벌과 서핑 대회를 분리 개최함으로써 축제 거리와 전문성을 모두 확보하고자 했습니다. 양양이 서핑의 메카로 굳혀가는 한 해로 기록되었습니다.',
@@ -80,6 +82,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     period: '08.01 ~ 09.30',
     title: '제7회 해양수산부장관배 서핑대회',
     slogan: '파도 있는 날',
+    posterImage: '/images/history/Poster/2022-poster.jpg',
     thumbnail: '/images/history/2022-photo.jpg',
     descriptionKo:
       '코로나19로 인한 3년 만에 다시 열린 서핑대회는 "파도있는 날" 기준으로 대회 일정을 수립하여, 대한민국 서핑문화를 한 단계 끌어올리는 전환점이 되었습니다.',
@@ -92,6 +95,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     edition: 6,
     period: '10.11 ~ 10.13',
     title: '제6회 양양서핑페스티벌',
+    posterImage: '/images/history/Poster/2019-poster.jpg',
     thumbnail: '/images/history/2019-photo.jpg',
     descriptionKo:
       '서핑의 세대교체와 진보적인 실력 향상을 보여준 경기로 평가받으며, 수준 높은 경기력이 펼쳐진 대회로 기록되었습니다.',
@@ -104,6 +108,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     edition: 5,
     period: '10.13 ~ 10.14',
     title: '제5회 까뛰베 양양서핑페스티벌',
+    posterImage: '/images/history/Poster/2018-poster.jpg',
     thumbnail: '/images/history/2018-photo.jpg',
     descriptionKo:
       '양양의 서핑대회 문화가 자리 잡기 시작한 해로, 대회의 전문성을 강화하기 위해 총 12개 부문으로 나누어 대회를 운영했습니다.',
@@ -116,6 +121,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     edition: 4,
     period: '10.13 ~ 10.15',
     title: '제4회 블루코스트배 양양서핑페스티벌',
+    posterImage: '/images/history/Poster/2017-poster.jpg',
     thumbnail: '/images/history/2017-photo.jpg',
     descriptionKo:
       '해양환경 보존을 위해 일회용 플라스틱 사용을 자제하고 쓰레기 100% 수거를 위해 NGO인 체인지 "오션"과 협력하여 환경친화적인 대회로 진행하였습니다.',
@@ -129,6 +135,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     period: '10.1 ~ 10.2',
     title: '제3회 양양서핑페스티벌',
     slogan: 'Save Our Seas',
+    posterImage: '/images/history/Poster/2016-poster.jpg',
     thumbnail: '/images/history/2016-photo.jpg',
     descriptionKo:
       '제3회 양양서핑페스티벌은 "Save Our Seas"라는 슬로건의 미션수행을 위해 쓰레기 100% 수거를 목표로 진행되었습니다.',
@@ -141,6 +148,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     edition: 2,
     period: '10.9 ~ 10.10',
     title: '제2회 양양서핑페스티벌',
+    posterImage: '/images/history/Poster/2015-poster.jpg',
     thumbnail: '/images/history/2015-photo.jpg',
     descriptionKo:
       '양양의 서핑문화를 확산하기 위해 일반 관광객이 직접 참여할 수 있는 다양한 프로그램을 운영하며, 페스티벌로서의 새로운 도전이 시작되었습니다.',
@@ -153,6 +161,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     edition: 1,
     period: '10.11 ~ 10.12',
     title: '제1회 양양군수배 국제 서핑페스티벌',
+    posterImage: '/images/history/Poster/2014-poster.jpg',
     thumbnail: '/images/history/2014-photo.jpg',
     descriptionKo:
       '국내에 서핑문화는 것이 아직 알려지지 이전 강원지역의 서핑숍들이 함께 하여 "강원 서핑연합"이 주최로 행사가 개최되었습니다.',
