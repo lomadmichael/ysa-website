@@ -7,6 +7,8 @@ interface KakaoMapProps {
   mapKey: string;
   /** 카카오맵 "지도퍼가기"에서 받은 timestamp 값 */
   timestamp: string;
+  /** 지도 너비 (px, 기본 1200) */
+  width?: string;
   /** 지도 높이 (px) */
   height?: string;
 }
@@ -44,6 +46,7 @@ const LANDER_SRC =
 export default function KakaoMap({
   mapKey,
   timestamp,
+  width = '1200',
   height = '400',
 }: KakaoMapProps) {
   const containerId = `daumRoughmapContainer${timestamp}`;
@@ -65,7 +68,7 @@ export default function KakaoMap({
           new Lander({
             timestamp,
             key: mapKey,
-            mapWidth: '640',
+            mapWidth: width,
             mapHeight: height,
           }).render();
           rendered.current = true;
@@ -142,13 +145,19 @@ export default function KakaoMap({
     return () => {
       cancelled = true;
     };
-  }, [mapKey, timestamp, height, containerId]);
+  }, [mapKey, timestamp, width, height, containerId]);
 
   return (
-    <div
-      id={containerId}
-      className="root_daum_roughmap root_daum_roughmap_landing"
-      style={{ width: '100%', minHeight: `${height}px` }}
-    />
+    <div className="w-full overflow-hidden flex justify-center bg-foam">
+      <div
+        id={containerId}
+        className="root_daum_roughmap root_daum_roughmap_landing"
+        style={{
+          width: `${width}px`,
+          maxWidth: '100%',
+          minHeight: `${height}px`,
+        }}
+      />
+    </div>
   );
 }
