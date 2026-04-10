@@ -30,15 +30,16 @@ declare global {
   }
 }
 
-// 카카오 Lander 스크립트 직접 URL (loader가 document.write로 주입하는 스크립트와 동일)
+const LOADER_SRC = 'https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js';
 const LANDER_SRC =
   'https://t1.kakaocdn.net/kakaomapweb/roughmap/place/prod/207038f2_1774248312945/roughmapLander.js';
 
 /**
  * 카카오맵 "지도퍼가기" 임베드 (API 키 불필요)
  *
- * 카카오 공식 loader는 document.write()로 Lander를 주입해 SPA에서는 동작하지 않습니다.
- * 이 컴포넌트는 Lander 스크립트를 직접 로드해서 우회합니다.
+ * 카카오 공식 loader는 document.write()로 Lander를 주입해 SPA에서는 Lander가 로드되지 않지만,
+ * 로더의 설정 부분(프로토콜 감지, URL 설정)은 정상 실행됩니다.
+ * 그래서 loader를 먼저 로드한 후 Lander를 직접 로드하면 Mixed Content 문제 없이 동작합니다.
  */
 export default function KakaoMap({
   mapKey,
@@ -52,22 +53,6 @@ export default function KakaoMap({
     if (rendered.current) return;
 
     let cancelled = false;
-    let attempts = 0;
-
-    // roughmap 기본 객체 초기화 (Lander 스크립트가 참조함)
-    // 데이터 JSON 로드 경로: https://t1.kakaocdn.net/roughmap/{key}.json
-    if (typeof window.daum === 'undefined') {
-      window.daum = {};
-    }
-    if (typeof window.daum.roughmap === 'undefined') {
-      window.daum.roughmap = {
-        phase: 'prod',
-        cdn: '207038f2_1774248312945',
-        URL_KEY_DATA_LOAD_PRE: 'https://t1.kakaocdn.net/roughmap/',
-        url_protocal: 'https:',
-        url_cdn_domain: 't1.kakaocdn.net',
-      };
-    }
 
     const tryRender = () => {
       if (cancelled || rendered.current) return;
@@ -84,35 +69,75 @@ export default function KakaoMap({
             mapHeight: height,
           }).render();
           rendered.current = true;
-          return;
         } catch (e) {
           console.warn('[KakaoMap] render error:', e);
         }
       }
-
-      if (++attempts < 100) {
-        setTimeout(tryRender, 100);
-      } else {
-        console.warn('[KakaoMap] Lander failed to load after 10s');
-      }
     };
 
-    // Lander 스크립트 직접 로드
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${LANDER_SRC}"]`,
-    );
+    // 폴링: Lander 로드 대기
+    const pollForLander = () => {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        if (cancelled || rendered.current || attempts > 100) {
+          clearInterval(interval);
+          return;
+        }
+        attempts++;
+        if (window.daum?.roughmap?.Lander) {
+          clearInterval(interval);
+          tryRender();
+        }
+      }, 100);
+    };
 
-    if (!existing) {
-      const script = document.createElement('script');
-      script.src = LANDER_SRC;
-      script.charset = 'UTF-8';
-      script.async = true;
-      script.onload = tryRender;
-      document.head.appendChild(script);
-    } else {
-      // 이미 로드된 경우 바로 시도
-      tryRender();
-    }
+    // 스크립트 로드 헬퍼
+    const loadScript = (src: string): Promise<void> =>
+      new Promise((resolve, reject) => {
+        const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
+        if (existing) {
+          if (existing.dataset.loaded === 'true') {
+            resolve();
+          } else {
+            existing.addEventListener('load', () => resolve());
+            existing.addEventListener('error', () => reject());
+          }
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = src;
+        script.charset = 'UTF-8';
+        script.async = true;
+        script.onload = () => {
+          script.dataset.loaded = 'true';
+          resolve();
+        };
+        script.onerror = () => reject();
+        document.head.appendChild(script);
+      });
+
+    // 1. Loader 먼저 로드 (프로토콜/URL 설정)
+    // 2. Lander 직접 로드 (loader의 document.write는 SPA에서 실패)
+    // 3. Lander가 로드되면 render 호출
+    (async () => {
+      try {
+        await loadScript(LOADER_SRC);
+      } catch {
+        // 로더 실패해도 계속 진행 (Lander가 기본값으로 동작할 수 있음)
+      }
+      if (cancelled) return;
+
+      try {
+        await loadScript(LANDER_SRC);
+      } catch {
+        console.warn('[KakaoMap] Failed to load Lander script');
+        return;
+      }
+      if (cancelled) return;
+
+      // Lander가 window에 등록될 때까지 폴링
+      pollForLander();
+    })();
 
     return () => {
       cancelled = true;
