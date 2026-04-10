@@ -102,8 +102,8 @@ export default function HistoryPage() {
             <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 text-white">
               <p className="text-sm md:text-base tracking-widest uppercase opacity-80 mb-2">History</p>
               <h2 className="text-2xl md:text-4xl font-bold leading-tight">
-                양양의 파도 위에 쌓인<br />
-                10년의 시간
+                양양 서핑문화를<br />
+                함께 만들어온 기록
               </h2>
             </div>
           </div>
