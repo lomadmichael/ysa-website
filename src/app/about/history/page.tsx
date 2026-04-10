@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
@@ -86,8 +87,27 @@ export default function HistoryPage() {
     <>
       <PageHeader title="연혁" breadcrumbs={BREADCRUMBS} />
 
-      <section className="py-24 md:py-32">
+      <section className="py-16 md:py-24">
         <div className="max-w-[1200px] mx-auto px-4">
+          {/* 상단 히어로 이미지 */}
+          <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden mb-16 md:mb-20">
+            <Image
+              src="/images/about_list.png"
+              alt="양양의 석양 서핑"
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
+            <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 text-white">
+              <p className="text-sm md:text-base tracking-widest uppercase opacity-80 mb-2">History</p>
+              <h2 className="text-2xl md:text-4xl font-bold leading-tight">
+                양양의 파도 위에 쌓인<br />
+                10년의 시간
+              </h2>
+            </div>
+          </div>
+
           <div className="max-w-3xl mx-auto">
             <div className="relative">
               {/* 세로선 */}
