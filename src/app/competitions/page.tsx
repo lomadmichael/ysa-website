@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
+import CompetitionList from '@/components/competitions/CompetitionList';
 import {
   fetchCalendarEvents,
   formatEventDate,
-  groupEventsByYear,
+  getDaysUntil,
   type CalendarEvent,
 } from '@/lib/google-calendar';
 
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
   title: '대회정보',
 };
 
-// ISR: 1시간마다 재검증
 export const revalidate = 3600;
 
 const tabs = [
@@ -22,24 +22,76 @@ const tabs = [
   { label: '결과·기록', href: '/competitions/results', active: false },
 ];
 
-const STATUS_LABEL: Record<CalendarEvent['status'], string> = {
-  upcoming: '예정',
-  ongoing: '진행중',
-  past: '종료',
-};
+function HeroNextEvent({ event }: { event: CalendarEvent }) {
+  const days = getDaysUntil(event);
+  const isOngoing = event.status === 'ongoing';
 
-const STATUS_COLOR: Record<CalendarEvent['status'], string> = {
-  upcoming: 'bg-teal/10 text-teal',
-  ongoing: 'bg-sunset/10 text-sunset',
-  past: 'bg-navy/10 text-navy/40',
-};
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl p-8 md:p-12 mb-16"
+      style={{ backgroundColor: '#393d7d' }}
+    >
+      {/* 장식 원 */}
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/5" aria-hidden />
+      <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/5" aria-hidden />
+
+      <div className="relative">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-white/60">
+            {isOngoing ? 'Happening Now' : 'Next Event'}
+          </span>
+          <div className="h-px flex-1 bg-white/20" />
+          {!isOngoing && (
+            <span className="text-2xl md:text-3xl font-extrabold text-sunset font-mono">
+              {days === 0 ? 'D-DAY' : `D-${days}`}
+            </span>
+          )}
+          {isOngoing && (
+            <span className="text-sm font-bold px-3 py-1 rounded-full bg-sunset text-white">
+              진행중
+            </span>
+          )}
+        </div>
+
+        <p className="text-white/70 text-sm md:text-base font-medium mb-3">
+          {formatEventDate(event)}
+        </p>
+
+        <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-6">
+          {event.title}
+        </h2>
+
+        {event.location && (
+          <p className="text-white/60 text-sm flex items-center gap-2 mb-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {event.location}
+          </p>
+        )}
+
+        {event.description && (
+          <p className="text-white/50 text-sm max-w-2xl leading-relaxed mt-4 line-clamp-2">
+            {event.description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default async function CompetitionsPage() {
   const events = await fetchCalendarEvents();
-  const grouped = groupEventsByYear(events);
-  const years = Object.keys(grouped)
-    .map(Number)
-    .sort((a, b) => b - a); // 최신 연도 위로
+
+  // 다음 이벤트: ongoing 우선, 없으면 upcoming 첫 번째
+  const nextEvent =
+    events.find((e) => e.status === 'ongoing') ??
+    events.find((e) => e.status === 'upcoming') ??
+    null;
+
+  // 미래 일정만 (과거는 /competitions/closed에서)
+  const futureEvents = events.filter((e) => e.status !== 'past');
 
   return (
     <>
@@ -70,56 +122,27 @@ export default async function CompetitionsPage() {
             ))}
           </nav>
 
-          <p className="text-navy/70 mb-10 text-[15px] leading-relaxed">
-            양양군서핑협회가 운영하거나 연계하는 주요 대회 정보를 안내합니다.
-            일정은 파도와 기상 조건에 따라 변경될 수 있습니다.
-          </p>
-
           {events.length > 0 ? (
-            <div className="space-y-16">
-              {years.map((year) => (
-                <div key={year}>
-                  <h2 className="text-2xl md:text-3xl font-bold text-navy mb-6 pb-3 border-b-2 border-ocean/20">
-                    {year}
-                  </h2>
-                  <ul className="divide-y divide-foam">
-                    {grouped[year].map((event) => (
-                      <li key={event.uid}>
-                        <div className="flex flex-col md:flex-row md:items-start md:gap-6 py-5">
-                          <div className="md:w-52 shrink-0 mb-2 md:mb-0">
-                            <p className="text-sm font-semibold text-navy/80">
-                              {formatEventDate(event)}
-                            </p>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span
-                                className={`text-[11px] font-medium px-2 py-0.5 rounded-sm ${STATUS_COLOR[event.status]}`}
-                              >
-                                {STATUS_LABEL[event.status]}
-                              </span>
-                              <h3 className="text-[15px] font-semibold text-navy">
-                                {event.title}
-                              </h3>
-                            </div>
-                            {event.location && (
-                              <p className="text-xs text-navy/50 mt-1">
-                                📍 {event.location}
-                              </p>
-                            )}
-                            {event.description && (
-                              <p className="text-sm text-navy/60 mt-2 leading-relaxed line-clamp-2">
-                                {event.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+            <>
+              {/* Hero: Next Event */}
+              {nextEvent && <HeroNextEvent event={nextEvent} />}
+
+              {/* 필터 + 월별 섹션 (클라이언트) */}
+              {futureEvents.length > 0 ? (
+                <CompetitionList events={futureEvents} />
+              ) : (
+                <div className="text-center py-16 text-navy/50">
+                  <p className="text-[15px] mb-2">예정된 대회가 없습니다.</p>
+                  <Link href="/competitions/closed" className="text-sm text-ocean hover:underline">
+                    종료된 대회 보기 →
+                  </Link>
                 </div>
-              ))}
-            </div>
+              )}
+
+              <p className="text-xs text-navy/40 text-center mt-16">
+                일정은 파도와 기상 조건에 따라 변경될 수 있습니다.
+              </p>
+            </>
           ) : (
             <div className="text-center py-20 text-navy/40">
               <div className="w-16 h-16 rounded-full bg-foam flex items-center justify-center mx-auto mb-4">
