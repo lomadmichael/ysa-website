@@ -13,7 +13,7 @@ const BUSINESS_AREAS: { title: string; description: string; href: string; icon: 
   {
     title: '대회 운영',
     description: '공정하고 안전한 서핑 대회를 기획하고 운영합니다. 전국 규모의 대회부터 지역 친선 대회까지, 서퍼들이 실력을 겨루고 성장할 수 있는 무대를 만듭니다.',
-    href: '/business',
+    href: '/business/competition',
     icon: <IconCompetition />,
   },
   {
