@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import PageHeader from '@/components/shared/PageHeader';
+import KakaoMap from '@/components/shared/KakaoMap';
 import { SITE } from '@/lib/constants';
 
 export const metadata: Metadata = {
@@ -19,31 +20,9 @@ export default function LocationPage() {
 
       <section className="py-24 md:py-32">
         <div className="max-w-[1200px] mx-auto px-4">
-          {/* 지도 플레이스홀더 */}
-          <div className="bg-foam rounded-2xl border border-foam min-h-[350px] md:min-h-[450px] flex items-center justify-center mb-12">
-            <div className="text-center text-navy/40">
-              <svg
-                className="w-16 h-16 mx-auto mb-3 opacity-40"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                />
-              </svg>
-              <p className="text-base font-medium">지도 영역</p>
-              <p className="text-sm mt-1">카카오맵 / 네이버지도 연동 예정</p>
-            </div>
+          {/* 카카오맵 */}
+          <div className="rounded-2xl overflow-hidden border border-foam mb-12">
+            <KakaoMap mapKey="ktpwvmdmu8d" timestamp="1775787564496" height="450" />
           </div>
 
           {/* 정보 카드 */}

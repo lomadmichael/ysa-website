@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { type ReactNode } from 'react';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
+import KakaoMap from '@/components/shared/KakaoMap';
 import { IconPhone, IconEmail, IconClock, IconLocation } from '@/components/icons';
 
 export const metadata: Metadata = {
@@ -106,17 +107,11 @@ export default function ContactPage() {
             ))}
           </div>
 
-          {/* Map Placeholder */}
+          {/* 카카오맵 */}
           <div className="mb-6">
             <h2 className="text-lg font-bold text-navy mb-4">찾아오시는 길</h2>
-            <div className="w-full h-[320px] md:h-[400px] bg-foam rounded-lg flex items-center justify-center">
-              <div className="text-center text-navy/30">
-                <svg className="w-12 h-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
-                </svg>
-                <p className="text-sm">지도가 표시될 영역입니다</p>
-                <p className="text-xs mt-1">강원도 양양군 현남면 두리 10-11</p>
-              </div>
+            <div className="rounded-lg overflow-hidden border border-foam">
+              <KakaoMap mapKey="ktpwvmdmu8d" timestamp="1775787564496" height="400" />
             </div>
           </div>
         </div>
