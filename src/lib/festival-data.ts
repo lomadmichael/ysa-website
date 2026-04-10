@@ -41,7 +41,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     period: '2025 진행',
     title: '2025 Yangyang Surfing Festival · 10주년',
     slogan: 'SAVE OUR SEAS',
-    posterImage: '/images/history/2025-poster.jpg',
+    posterImage: '/images/history/2025-poster_01.jpg',
     thumbnail: '/images/history/2025-photo.jpg',
     descriptionKo:
       '2014년 첫 파도를 시작으로, 양양 서핑 페스티벌은 10년 동안 수많은 순간을 지나왔습니다. 파도는 거센 물결 속에서도 서퍼들과 함께 성장하며 대한민국 서핑문화의 역사를 써왔습니다. 이 기록은 단순한 대회의 면면이 아니라, 양양의 바다와 사람, 그리고 문화가 함께 만들어온 시간의 흔적입니다.',

@@ -9,10 +9,10 @@ export default function FestivalIntro() {
           {/* 필요 이미지: /images/history/2025-poster.jpg (세로 포스터, 3:4 비율) */}
           <div className="relative aspect-[3/4] bg-foam rounded-lg overflow-hidden shadow-lg">
             <Image
-              src="/images/history/2025-poster.jpg"
+              src="/images/history/2025-poster_01.jpg"
               alt="2025 양양 서핑 페스티벌 포스터"
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="(max-width: 1024px) 100vw, 40vw"
             />
           </div>
