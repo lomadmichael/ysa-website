@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 const PROGRAMS = [
   {
     title: '강사 교육',
-    description: 'ISA 기준의 전문 서핑 강사를 양성하는 프로그램입니다. 5일간 30시간의 집중 교육을 통해 안전하고 체계적인 서핑 지도 역량을 갖춘 강사를 배출합니다.',
+    description: 'KSA 기준의 전문 서핑 강사를 양성하는 프로그램입니다. 2일간 16시간의 집중 교육을 통해 안전하고 체계적인 서핑 지도 역량을 갖춘 강사를 배출합니다.',
     href: '/programs/instructor',
-    duration: '5일 / 30시간',
+    duration: '2일 / 16시간',
     badge: '전문자격',
     imageSrc: '/images/program-instructor_01.jpg',
     imageAlt: '강사 교육 현장',
@@ -22,7 +22,7 @@ const PROGRAMS = [
     title: '심판 교육',
     description: '공정하고 전문적인 경기 운영을 위한 심판 양성 과정입니다. 채점 기준, 경기 규칙, 안전 관리 등 심판에게 필요한 역량을 종합적으로 교육합니다.',
     href: '/programs/referee',
-    duration: '교육 일정 별도 공지',
+    duration: '2일 / 16시간',
     badge: '심판자격',
     imageSrc: '/images/program-referee.png',
     imageAlt: '심판 교육 현장',
