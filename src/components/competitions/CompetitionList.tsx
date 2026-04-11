@@ -24,7 +24,7 @@ const STATUS_BADGE: Record<CalendarEvent['status'], string> = {
  * 카테고리별 색상 체계
  * - 대회: sunset (주황) - 임팩트 강조
  * - 교육: ocean (파랑) - 학습·성장
- * - 행사: teal (청록) - 커뮤니티
+ * - 접수: teal (청록) - 참가 신청
  */
 const CATEGORY_META: Record<
   EventCategory,
@@ -45,7 +45,7 @@ const CATEGORY_META: Record<
     badge: 'bg-ocean/10 text-ocean',
   },
   event: {
-    label: '행사',
+    label: '접수',
     chip: 'border-teal/30 text-teal hover:bg-teal/5',
     chipActive: 'border-teal bg-teal text-white',
     bar: 'bg-teal',
@@ -59,7 +59,7 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: 'all', label: '전체' },
   { value: 'competition', label: '대회' },
   { value: 'education', label: '교육' },
-  { value: 'event', label: '행사' },
+  { value: 'event', label: '접수' },
 ];
 
 /** 서버에서 category를 못 받은 이벤트(legacy) 대비 fallback */

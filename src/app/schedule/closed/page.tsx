@@ -27,7 +27,7 @@ const tabs = [
 const CATEGORY_META: Record<EventCategory, { label: string; bar: string; badge: string }> = {
   competition: { label: '대회', bar: 'bg-sunset', badge: 'bg-sunset/10 text-sunset' },
   education: { label: '교육', bar: 'bg-ocean', badge: 'bg-ocean/10 text-ocean' },
-  event: { label: '행사', bar: 'bg-teal', badge: 'bg-teal/10 text-teal' },
+  event: { label: '접수', bar: 'bg-teal', badge: 'bg-teal/10 text-teal' },
 };
 
 export default async function ScheduleClosedPage() {

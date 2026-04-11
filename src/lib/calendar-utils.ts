@@ -41,6 +41,12 @@ export interface CalendarEvent {
    * 날짜 포맷도 "YYYY.MM.DD ~ MM.DD · 수업 HH:MM~HH:MM" 로 변경.
    */
   totalSessions?: number;
+  /**
+   * 이 이벤트가 소속된 Google Calendar ID.
+   * 접수일정 캘린더에서 온 이벤트는 제목과 무관하게 '접수' 카테고리로
+   * 강제 분류하기 위해 사용.
+   */
+  sourceCalendarId?: string;
 }
 
 /**
@@ -480,6 +486,9 @@ export function mergeEventSeries(events: CalendarEvent[]): CalendarEvent[] {
         allEndSame && !first.allDay
           ? `${endParts[0]!.hour}:${endParts[0]!.minute}`
           : undefined,
+      sourceCalendarId: first.sourceCalendarId,
+      totalSessions: first.totalSessions,
+      category: first.category,
     });
   }
 

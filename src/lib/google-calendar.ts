@@ -44,10 +44,17 @@ export {
  * - 양양군서핑협회 메인 (대회/교육)
  * - 후반기 프로그램 접수 일정
  */
-const DEFAULT_CALENDAR_IDS = [
-  'fecd0424bafe81fc689a66b47881ef925085a618b83b82bcadb3213c21a4b9d0@group.calendar.google.com',
-  '58339465c94c749d2b23e272800602b3c201b204526ea4a2501e3861972e496b@group.calendar.google.com',
-];
+const MAIN_CALENDAR_ID =
+  'fecd0424bafe81fc689a66b47881ef925085a618b83b82bcadb3213c21a4b9d0@group.calendar.google.com';
+
+/**
+ * 서핑협회 접수일정 캘린더.
+ * 여기에 속한 모든 이벤트는 제목과 무관하게 '접수' 카테고리로 강제 분류된다.
+ */
+const REGISTRATION_CALENDAR_ID =
+  '58339465c94c749d2b23e272800602b3c201b204526ea4a2501e3861972e496b@group.calendar.google.com';
+
+const DEFAULT_CALENDAR_IDS = [MAIN_CALENDAR_ID, REGISTRATION_CALENDAR_ID];
 
 function getCalendarIds(): string[] {
   const envValue = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_IDS;
@@ -113,7 +120,10 @@ interface GCalResponse {
  * 이벤트 단일 건 파싱: Calendar API 응답 → CalendarEvent
  * 반환 null = 파싱 불가 또는 취소된 이벤트
  */
-function parseGCalEvent(item: GCalEvent): CalendarEvent | null {
+function parseGCalEvent(
+  item: GCalEvent,
+  sourceCalendarId: string,
+): CalendarEvent | null {
   if (!item.start || !item.end) return null;
   if (item.status === 'cancelled') return null;
 
@@ -138,6 +148,12 @@ function parseGCalEvent(item: GCalEvent): CalendarEvent | null {
   const title = normalizeRoundText(item.summary || '제목 없음');
   const description = cleanDescription(item.description || '');
 
+  // 접수 캘린더 이벤트는 "접수 시작" 같은 단일 알림 성격이므로
+  // 강좌 회차 매핑 (랜드서핑=10, 맞춤형=20 등)을 적용하지 않음.
+  // 잘못하면 "맞춤형서핑교실 3,4기 접수 시작"에 "20회 과정" 뱃지가
+  // 붙는 오류가 생김.
+  const isRegistrationEvent = sourceCalendarId === REGISTRATION_CALENDAR_ID;
+
   return {
     uid: item.iCalUID || item.id,
     title,
@@ -148,7 +164,10 @@ function parseGCalEvent(item: GCalEvent): CalendarEvent | null {
     allDay,
     url: item.htmlLink || null,
     status: getEventStatus(start, end),
-    totalSessions: extractTotalSessions(title, description),
+    totalSessions: isRegistrationEvent
+      ? undefined
+      : extractTotalSessions(title, description),
+    sourceCalendarId,
   };
 }
 
@@ -212,7 +231,7 @@ async function fetchSingleCalendar(
       }
 
       for (const item of data.items || []) {
-        const parsed = parseGCalEvent(item);
+        const parsed = parseGCalEvent(item, calendarId);
         if (parsed) events.push(parsed);
       }
 
@@ -272,6 +291,13 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
   // (예: 심판교육 1기처럼 4/23 09:00 ~ 4/24 18:00 단일 이벤트)
   const withMultiDay = attachMultiDayMeta(withSeries);
 
-  // 카테고리 계산 (대회/교육/행사)
-  return withMultiDay.map((e) => ({ ...e, category: categorizeEvent(e) }));
+  // 카테고리 계산 (대회/교육/접수)
+  // - 접수일정 캘린더 소속 이벤트는 제목/설명과 무관하게 '접수'(event)로 강제 분류
+  // - 그 외는 키워드 기반 자동 분류
+  return withMultiDay.map((e) => {
+    if (e.sourceCalendarId === REGISTRATION_CALENDAR_ID) {
+      return { ...e, category: 'event' as const };
+    }
+    return { ...e, category: categorizeEvent(e) };
+  });
 }
