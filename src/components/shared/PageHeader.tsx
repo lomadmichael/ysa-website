@@ -33,7 +33,7 @@ export default function PageHeader({ title, breadcrumbs, description }: PageHead
           {title}
         </h1>
         {description && (
-          <p className="mt-4 text-lg text-white/80 max-w-2xl leading-relaxed">
+          <p className="mt-4 text-lg text-white/80 max-w-2xl md:max-w-4xl lg:max-w-6xl leading-relaxed">
             {description}
           </p>
         )}

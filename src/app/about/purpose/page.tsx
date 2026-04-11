@@ -58,12 +58,15 @@ export default function PurposePage() {
       <section className="py-24 md:py-32">
         <div className="max-w-[1200px] mx-auto px-4">
           {/* 설립목적 텍스트 */}
-          <div className="max-w-3xl mx-auto text-center mb-20">
+          <div className="max-w-5xl mx-auto text-center mb-20">
             <p className="text-lg md:text-xl text-navy/80 leading-relaxed">
               양양군서핑협회는 서핑 종목을 널리 보급하고 이를 통해 지역사회
-              군민의 건강증진과 활기찬 여가생활, 협회 구성원 간의 교류를
-              도모하며 양양을 대표하는 해양레저 문화 기반을 만들어가기 위해
-              설립되었습니다.
+              군민의 건강증진과 활기찬 여가생활,
+              {/* lg+(데스크탑)에서만 '여가생활,' 다음 강제 줄바꿈으로 2줄 고정.
+                  태블릿/모바일은 자연스럽게 흐름. */}
+              <br className="hidden lg:inline" />{' '}
+              협회 구성원 간의 교류를 도모하며 양양을 대표하는
+              해양레저 문화 기반을 만들어가기 위해 설립되었습니다.
             </p>
           </div>
 

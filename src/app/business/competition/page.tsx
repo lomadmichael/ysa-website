@@ -60,7 +60,7 @@ export default function CompetitionPage() {
       <section className="py-24 md:py-32">
         <div className="max-w-[1200px] mx-auto px-4">
           {/* Intro */}
-          <div className="max-w-3xl mb-16">
+          <div className="max-w-6xl mb-16">
             <h2 className="text-2xl md:text-3xl font-bold text-navy mb-6">
               양양의 서핑문화를 만드는 무대
             </h2>
