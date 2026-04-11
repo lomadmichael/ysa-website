@@ -1,10 +1,18 @@
 /**
- * Google Calendar iCal 연동 (서버 전용)
+ * Google Calendar API v3 연동 (서버 전용)
  *
- * node-ical은 Node.js 전용 모듈이므로 이 파일은 서버 컴포넌트에서만 import 가능합니다.
- * 클라이언트 컴포넌트에서는 대신 `./calendar-utils`를 import하세요.
+ * 공개 iCal 피드 대신 Calendar API v3 + API Key 인증을 사용합니다.
+ * iCal 피드는 Google 측 캐시로 인해 수정/삭제 반영이 수 시간~수 일 지연되는
+ * 문제가 있어서 실시간성이 필요한 시즌 운영에 부적합했습니다.
+ *
+ * Calendar API v3는:
+ * - JSON 응답 (파싱 단순)
+ * - 공개 캘린더는 API Key만으로 read 가능 (OAuth 불필요)
+ * - 수정/삭제가 수 분 내 반영
+ *
+ * 필수 환경변수:
+ * - GOOGLE_CALENDAR_API_KEY (서버 전용, NEXT_PUBLIC_ 접두사 없음)
  */
-import ical, { type VEvent } from 'node-ical';
 import {
   type CalendarEvent,
   getEventStatus,
@@ -50,10 +58,6 @@ function getCalendarIds(): string[] {
   return DEFAULT_CALENDAR_IDS;
 }
 
-function icalUrl(calendarId: string): string {
-  return `https://calendar.google.com/calendar/ical/${encodeURIComponent(calendarId)}/public/basic.ics`;
-}
-
 /**
  * description에서 [변경] 이력 줄 제거
  */
@@ -66,75 +70,155 @@ function cleanDescription(raw: string): string {
     .trim();
 }
 
-/** 단일 캘린더 iCal 페치 → CalendarEvent[] */
-async function fetchSingleCalendar(calendarId: string): Promise<CalendarEvent[]> {
-  try {
-    const res = await fetch(icalUrl(calendarId), {
-      // 구글 캘린더는 수시로 업데이트되므로 5분 캐시. 너무 길면 수정사항 반영 지연.
-      next: { revalidate: 300 },
-    });
+/** Calendar API v3 응답 타입 (필요한 필드만) */
+interface GCalEvent {
+  id: string;
+  iCalUID?: string;
+  summary?: string;
+  description?: string;
+  location?: string;
+  htmlLink?: string;
+  status?: string;
+  start?: { dateTime?: string; date?: string; timeZone?: string };
+  end?: { dateTime?: string; date?: string; timeZone?: string };
+}
 
-    if (!res.ok) {
-      console.warn(
-        `[google-calendar] fetch failed for ${calendarId}:`,
-        res.status,
-        res.statusText,
-      );
-      return [];
-    }
-
-    const icsText = await res.text();
-    const parsed = ical.sync.parseICS(icsText);
-
-    const events: CalendarEvent[] = [];
-
-    for (const key of Object.keys(parsed)) {
-      const item = parsed[key];
-      if (!item || item.type !== 'VEVENT') continue;
-
-      const vevent = item as VEvent;
-      if (!vevent.start || !vevent.end) continue;
-
-      const start = new Date(vevent.start);
-      const end = new Date(vevent.end);
-
-      const allDay =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (vevent.start as any).dateOnly === true ||
-        (start.getUTCHours() === 0 &&
-          start.getUTCMinutes() === 0 &&
-          end.getUTCHours() === 0 &&
-          end.getUTCMinutes() === 0 &&
-          end.getTime() - start.getTime() >= 24 * 60 * 60 * 1000);
-
-      events.push({
-        uid: vevent.uid || key,
-        title: normalizeRoundText((vevent.summary as string) || '제목 없음'),
-        description: cleanDescription((vevent.description as string) || ''),
-        location: (vevent.location as string) || '',
-        start,
-        end,
-        allDay,
-        url: (vevent.url as string) || null,
-        status: getEventStatus(start, end),
-      });
-    }
-
-    return events;
-  } catch (e) {
-    console.warn(`[google-calendar] error for ${calendarId}:`, e);
-    return [];
-  }
+interface GCalResponse {
+  items?: GCalEvent[];
+  nextPageToken?: string;
+  error?: { code: number; message: string };
 }
 
 /**
- * 모든 Google Calendar iCal 피드를 병렬로 페치해서 병합, 정렬, 시리즈 묶기까지 처리.
+ * 이벤트 단일 건 파싱: Calendar API 응답 → CalendarEvent
+ * 반환 null = 파싱 불가 또는 취소된 이벤트
+ */
+function parseGCalEvent(item: GCalEvent): CalendarEvent | null {
+  if (!item.start || !item.end) return null;
+  if (item.status === 'cancelled') return null;
+
+  // 종일 이벤트: start.date / end.date (YYYY-MM-DD)
+  // 시간제 이벤트: start.dateTime / end.dateTime (ISO 8601 with TZ)
+  const allDay = Boolean(item.start.date && !item.start.dateTime);
+
+  let start: Date;
+  let end: Date;
+
+  if (allDay) {
+    // 종일 이벤트의 end.date는 exclusive (DTEND:VALUE=DATE와 동일 규칙)
+    start = new Date(item.start.date + 'T00:00:00Z');
+    end = new Date(item.end.date + 'T00:00:00Z');
+  } else {
+    start = new Date(item.start.dateTime!);
+    end = new Date(item.end.dateTime!);
+  }
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+
+  return {
+    uid: item.iCalUID || item.id,
+    title: normalizeRoundText(item.summary || '제목 없음'),
+    description: cleanDescription(item.description || ''),
+    location: item.location || '',
+    start,
+    end,
+    allDay,
+    url: item.htmlLink || null,
+    status: getEventStatus(start, end),
+  };
+}
+
+/**
+ * 단일 캘린더에서 이벤트를 페이지네이션으로 모두 가져옴
+ */
+async function fetchSingleCalendar(
+  calendarId: string,
+  apiKey: string,
+): Promise<CalendarEvent[]> {
+  // 1년 전부터 2년 후까지 (충분한 윈도우)
+  const now = new Date();
+  const timeMin = new Date(now.getFullYear() - 1, 0, 1).toISOString();
+  const timeMax = new Date(now.getFullYear() + 2, 11, 31).toISOString();
+
+  const events: CalendarEvent[] = [];
+  let pageToken: string | undefined = undefined;
+
+  try {
+    // 최대 10페이지까지만 순회 (안전장치)
+    for (let page = 0; page < 10; page++) {
+      const params = new URLSearchParams({
+        key: apiKey,
+        singleEvents: 'true',
+        orderBy: 'startTime',
+        maxResults: '250',
+        timeMin,
+        timeMax,
+        showDeleted: 'false',
+      });
+      if (pageToken) params.set('pageToken', pageToken);
+
+      const url =
+        'https://www.googleapis.com/calendar/v3/calendars/' +
+        encodeURIComponent(calendarId) +
+        '/events?' +
+        params.toString();
+
+      const res = await fetch(url, {
+        // Calendar API는 실시간성이 생명. 5분 revalidate.
+        next: { revalidate: 300 },
+      });
+
+      if (!res.ok) {
+        console.warn(
+          `[google-calendar] API fetch failed for ${calendarId}:`,
+          res.status,
+          res.statusText,
+        );
+        break;
+      }
+
+      const data = (await res.json()) as GCalResponse;
+
+      if (data.error) {
+        console.warn(
+          `[google-calendar] API error for ${calendarId}:`,
+          data.error,
+        );
+        break;
+      }
+
+      for (const item of data.items || []) {
+        const parsed = parseGCalEvent(item);
+        if (parsed) events.push(parsed);
+      }
+
+      if (!data.nextPageToken) break;
+      pageToken = data.nextPageToken;
+    }
+  } catch (e) {
+    console.warn(`[google-calendar] exception for ${calendarId}:`, e);
+  }
+
+  return events;
+}
+
+/**
+ * 모든 Google Calendar를 병렬로 페치해서 병합, 정렬, 시리즈 묶기까지 처리.
  */
 export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
-  const calendarIds = getCalendarIds();
-  const results = await Promise.all(calendarIds.map(fetchSingleCalendar));
+  const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
+  if (!apiKey) {
+    console.warn(
+      '[google-calendar] GOOGLE_CALENDAR_API_KEY 환경변수가 설정되지 않았습니다. 빈 배열 반환.',
+    );
+    return [];
+  }
 
-  // 여러 캘린더 합치기
+  const calendarIds = getCalendarIds();
+  const results = await Promise.all(
+    calendarIds.map((id) => fetchSingleCalendar(id, apiKey)),
+  );
+
   const allEvents = results.flat();
 
   // uid 중복 제거 (같은 일정이 여러 캘린더에 등록된 경우)
