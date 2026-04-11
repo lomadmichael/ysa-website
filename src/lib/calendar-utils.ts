@@ -163,19 +163,28 @@ export function formatEventDate(event: CalendarEvent): string {
 }
 
 /**
- * 제목에서 "(Day N)", "(N일차)", "(N일)", "(N/M)" 등의 차수 정보 추출
+ * 제목에서 차수 정보 추출
+ * 지원 패턴:
+ * - "(Day N)", "Day N", "(N일차)", "N일차", "(N일)", "(N/M)"
+ * - "(회차N)", "(N회차)", "회차N", "N회차"
  * @returns base 제목 + day 번호. 매치 안 되면 null
  */
 function extractSeriesInfo(
   title: string,
 ): { base: string; day: number } | null {
   const patterns: RegExp[] = [
+    // 괄호 있는 패턴
     /^(.+?)\s*\(\s*Day\s*(\d+)\s*\)\s*$/i,
     /^(.+?)\s*\(\s*(\d+)\s*일차\s*\)\s*$/,
     /^(.+?)\s*\(\s*(\d+)\s*일\s*\)\s*$/,
     /^(.+?)\s*\(\s*(\d+)\s*\/\s*\d+\s*\)\s*$/,
+    /^(.+?)\s*\(\s*회차\s*(\d+)\s*\)\s*$/,
+    /^(.+?)\s*\(\s*(\d+)\s*회차\s*\)\s*$/,
+    // 괄호 없는 패턴 (공백 구분자 필수)
     /^(.+?)\s+Day\s*(\d+)\s*$/i,
     /^(.+?)\s+(\d+)\s*일차\s*$/,
+    /^(.+?)\s+회차\s*(\d+)\s*$/,
+    /^(.+?)\s+(\d+)\s*회차\s*$/,
   ];
   for (const p of patterns) {
     const m = title.match(p);
