@@ -15,6 +15,8 @@
  */
 import {
   type CalendarEvent,
+  attachMultiDayMeta,
+  categorizeEvent,
   getEventStatus,
   mergeEventSeries,
   normalizeRoundText,
@@ -23,6 +25,8 @@ import {
 // 편의상 re-export (서버 컴포넌트에서 한 번의 import로 쓰도록)
 export {
   type CalendarEvent,
+  type EventCategory,
+  categorizeEvent,
   formatEventDate,
   getDaysUntil,
   getKstParts,
@@ -59,11 +63,26 @@ function getCalendarIds(): string[] {
 }
 
 /**
- * description에서 [변경] 이력 줄 제거
+ * description 정리:
+ * - 리터럴 "\n" (백슬래시+n) 문자열을 실제 개행으로 변환
+ *   (캘린더 입력 시 이스케이프된 경우 대비)
+ * - [변경] 이력 줄 제거
+ * - HTML 태그 일부 제거 (Google Calendar description은 HTML 허용)
  */
 function cleanDescription(raw: string): string {
   if (!raw) return '';
   return raw
+    // 리터럴 \n (2글자) → 실제 개행
+    .replace(/\\n/g, '\n')
+    // <br>, <br/>, <br /> → 개행
+    .replace(/<br\s*\/?>/gi, '\n')
+    // 나머지 HTML 태그 제거
+    .replace(/<[^>]+>/g, '')
+    // HTML 엔티티 몇 가지
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .split(/\r?\n/)
     .filter((line) => !line.trim().startsWith('[변경]'))
     .join('\n')
@@ -233,6 +252,15 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
   // 시작일 오름차순 정렬
   unique.sort((a, b) => a.start.getTime() - b.start.getTime());
 
-  // 다일차 시리즈 병합 ((Day1), (Day2) 등을 하나로 묶음)
-  return mergeEventSeries(unique);
+  // 시리즈 처리:
+  // - intensive (Day/일차) → 병합 + dayCount
+  // - sequential (회차) → 개별 유지 + seriesIndex/seriesTotal
+  const withSeries = mergeEventSeries(unique);
+
+  // 병합 안 된 단일 이벤트 중 여러 날짜 timed event → dayCount 자동 설정
+  // (예: 심판교육 1기처럼 4/23 09:00 ~ 4/24 18:00 단일 이벤트)
+  const withMultiDay = attachMultiDayMeta(withSeries);
+
+  // 카테고리 계산 (대회/교육/행사)
+  return withMultiDay.map((e) => ({ ...e, category: categorizeEvent(e) }));
 }

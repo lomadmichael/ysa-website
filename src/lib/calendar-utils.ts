@@ -5,6 +5,9 @@
  * 클라이언트 컴포넌트에서도 안전하게 import할 수 있습니다.
  */
 
+/** 카테고리 분류 — 제목/설명 키워드 기반 */
+export type EventCategory = 'competition' | 'education' | 'event';
+
 export interface CalendarEvent {
   uid: string;
   title: string;
@@ -22,6 +25,20 @@ export interface CalendarEvent {
   dailyStartTime?: string;
   /** 다일차일 경우 매일 종료 시간 (일관될 때만) */
   dailyEndTime?: string;
+  /** 회차 시리즈의 총 회차 수 (예: 10회 과정이면 10) */
+  seriesTotal?: number;
+  /** 회차 시리즈 내 현재 회차 (1부터 시작) */
+  seriesIndex?: number;
+  /** 카테고리: 대회/교육/행사 중 하나 */
+  category?: EventCategory;
+}
+
+/** 제목/설명 키워드로 카테고리 자동 분류 */
+export function categorizeEvent(event: CalendarEvent): EventCategory {
+  const text = `${event.title} ${event.description}`.toLowerCase();
+  if (/대회|페스티벌|championship|cup|배\s|경기/i.test(text)) return 'competition';
+  if (/교육|강습|워크샵|training|교실|course|클래스|레슨/i.test(text)) return 'education';
+  return 'event';
 }
 
 const TZ = 'Asia/Seoul';
@@ -179,78 +196,183 @@ export function normalizeRoundText(title: string): string {
 }
 
 /**
- * 제목에서 차수 정보 추출
- * 지원 패턴:
- * - "(Day N)", "Day N", "(N일차)", "N일차", "(N일)", "(N/M)"
- * - "(회차N)", "(N회차)", "회차N", "N회차"
- * @returns base 제목 + day 번호. 매치 안 되면 null
+ * 시리즈 패턴 종류
+ * - 'intensive': Day/일차/일 (집중 연속 과정 → 병합 대상)
+ * - 'sequential': 회차 (순차 독립 레슨 → 병합 안 함, 인덱스 부여)
  */
-function extractSeriesInfo(
-  title: string,
-): { base: string; day: number } | null {
-  const patterns: RegExp[] = [
-    // 괄호 있는 패턴
-    /^(.+?)\s*\(\s*Day\s*(\d+)\s*\)\s*$/i,
-    /^(.+?)\s*\(\s*(\d+)\s*일차\s*\)\s*$/,
-    /^(.+?)\s*\(\s*(\d+)\s*일\s*\)\s*$/,
-    /^(.+?)\s*\(\s*(\d+)\s*\/\s*\d+\s*\)\s*$/,
-    /^(.+?)\s*\(\s*회차\s*(\d+)\s*\)\s*$/,
-    /^(.+?)\s*\(\s*(\d+)\s*회차\s*\)\s*$/,
-    // 괄호 없는 패턴 (공백 구분자 필수)
-    /^(.+?)\s+Day\s*(\d+)\s*$/i,
-    /^(.+?)\s+(\d+)\s*일차\s*$/,
-    /^(.+?)\s+회차\s*(\d+)\s*$/,
-    /^(.+?)\s+(\d+)\s*회차\s*$/,
+type SeriesKind = 'intensive' | 'sequential';
+
+interface SeriesParsed {
+  /** 시리즈 base 이름 (예: "랜드서핑 교실 상반기") */
+  base: string;
+  /** 차수 번호 (1부터) */
+  day: number;
+  /** 시리즈 종류 */
+  kind: SeriesKind;
+  /** 차수 뒤에 붙은 서브타이틀 (예: "- 메커니즘"에서 "메커니즘") */
+  subtitle?: string;
+}
+
+/**
+ * 제목에서 차수 정보 추출
+ *
+ * 지원 패턴:
+ * - intensive: (Day N), Day N, (N일차), N일차, (N일), (N/M)
+ *   → "연속 N일 교육" 의미. mergeEventSeries가 1개 카드로 병합.
+ * - sequential: (회차N), (N회차), 회차N, N회차
+ *   → "순차 N번째 레슨" 의미. 각 회차 독립 카드 유지 + seriesIndex 부여.
+ *
+ * 차수 뒤에 " - 서브타이틀"이 붙어 있으면 subtitle로 분리해서 반환.
+ * 예: "랜드서핑 교실 상반기 1회차 - 메커니즘"
+ *     → { base: "랜드서핑 교실 상반기", day: 1, kind: 'sequential', subtitle: "메커니즘" }
+ *
+ * @returns SeriesParsed | null (매치 안 되면 null)
+ */
+function extractSeriesInfo(title: string): SeriesParsed | null {
+  // 각 패턴은 차수 부분만 매치하고, 뒤에 optional " - 서브타이틀"을 허용한다.
+  // [base](공백)[차수패턴](공백하이픈공백서브타이틀)?
+  const tail = /(?:\s*[-–·]\s*(.+?))?\s*$/.source; // optional subtitle suffix
+
+  type PatternSpec = { regex: RegExp; kind: SeriesKind };
+  const specs: PatternSpec[] = [
+    // --- intensive: Day / 일차 / 일 / N/M ---
+    { regex: new RegExp(`^(.+?)\\s*\\(\\s*Day\\s*(\\d+)\\s*\\)${tail}`, 'i'), kind: 'intensive' },
+    { regex: new RegExp(`^(.+?)\\s*\\(\\s*(\\d+)\\s*일차\\s*\\)${tail}`), kind: 'intensive' },
+    { regex: new RegExp(`^(.+?)\\s*\\(\\s*(\\d+)\\s*일\\s*\\)${tail}`), kind: 'intensive' },
+    { regex: new RegExp(`^(.+?)\\s*\\(\\s*(\\d+)\\s*\\/\\s*\\d+\\s*\\)${tail}`), kind: 'intensive' },
+    { regex: new RegExp(`^(.+?)\\s+Day\\s*(\\d+)${tail}`, 'i'), kind: 'intensive' },
+    { regex: new RegExp(`^(.+?)\\s+(\\d+)\\s*일차${tail}`), kind: 'intensive' },
+    // --- sequential: 회차 ---
+    { regex: new RegExp(`^(.+?)\\s*\\(\\s*(\\d+)\\s*회차\\s*\\)${tail}`), kind: 'sequential' },
+    { regex: new RegExp(`^(.+?)\\s+(\\d+)\\s*회차${tail}`), kind: 'sequential' },
   ];
-  for (const p of patterns) {
-    const m = title.match(p);
+
+  for (const { regex, kind } of specs) {
+    const m = title.match(regex);
     if (m && m[1] && m[2]) {
-      return { base: m[1].trim(), day: Number(m[2]) };
+      const subtitle = m[3]?.trim();
+      return {
+        base: m[1].trim(),
+        day: Number(m[2]),
+        kind,
+        subtitle: subtitle || undefined,
+      };
     }
   }
   return null;
 }
 
 /**
- * 같은 base 제목을 가진 다일차 일정을 하나로 병합
+ * 단일 이벤트지만 여러 날에 걸친 시간제 이벤트 감지 → dayCount/dailyStartTime/dailyEndTime 자동 설정.
  *
  * 예시:
- * - "서프레스큐 교실 1기 (Day1)" 4/20
- * - "서프레스큐 교실 1기 (Day2)" 4/21
- * → "서프레스큐 교실 1기" (4/20 ~ 4/21, 2일 과정)
+ * - "심판교육 1기" start: 4/23 09:00, end: 4/24 18:00
+ *   → dayCount: 2, dailyStartTime: "09:00", dailyEndTime: "18:00"
  *
- * 단, 차수 정보가 있어도 단독 일정(시리즈에 1개뿐)은 Day 표기만 제거하고 병합 안 함.
+ * 이미 dayCount가 설정된 이벤트(병합된 시리즈)는 건드리지 않음.
+ * 종일 이벤트도 기존 로직이 처리하므로 건드리지 않음.
+ */
+export function attachMultiDayMeta(events: CalendarEvent[]): CalendarEvent[] {
+  return events.map((event) => {
+    if (event.dayCount !== undefined) return event;
+    if (event.allDay) return event;
+
+    const sParts = getKstParts(event.start);
+    const eParts = getKstParts(event.end);
+    const sameDay =
+      sParts.year === eParts.year &&
+      sParts.month === eParts.month &&
+      sParts.day === eParts.day;
+    if (sameDay) return event;
+
+    // 일수 계산 (KST 자정 기준)
+    const sUtc = Date.UTC(sParts.year, sParts.month - 1, sParts.day);
+    const eUtc = Date.UTC(eParts.year, eParts.month - 1, eParts.day);
+    const days = Math.round((eUtc - sUtc) / (24 * 60 * 60 * 1000)) + 1;
+    if (days < 2) return event;
+
+    return {
+      ...event,
+      dayCount: days,
+      dailyStartTime: `${sParts.hour}:${sParts.minute}`,
+      dailyEndTime: `${eParts.hour}:${eParts.minute}`,
+    };
+  });
+}
+
+/**
+ * 시리즈 정보 기반으로 이벤트를 처리.
+ *
+ * 두 가지 처리 방식을 시리즈 kind에 따라 분기:
+ *
+ * 1. **intensive** (Day/일차): 연속 N일 집중 과정
+ *    → 같은 base의 이벤트들을 1개 카드로 **병합**. dayCount 설정.
+ *    예: "서프레스큐 교실 1기 (Day1)" 4/20 + "(Day2)" 4/21
+ *        → "서프레스큐 교실 1기" (4/20~4/21, 2일 과정)
+ *
+ * 2. **sequential** (회차): 순차 독립 레슨
+ *    → 각 회차 카드 **유지**. seriesIndex/seriesTotal 부여.
+ *    예: "랜드서핑 교실 상반기 1회차 - 메커니즘", "2회차 - 스탠스" ... 10회차
+ *        → 10개 카드 유지, 각 카드에 { seriesIndex: n, seriesTotal: 10 }
+ *
+ * 차수 정보 없는 이벤트는 그대로 standalone.
+ * 차수 정보 있지만 시리즈에 1개뿐이면:
+ *   - intensive: base 제목으로 치환 (기존 동작 유지)
+ *   - sequential: 원 제목 유지 + seriesTotal=1 부여
  */
 export function mergeEventSeries(events: CalendarEvent[]): CalendarEvent[] {
-  const seriesMap = new Map<string, CalendarEvent[]>();
+  // base(+kind) 단위로 그룹화. 같은 base라도 kind가 다르면 분리.
+  const seriesMap = new Map<
+    string,
+    { kind: SeriesKind; base: string; items: Array<{ event: CalendarEvent; day: number }> }
+  >();
   const standalone: CalendarEvent[] = [];
 
   for (const event of events) {
     const parsed = extractSeriesInfo(event.title);
-    if (parsed) {
-      if (!seriesMap.has(parsed.base)) seriesMap.set(parsed.base, []);
-      seriesMap.get(parsed.base)!.push(event);
-    } else {
+    if (!parsed) {
       standalone.push(event);
+      continue;
     }
+    const key = `${parsed.kind}::${parsed.base}`;
+    if (!seriesMap.has(key)) {
+      seriesMap.set(key, { kind: parsed.kind, base: parsed.base, items: [] });
+    }
+    seriesMap.get(key)!.items.push({ event, day: parsed.day });
   }
 
-  const merged: CalendarEvent[] = [...standalone];
+  const result: CalendarEvent[] = [...standalone];
 
-  for (const [base, series] of seriesMap) {
-    if (series.length === 1) {
-      // 단독이면 "(DayN)" 접미사만 제거
-      merged.push({ ...series[0]!, title: base });
+  for (const { kind, base, items } of seriesMap.values()) {
+    if (kind === 'sequential') {
+      // 회차 시리즈: 병합하지 않고 각 카드 유지 + 시리즈 인덱스 부여
+      const total = items.length;
+      // 회차 번호 기준으로 정렬 (표시 순서는 date 기준이 아닌 series index 기준)
+      items.sort((a, b) => a.day - b.day);
+      for (const { event, day } of items) {
+        result.push({
+          ...event,
+          seriesIndex: day,
+          seriesTotal: total,
+        });
+      }
       continue;
     }
 
-    series.sort((a, b) => a.start.getTime() - b.start.getTime());
-    const first = series[0]!;
-    const last = series[series.length - 1]!;
+    // intensive 시리즈: 기존 병합 로직
+    if (items.length === 1) {
+      result.push({ ...items[0]!.event, title: base });
+      continue;
+    }
 
-    // 매일 시작/종료 시간이 일관되는지 확인
-    const startParts = series.map((e) => getKstParts(e.start));
-    const endParts = series.map((e) => getKstParts(e.end));
+    const sorted = [...items].sort(
+      (a, b) => a.event.start.getTime() - b.event.start.getTime(),
+    );
+    const first = sorted[0]!.event;
+    const last = sorted[sorted.length - 1]!.event;
+
+    const startParts = sorted.map((s) => getKstParts(s.event.start));
+    const endParts = sorted.map((s) => getKstParts(s.event.end));
     const allStartSame = startParts.every(
       (p) => p.hour === startParts[0]!.hour && p.minute === startParts[0]!.minute,
     );
@@ -258,7 +380,7 @@ export function mergeEventSeries(events: CalendarEvent[]): CalendarEvent[] {
       (p) => p.hour === endParts[0]!.hour && p.minute === endParts[0]!.minute,
     );
 
-    merged.push({
+    result.push({
       uid: `series-${base}-${first.uid}`,
       title: base,
       description: first.description,
@@ -268,7 +390,7 @@ export function mergeEventSeries(events: CalendarEvent[]): CalendarEvent[] {
       allDay: first.allDay,
       url: first.url,
       status: first.status,
-      dayCount: series.length,
+      dayCount: sorted.length,
       dailyStartTime:
         allStartSame && !first.allDay
           ? `${startParts[0]!.hour}:${startParts[0]!.minute}`
@@ -280,8 +402,8 @@ export function mergeEventSeries(events: CalendarEvent[]): CalendarEvent[] {
     });
   }
 
-  merged.sort((a, b) => a.start.getTime() - b.start.getTime());
-  return merged;
+  result.sort((a, b) => a.start.getTime() - b.start.getTime());
+  return result;
 }
 
 /** 연도별 그룹화 (KST 기준) */

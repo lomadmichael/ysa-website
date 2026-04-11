@@ -62,6 +62,11 @@ function HeroNextEvent({ event }: { event: CalendarEvent }) {
               {event.dayCount}일 과정
             </span>
           )}
+          {event.seriesTotal && event.seriesTotal > 1 && event.seriesIndex && (
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white">
+              {event.seriesIndex}/{event.seriesTotal}회차
+            </span>
+          )}
         </div>
 
         <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-6">
