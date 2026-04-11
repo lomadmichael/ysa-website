@@ -210,7 +210,12 @@ export default function CompetitionList({ events }: Props) {
                             Today
                           </span>
                         )}
-                        {event.dayCount && event.dayCount > 1 && (
+                        {event.totalSessions && event.totalSessions > 1 && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
+                            {event.totalSessions}회 과정
+                          </span>
+                        )}
+                        {!event.totalSessions && event.dayCount && event.dayCount > 1 && (
                           <span className="text-[11px] font-semibold px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
                             {event.dayCount}일 과정
                           </span>

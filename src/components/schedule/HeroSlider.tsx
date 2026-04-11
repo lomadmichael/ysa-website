@@ -213,7 +213,12 @@ function Slide({
           <p className="text-white/70 text-sm md:text-base font-medium">
             {formatEventDate(event)}
           </p>
-          {event.dayCount && event.dayCount > 1 && (
+          {event.totalSessions && event.totalSessions > 1 && (
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white">
+              {event.totalSessions}회 과정
+            </span>
+          )}
+          {!event.totalSessions && event.dayCount && event.dayCount > 1 && (
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white">
               {event.dayCount}일 과정
             </span>

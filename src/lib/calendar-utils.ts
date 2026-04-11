@@ -31,6 +31,63 @@ export interface CalendarEvent {
   seriesIndex?: number;
   /** 카테고리: 대회/교육/행사 중 하나 */
   category?: EventCategory;
+  /**
+   * 전체 수업 회차 수 (통합형 다회차 프로그램).
+   *
+   * 예: "랜드서핑 교실 1기"가 5/16~6/14 기간에 걸쳐 진행되지만
+   *     실제로는 매 토/일 10회 수업. → totalSessions: 10
+   *
+   * 이 필드가 설정되면 dayCount 대신 "N회 과정" 으로 표시하고,
+   * 날짜 포맷도 "YYYY.MM.DD ~ MM.DD · 수업 HH:MM~HH:MM" 로 변경.
+   */
+  totalSessions?: number;
+}
+
+/**
+ * 시리즈명 기본 회차 수 매핑.
+ *
+ * 제목/설명에 명시적 회차 정보가 없을 때 fallback.
+ * 운영하는 프로그램이 늘어나면 여기에 추가.
+ */
+const SERIES_DEFAULT_SESSIONS: { pattern: RegExp; total: number }[] = [
+  { pattern: /^랜드서핑\s*교실/, total: 10 },
+  { pattern: /^맞춤형\s*서핑교실/, total: 20 },
+];
+
+/**
+ * 제목/설명에서 전체 회차 수를 추출한다.
+ *
+ * 우선순위:
+ * 1. 제목 "(N회)" 또는 "(N회차)" 패턴
+ * 2. 설명 "전체 N회" 또는 "N회 과정" 패턴
+ * 3. 시리즈명 기본 매핑
+ *
+ * 매치되는 것이 없으면 undefined (일반 이벤트).
+ */
+export function extractTotalSessions(
+  title: string,
+  description: string,
+): number | undefined {
+  if (!title) return undefined;
+
+  // 1. 제목 "(N회)" / "(N회차)"
+  const titleMatch = title.match(/\(\s*(\d+)\s*회(?:차)?\s*\)/);
+  if (titleMatch) return Number(titleMatch[1]);
+
+  // 2. 설명 "전체 N회" / "N회 과정"
+  if (description) {
+    const totalMatch = description.match(/전체\s*(\d+)\s*회(?:차)?/);
+    if (totalMatch) return Number(totalMatch[1]);
+    const courseMatch = description.match(/(\d+)\s*회(?:\s*차)?\s*과정/);
+    if (courseMatch) return Number(courseMatch[1]);
+  }
+
+  // 3. 시리즈명 기본 매핑
+  for (const { pattern, total } of SERIES_DEFAULT_SESSIONS) {
+    if (pattern.test(title)) return total;
+  }
+
+  return undefined;
 }
 
 /** 제목/설명 키워드로 카테고리 자동 분류 */
@@ -154,6 +211,16 @@ export function formatEventDate(event: CalendarEvent): string {
   const sameDay = s.year === e.year && s.month === e.month && s.day === e.day;
   const startStr = `${s.year}.${pad(s.month)}.${pad(s.day)}`;
 
+  // 다회차 통합 프로그램 (totalSessions)
+  // 예: "05.16 ~ 06.14 · 수업 10:00~13:00"
+  if (event.totalSessions && event.totalSessions > 1) {
+    const range = sameDay ? startStr : `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
+    if (event.dailyStartTime && event.dailyEndTime) {
+      return `${range} · 수업 ${event.dailyStartTime}~${event.dailyEndTime}`;
+    }
+    return range;
+  }
+
   // 다일차 시리즈
   if (event.dayCount && event.dayCount > 1) {
     const range = `${startStr} ~ ${pad(e.month)}.${pad(e.day)}`;
@@ -270,11 +337,25 @@ function extractSeriesInfo(title: string): SeriesParsed | null {
  *   → dayCount: 2, dailyStartTime: "09:00", dailyEndTime: "18:00"
  *
  * 이미 dayCount가 설정된 이벤트(병합된 시리즈)는 건드리지 않음.
+ * totalSessions가 설정된 이벤트(다회차 통합 프로그램)도 건드리지 않음
+ *   → "일 과정" 대신 "회 과정" 표시해야 하므로.
  * 종일 이벤트도 기존 로직이 처리하므로 건드리지 않음.
  */
 export function attachMultiDayMeta(events: CalendarEvent[]): CalendarEvent[] {
   return events.map((event) => {
     if (event.dayCount !== undefined) return event;
+    if (event.totalSessions !== undefined) {
+      // 다회차 통합 이벤트: dayCount 계산 대신 시작/종료 시간만 메타로 저장
+      // (formatEventDate에서 "수업 HH:MM~HH:MM" 형태로 표시)
+      if (event.allDay) return event;
+      const sParts = getKstParts(event.start);
+      const eParts = getKstParts(event.end);
+      return {
+        ...event,
+        dailyStartTime: `${sParts.hour}:${sParts.minute}`,
+        dailyEndTime: `${eParts.hour}:${eParts.minute}`,
+      };
+    }
     if (event.allDay) return event;
 
     const sParts = getKstParts(event.start);

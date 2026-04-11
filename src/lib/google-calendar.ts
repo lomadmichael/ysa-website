@@ -17,6 +17,7 @@ import {
   type CalendarEvent,
   attachMultiDayMeta,
   categorizeEvent,
+  extractTotalSessions,
   getEventStatus,
   mergeEventSeries,
   normalizeRoundText,
@@ -134,16 +135,20 @@ function parseGCalEvent(item: GCalEvent): CalendarEvent | null {
 
   if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
 
+  const title = normalizeRoundText(item.summary || '제목 없음');
+  const description = cleanDescription(item.description || '');
+
   return {
     uid: item.iCalUID || item.id,
-    title: normalizeRoundText(item.summary || '제목 없음'),
-    description: cleanDescription(item.description || ''),
+    title,
+    description,
     location: item.location || '',
     start,
     end,
     allDay,
     url: item.htmlLink || null,
     status: getEventStatus(start, end),
+    totalSessions: extractTotalSessions(title, description),
   };
 }
 
