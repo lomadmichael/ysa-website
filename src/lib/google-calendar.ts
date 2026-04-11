@@ -70,7 +70,8 @@ function cleanDescription(raw: string): string {
 async function fetchSingleCalendar(calendarId: string): Promise<CalendarEvent[]> {
   try {
     const res = await fetch(icalUrl(calendarId), {
-      next: { revalidate: 3600 },
+      // 구글 캘린더는 수시로 업데이트되므로 5분 캐시. 너무 길면 수정사항 반영 지연.
+      next: { revalidate: 300 },
     });
 
     if (!res.ok) {
