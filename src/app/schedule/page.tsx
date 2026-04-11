@@ -2,12 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 import CompetitionList from '@/components/competitions/CompetitionList';
-import {
-  fetchCalendarEvents,
-  formatEventDate,
-  getDaysUntil,
-  type CalendarEvent,
-} from '@/lib/google-calendar';
+import HeroSlider from '@/components/schedule/HeroSlider';
+import { fetchCalendarEvents, type CalendarEvent } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '일정안내',
@@ -22,85 +18,21 @@ const tabs = [
   { label: '결과·기록', href: '/schedule/results', active: false },
 ];
 
-function HeroNextEvent({ event }: { event: CalendarEvent }) {
-  const days = getDaysUntil(event);
-  const isOngoing = event.status === 'ongoing';
-
-  return (
-    <div
-      className="relative overflow-hidden rounded-2xl p-8 md:p-12 mb-16"
-      style={{ backgroundColor: '#393d7d' }}
-    >
-      {/* 장식 원 */}
-      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/5" aria-hidden />
-      <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/5" aria-hidden />
-
-      <div className="relative">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-white/60">
-            {isOngoing ? 'Happening Now' : 'Next Event'}
-          </span>
-          <div className="h-px flex-1 bg-white/20" />
-          {!isOngoing && (
-            <span className="text-2xl md:text-3xl font-extrabold text-sunset font-mono">
-              {days === 0 ? 'D-DAY' : `D-${days}`}
-            </span>
-          )}
-          {isOngoing && (
-            <span className="text-sm font-bold px-3 py-1 rounded-full bg-sunset text-white">
-              진행중
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <p className="text-white/70 text-sm md:text-base font-medium">
-            {formatEventDate(event)}
-          </p>
-          {event.dayCount && event.dayCount > 1 && (
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white">
-              {event.dayCount}일 과정
-            </span>
-          )}
-          {event.seriesTotal && event.seriesTotal > 1 && event.seriesIndex && (
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white">
-              {event.seriesIndex}/{event.seriesTotal}회차
-            </span>
-          )}
-        </div>
-
-        <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-6">
-          {event.title}
-        </h2>
-
-        {event.location && (
-          <p className="text-white/60 text-sm flex items-center gap-2 mb-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            {event.location}
-          </p>
-        )}
-
-        {event.description && (
-          <p className="text-white/50 text-sm max-w-2xl leading-relaxed mt-4 line-clamp-2">
-            {event.description}
-          </p>
-        )}
-      </div>
-    </div>
-  );
+/** 30일 이내 시작하는 upcoming/ongoing 이벤트 */
+function getHeroEvents(events: CalendarEvent[]): CalendarEvent[] {
+  const now = Date.now();
+  const windowMs = 30 * 24 * 60 * 60 * 1000;
+  const cutoff = now + windowMs;
+  return events
+    .filter((e) => e.status !== 'past' && e.start.getTime() <= cutoff)
+    .sort((a, b) => a.start.getTime() - b.start.getTime());
 }
 
 export default async function SchedulePage() {
   const events = await fetchCalendarEvents();
 
-  // 다음 이벤트: ongoing 우선, 없으면 upcoming 첫 번째
-  const nextEvent =
-    events.find((e) => e.status === 'ongoing') ??
-    events.find((e) => e.status === 'upcoming') ??
-    null;
+  // Hero 슬라이더: 30일 이내 이벤트
+  const heroEvents = getHeroEvents(events);
 
   // 미래 일정만 (과거는 /schedule/closed에서)
   const futureEvents = events.filter((e) => e.status !== 'past');
@@ -136,8 +68,8 @@ export default async function SchedulePage() {
 
           {events.length > 0 ? (
             <>
-              {/* Hero: Next Event */}
-              {nextEvent && <HeroNextEvent event={nextEvent} />}
+              {/* Hero 슬라이더: 30일 이내 이벤트 순환 */}
+              <HeroSlider events={heroEvents} />
 
               {/* 필터 + 월별 섹션 (클라이언트) */}
               {futureEvents.length > 0 ? (
