@@ -1,18 +1,28 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { SITE } from '@/lib/constants';
 
 export default function HeroSection() {
   return (
-    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('/images/hero_03.png')`,
-          backgroundColor: '#0A3D62',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
-      </div>
+    <section
+      className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden"
+      style={{ backgroundColor: '#0A3D62' }}
+    >
+      {/*
+        Next.js <Image priority> → HTML <head>에 rel="preload" 자동 삽입 + WebP/AVIF 변환.
+        CSS backgroundImage는 CSS 파싱 후에야 요청이 시작되어 배경색이 먼저 노출되는
+        이슈가 있어 <Image>로 전환.
+      */}
+      <Image
+        src="/images/hero_03.png"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        quality={85}
+        className="object-cover object-center"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
 
       {/* Content */}
       <div className="relative z-10 max-w-[1200px] mx-auto px-4 text-center text-white">

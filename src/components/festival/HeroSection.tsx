@@ -1,15 +1,26 @@
+import Image from 'next/image';
+
 export default function FestivalHero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url('/images/history/hero_02.jpg')`,
-          backgroundColor: '#0A3D62',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy" />
-      </div>
+    <section
+      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy"
+      style={{ backgroundColor: '#0A3D62' }}
+    >
+      {/*
+        <Image priority>로 LCP 이미지 프리로드 + Next.js 자동 최적화.
+        기존 CSS backgroundImage는 브라우저가 CSS 파싱 후에야 요청을 시작해
+        배경색이 먼저 노출되는 이슈가 있었음.
+      */}
+      <Image
+        src="/images/history/hero_02.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        quality={85}
+        className="object-cover object-center"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy" />
 
       {/* 콘텐츠 */}
       <div className="relative z-10 max-w-[1200px] mx-auto px-4 text-center text-white">
