@@ -147,18 +147,25 @@ export default function OrganizationPage() {
               <LeaderBox title={LEADERSHIP[2]!} />
               <VLine />
 
-              {/* 사무국장 → 부서 bus: 가로 직선 connector */}
-              <div className="relative w-full flex justify-center">
-                {/* 가로 bus line */}
+              {/*
+                사무국장 → 부서 bus.
+                핵심: flex-1 균등 컬럼 + gap 0 → 각 컬럼 중심이 정확히
+                100/N * (i + 0.5) 위치에 옴.
+                N=4 → 중심 12.5%, 37.5%, 62.5%, 87.5%
+                → 가로 bus left 12.5%, right 12.5% 로 바깥쪽 컬럼
+                  중심에 딱 붙음.
+              */}
+              <div className="relative w-full">
+                {/* 가로 bus line (첫/마지막 부서 중심 사이) */}
                 <div
                   className="absolute top-0 h-[2px] bg-navy/20"
                   style={{ left: '12.5%', right: '12.5%' }}
                   aria-hidden
                 />
-                {/* 부서 4개 + 각 부서 sub-items */}
-                <div className="flex justify-between w-full pt-0 gap-4">
+                {/* 부서 4개 (gap 0, flex-1 균등) */}
+                <div className="flex w-full">
                   {DEPARTMENTS.map((dept) => (
-                    <div key={dept.title} className="flex-1 flex flex-col items-center">
+                    <div key={dept.title} className="flex-1 flex flex-col items-center px-2 min-w-0">
                       {/* bus → 부서 세로 연결선 */}
                       <VLine height="h-8" />
                       <DeptBox title={dept.title} accent={dept.accent} />
@@ -167,25 +174,34 @@ export default function OrganizationPage() {
                       {dept.items.length > 0 && (
                         <>
                           <VLine height="h-8" />
-                          {/* sub bus + sub-items */}
-                          <div className="relative flex justify-center gap-2">
+                          {/*
+                            sub bus. 같은 원리:
+                            flex-1 균등 sub-column + gap 0
+                            → 가로 bus left/right = 50/N %
+                          */}
+                          <div className="relative w-full">
                             {/* sub bus line */}
                             {dept.items.length > 1 && (
                               <div
                                 className="absolute top-0 h-[2px] bg-navy/20"
                                 style={{
-                                  left: `calc(100% / ${dept.items.length} / 2)`,
-                                  right: `calc(100% / ${dept.items.length} / 2)`,
+                                  left: `${50 / dept.items.length}%`,
+                                  right: `${50 / dept.items.length}%`,
                                 }}
                                 aria-hidden
                               />
                             )}
-                            {dept.items.map((item) => (
-                              <div key={item} className="flex flex-col items-center">
-                                <VLine height="h-6" />
-                                <VerticalItemBox label={item} accent={dept.accent} />
-                              </div>
-                            ))}
+                            <div className="flex w-full">
+                              {dept.items.map((item) => (
+                                <div
+                                  key={item}
+                                  className="flex-1 flex flex-col items-center min-w-0"
+                                >
+                                  <VLine height="h-6" />
+                                  <VerticalItemBox label={item} accent={dept.accent} />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </>
                       )}
