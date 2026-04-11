@@ -249,13 +249,19 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
     unique.push(event);
   }
 
+  // 내부 행정용 이벤트 제거 ([업무] / [마감] 접두어)
+  // 캘린더 원본에 남겨두되 사이트에는 노출하지 않음.
+  const publicEvents = unique.filter(
+    (e) => !/^\s*\[\s*(업무|마감)\s*\]/.test(e.title),
+  );
+
   // 시작일 오름차순 정렬
-  unique.sort((a, b) => a.start.getTime() - b.start.getTime());
+  publicEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
 
   // 시리즈 처리:
   // - intensive (Day/일차) → 병합 + dayCount
   // - sequential (회차) → 개별 유지 + seriesIndex/seriesTotal
-  const withSeries = mergeEventSeries(unique);
+  const withSeries = mergeEventSeries(publicEvents);
 
   // 병합 안 된 단일 이벤트 중 여러 날짜 timed event → dayCount 자동 설정
   // (예: 심판교육 1기처럼 4/23 09:00 ~ 4/24 18:00 단일 이벤트)

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
-import { fetchCalendarEvents, formatEventDate } from '@/lib/google-calendar';
+import CompetitionList from '@/components/competitions/CompetitionList';
+import { fetchCalendarEvents } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '모집중 일정',
@@ -57,45 +58,7 @@ export default async function ScheduleOpenPage() {
           </p>
 
           {events.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2">
-              {events.map((event) => (
-                <div
-                  key={event.uid}
-                  className="block bg-white border border-foam rounded-lg p-6 hover:border-ocean/20 transition-colors"
-                >
-                  <div className="flex items-center gap-2 mb-3 flex-wrap">
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-sm ${
-                        event.status === 'ongoing'
-                          ? 'bg-sunset/10 text-sunset'
-                          : 'bg-teal/10 text-teal'
-                      }`}
-                    >
-                      {event.status === 'ongoing' ? '진행중' : '예정'}
-                    </span>
-                    <span className="text-xs text-navy/50 font-medium">
-                      {formatEventDate(event)}
-                    </span>
-                    {event.dayCount && event.dayCount > 1 && (
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
-                        {event.dayCount}일 과정
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-lg font-semibold text-navy mb-2">
-                    {event.title}
-                  </h3>
-                  {event.location && (
-                    <p className="text-xs text-navy/50 mb-2">📍 {event.location}</p>
-                  )}
-                  {event.description && (
-                    <p className="text-sm text-navy/60 line-clamp-3 leading-relaxed">
-                      {event.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+            <CompetitionList events={events} />
           ) : (
             <div className="text-center py-20 text-navy/40">
               <div className="w-16 h-16 rounded-full bg-foam flex items-center justify-center mx-auto mb-4">

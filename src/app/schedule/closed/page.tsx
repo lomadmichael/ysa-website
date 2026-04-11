@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
-import { fetchCalendarEvents, formatEventDate } from '@/lib/google-calendar';
+import {
+  categorizeEvent,
+  fetchCalendarEvents,
+  formatEventDate,
+  type EventCategory,
+} from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '종료된 일정',
@@ -15,6 +20,15 @@ const tabs = [
   { label: '종료된 일정', href: '/schedule/closed', active: true },
   { label: '결과·기록', href: '/schedule/results', active: false },
 ];
+
+/**
+ * 카테고리별 좌측 컬러 바 + 라벨 뱃지 색상
+ */
+const CATEGORY_META: Record<EventCategory, { label: string; bar: string; badge: string }> = {
+  competition: { label: '대회', bar: 'bg-sunset', badge: 'bg-sunset/10 text-sunset' },
+  education: { label: '교육', bar: 'bg-ocean', badge: 'bg-ocean/10 text-ocean' },
+  event: { label: '행사', bar: 'bg-teal', badge: 'bg-teal/10 text-teal' },
+};
 
 export default async function ScheduleClosedPage() {
   const allEvents = await fetchCalendarEvents();
@@ -58,22 +72,36 @@ export default async function ScheduleClosedPage() {
 
           {events.length > 0 ? (
             <div className="space-y-3">
-              {events.map((event) => (
-                <div
-                  key={event.uid}
-                  className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 transition-colors"
-                >
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-navy/10 text-navy/50 shrink-0">
-                    종료
-                  </span>
-                  <span className="text-[15px] text-navy font-medium truncate flex-1">
-                    {event.title}
-                  </span>
-                  <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
-                    {formatEventDate(event)}
-                  </span>
-                </div>
-              ))}
+              {events.map((event) => {
+                const category = event.category ?? categorizeEvent(event);
+                const catMeta = CATEGORY_META[category];
+                return (
+                  <div
+                    key={event.uid}
+                    className="relative overflow-hidden flex items-center gap-3 sm:gap-4 p-4 sm:p-5 pl-5 sm:pl-6 bg-white rounded-lg border border-foam hover:border-ocean/20 transition-colors"
+                  >
+                    {/* 좌측 카테고리 컬러 바 */}
+                    <div
+                      className={`absolute left-0 top-0 bottom-0 w-1 ${catMeta.bar}`}
+                      aria-hidden
+                    />
+                    <span
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-sm shrink-0 ${catMeta.badge}`}
+                    >
+                      {catMeta.label}
+                    </span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-sm bg-navy/10 text-navy/50 shrink-0">
+                      종료
+                    </span>
+                    <span className="text-[14px] sm:text-[15px] text-navy font-medium truncate flex-1 min-w-0">
+                      {event.title}
+                    </span>
+                    <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
+                      {formatEventDate(event)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-20 text-navy/40">
