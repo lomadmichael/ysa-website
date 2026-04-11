@@ -13,82 +13,111 @@ const BREADCRUMBS = [
 ];
 
 /** 리더십 체인 (회장 → 부회장 → 사무국장) */
-const LEADERSHIP: { title: string; description: string }[] = [
-  { title: '회장', description: '협회 최고 의결권자' },
-  { title: '부회장', description: '회장 직무 보좌' },
-  { title: '사무국장', description: '협회 실무 총괄' },
-];
+const LEADERSHIP: string[] = ['회장', '부회장', '사무국장'];
 
 /**
- * 4개 부서 구조.
- * 각 부서는 사무국장 산하에서 해당 분야를 담당.
+ * 사무국장 산하 4개 부서.
+ * 첫 번째 원본 조직도 이미지 기준으로 기획/행정/회계는 단일 부서(sub-items 없음).
  */
-const DEPARTMENTS: {
-  title: string;
-  description: string;
-  accent: 'sunset' | 'ocean' | 'teal' | 'navy';
-  items: string[];
-}[] = [
+const DEPARTMENTS: { title: string; accent: 'sunset' | 'ocean' | 'teal' | 'navy'; items: string[] }[] = [
   {
-    title: '기획/행정/회계',
-    description: '협회 운영 전반과 회계 관리',
-    accent: 'navy',
-    items: [],
-  },
-  {
-    title: '교육',
-    description: '지도자·선수·심판 전문인력 양성',
-    accent: 'ocean',
-    items: ['지도자', '심판', '선수', '레스큐', '대안서핑'],
+    title: '경영지원',
+    accent: 'teal',
+    items: ['페스티벌', '이벤트', '공동사업', '홍보'],
   },
   {
     title: '대회',
-    description: '서핑 대회 기획 및 현장 운영',
     accent: 'sunset',
     items: ['심판', '대회장 세팅', '운영'],
   },
   {
-    title: '경영지원',
-    description: '마케팅·홍보·공동사업 지원',
-    accent: 'teal',
-    items: ['페스티벌', '이벤트', '공동사업', '홍보'],
+    title: '교육',
+    accent: 'ocean',
+    items: ['지도자', '심판', '선수', '레스큐', '대안서핑'],
+  },
+  {
+    title: '기획/행정/회계',
+    accent: 'navy',
+    items: [],
   },
 ];
 
-/** accent 색상 → Tailwind class 매핑 (JIT 정적 분석용 하드코드) */
 const ACCENT_STYLES: Record<
   'sunset' | 'ocean' | 'teal' | 'navy',
-  { bar: string; badge: string; ring: string; chipBg: string; chipText: string }
+  { boxBg: string; boxText: string; boxBorder: string; chipBg: string; chipText: string; bar: string }
 > = {
   sunset: {
-    bar: 'bg-sunset',
-    badge: 'bg-sunset/10 text-sunset',
-    ring: 'ring-sunset/20',
+    boxBg: 'bg-sunset/10',
+    boxText: 'text-sunset',
+    boxBorder: 'border-sunset/30',
     chipBg: 'bg-sunset/10',
     chipText: 'text-sunset',
+    bar: 'bg-sunset',
   },
   ocean: {
-    bar: 'bg-ocean',
-    badge: 'bg-ocean/10 text-ocean',
-    ring: 'ring-ocean/20',
+    boxBg: 'bg-ocean/10',
+    boxText: 'text-ocean',
+    boxBorder: 'border-ocean/30',
     chipBg: 'bg-ocean/10',
     chipText: 'text-ocean',
+    bar: 'bg-ocean',
   },
   teal: {
-    bar: 'bg-teal',
-    badge: 'bg-teal/10 text-teal',
-    ring: 'ring-teal/20',
+    boxBg: 'bg-teal/10',
+    boxText: 'text-teal',
+    boxBorder: 'border-teal/30',
     chipBg: 'bg-teal/10',
     chipText: 'text-teal',
+    bar: 'bg-teal',
   },
   navy: {
-    bar: 'bg-navy',
-    badge: 'bg-navy/10 text-navy/70',
-    ring: 'ring-navy/20',
+    boxBg: 'bg-navy/5',
+    boxText: 'text-navy/70',
+    boxBorder: 'border-navy/20',
     chipBg: 'bg-navy/5',
     chipText: 'text-navy/60',
+    bar: 'bg-navy/50',
   },
 };
+
+/** 세로 연결선 */
+function VLine({ height = 'h-8' }: { height?: string }) {
+  return <div className={`w-[2px] ${height} bg-navy/20`} aria-hidden />;
+}
+
+/** 리더십 박스 (회장/부회장/사무국장) */
+function LeaderBox({ title }: { title: string }) {
+  return (
+    <div className="min-w-[180px] px-8 py-4 bg-white border-2 border-ocean/30 rounded-lg text-center shadow-sm">
+      <p className="text-lg md:text-xl font-bold text-navy">{title}</p>
+    </div>
+  );
+}
+
+/** 부서 박스 (경영지원/대회/교육/기획·행정·회계) */
+function DeptBox({ title, accent }: { title: string; accent: keyof typeof ACCENT_STYLES }) {
+  const s = ACCENT_STYLES[accent];
+  return (
+    <div
+      className={`min-w-[140px] px-5 py-3 ${s.boxBg} border-2 ${s.boxBorder} rounded-lg text-center`}
+    >
+      <p className={`text-sm md:text-base font-bold ${s.boxText}`}>{title}</p>
+    </div>
+  );
+}
+
+/** 세로 텍스트 분과 박스 (sub-item). 글자가 위→아래로 쌓임. */
+function VerticalItemBox({ label, accent }: { label: string; accent: keyof typeof ACCENT_STYLES }) {
+  const s = ACCENT_STYLES[accent];
+  return (
+    <div
+      style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}
+      className={`${s.boxBg} ${s.boxText} border ${s.boxBorder} rounded-md px-2 py-4 font-semibold text-sm min-h-[110px] flex items-center justify-center tracking-wider`}
+    >
+      {label}
+    </div>
+  );
+}
 
 export default function OrganizationPage() {
   return (
@@ -101,105 +130,141 @@ export default function OrganizationPage() {
 
       <section className="py-24 md:py-32">
         <div className="max-w-[1200px] mx-auto px-4">
-          {/* ========== 리더십 체인 ========== */}
-          <div className="mb-16 md:mb-20">
-            <h2 className="text-xl md:text-2xl font-bold text-navy mb-6 md:mb-8">
-              리더십
-            </h2>
-            <div className="flex flex-col md:flex-row items-stretch gap-4 md:gap-0">
-              {LEADERSHIP.map((leader, i) => (
-                <div key={leader.title} className="flex-1 flex items-center">
-                  {/* 카드 */}
-                  <div className="relative flex-1 bg-white border border-foam rounded-2xl p-6 md:p-8 text-center shadow-sm hover:shadow-md transition-shadow">
-                    {/* 좌측 컬러 바 (세로 막대) */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-sunset rounded-l-2xl" aria-hidden />
-                    <p className="text-xs font-semibold uppercase tracking-wider text-sunset mb-2">
-                      LEADERSHIP
-                    </p>
-                    <h3 className="text-2xl md:text-3xl font-bold text-navy mb-2">
-                      {leader.title}
-                    </h3>
-                    <p className="text-sm text-navy/60">{leader.description}</p>
-                  </div>
-                  {/* 연결 화살표 (데스크탑: 가로, 모바일: 세로) */}
-                  {i < LEADERSHIP.length - 1 && (
-                    <>
-                      <div className="hidden md:flex items-center px-2 text-navy/30" aria-hidden>
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                          <polyline points="12 5 19 12 12 19" />
-                        </svg>
-                      </div>
-                      <div className="md:hidden flex justify-center py-1 text-navy/30" aria-hidden>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {/* ==================================================== */}
+          {/* DESKTOP TREE (lg+)                                    */}
+          {/* ==================================================== */}
+          <div className="hidden lg:block">
+            <div className="flex flex-col items-center">
+              {/* 회장 */}
+              <LeaderBox title={LEADERSHIP[0]!} />
+              <VLine />
+
+              {/* 부회장 */}
+              <LeaderBox title={LEADERSHIP[1]!} />
+              <VLine />
+
+              {/* 사무국장 */}
+              <LeaderBox title={LEADERSHIP[2]!} />
+              <VLine />
+
+              {/* 사무국장 → 부서 bus: 가로 직선 connector */}
+              <div className="relative w-full flex justify-center">
+                {/* 가로 bus line */}
+                <div
+                  className="absolute top-0 h-[2px] bg-navy/20"
+                  style={{ left: '12.5%', right: '12.5%' }}
+                  aria-hidden
+                />
+                {/* 부서 4개 + 각 부서 sub-items */}
+                <div className="flex justify-between w-full pt-0 gap-4">
+                  {DEPARTMENTS.map((dept) => (
+                    <div key={dept.title} className="flex-1 flex flex-col items-center">
+                      {/* bus → 부서 세로 연결선 */}
+                      <VLine height="h-8" />
+                      <DeptBox title={dept.title} accent={dept.accent} />
+
+                      {/* 부서 → sub-items */}
+                      {dept.items.length > 0 && (
+                        <>
+                          <VLine height="h-8" />
+                          {/* sub bus + sub-items */}
+                          <div className="relative flex justify-center gap-2">
+                            {/* sub bus line */}
+                            {dept.items.length > 1 && (
+                              <div
+                                className="absolute top-0 h-[2px] bg-navy/20"
+                                style={{
+                                  left: `calc(100% / ${dept.items.length} / 2)`,
+                                  right: `calc(100% / ${dept.items.length} / 2)`,
+                                }}
+                                aria-hidden
+                              />
+                            )}
+                            {dept.items.map((item) => (
+                              <div key={item} className="flex flex-col items-center">
+                                <VLine height="h-6" />
+                                <VerticalItemBox label={item} accent={dept.accent} />
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ==================================================== */}
+          {/* MOBILE / TABLET (below lg)                            */}
+          {/* ==================================================== */}
+          <div className="lg:hidden">
+            {/* 리더십 체인 (세로) */}
+            <div className="mb-12">
+              <h2 className="text-lg font-bold text-navy mb-5">리더십</h2>
+              <div className="flex flex-col items-stretch gap-0">
+                {LEADERSHIP.map((title, i) => (
+                  <div key={title} className="flex flex-col items-center">
+                    <div className="w-full max-w-sm mx-auto bg-white border-2 border-ocean/30 rounded-lg px-6 py-4 text-center shadow-sm">
+                      <p className="text-base font-bold text-navy">{title}</p>
+                    </div>
+                    {i < LEADERSHIP.length - 1 && (
+                      <div className="py-1">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-navy/30">
                           <line x1="12" y1="5" x2="12" y2="19" />
                           <polyline points="5 12 12 19 19 12" />
                         </svg>
                       </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ========== 부서 섹션 ========== */}
-          <div className="mb-16 md:mb-20">
-            <div className="flex items-baseline gap-3 mb-6 md:mb-8">
-              <h2 className="text-xl md:text-2xl font-bold text-navy">
-                부서 및 분과
-              </h2>
-              <span className="text-xs text-navy/40 font-medium">
-                사무국장 산하 {DEPARTMENTS.length}개 부서
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {DEPARTMENTS.map((dept) => {
-                const styles = ACCENT_STYLES[dept.accent];
-                return (
-                  <div
-                    key={dept.title}
-                    className="relative overflow-hidden bg-white border border-foam rounded-2xl p-6 md:p-7 hover:shadow-md transition-shadow flex flex-col"
-                  >
-                    {/* 상단 컬러 바 */}
-                    <div className={`absolute top-0 left-0 right-0 h-1 ${styles.bar}`} aria-hidden />
-
-                    {/* 헤더 */}
-                    <div className="mb-5 pt-2">
-                      <h3 className="text-lg md:text-xl font-bold text-navy mb-1.5">
-                        {dept.title}
-                      </h3>
-                      <p className="text-xs text-navy/55 leading-relaxed">
-                        {dept.description}
-                      </p>
-                    </div>
-
-                    {/* 분과 목록 */}
-                    {dept.items.length > 0 ? (
-                      <ul className="flex flex-wrap gap-1.5 mt-auto">
-                        {dept.items.map((item) => (
-                          <li
-                            key={item}
-                            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${styles.chipBg} ${styles.chipText}`}
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-[11px] text-navy/30 italic mt-auto">
-                        단일 부서 운영
-                      </p>
                     )}
                   </div>
-                );
-              })}
+                ))}
+              </div>
+            </div>
+
+            {/* 부서 섹션 */}
+            <div>
+              <h2 className="text-lg font-bold text-navy mb-5">
+                부서 및 분과
+                <span className="ml-2 text-xs font-medium text-navy/40">
+                  사무국장 산하 {DEPARTMENTS.length}개 부서
+                </span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {DEPARTMENTS.map((dept) => {
+                  const s = ACCENT_STYLES[dept.accent];
+                  return (
+                    <div
+                      key={dept.title}
+                      className="relative overflow-hidden bg-white border border-foam rounded-xl p-5"
+                    >
+                      <div className={`absolute top-0 left-0 right-0 h-1 ${s.bar}`} aria-hidden />
+                      <h3 className={`text-base font-bold ${s.boxText} mb-3 pt-1`}>
+                        {dept.title}
+                      </h3>
+                      {dept.items.length > 0 ? (
+                        <ul className="flex flex-wrap gap-1.5">
+                          {dept.items.map((item) => (
+                            <li
+                              key={item}
+                              className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${s.chipBg} ${s.chipText}`}
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-[11px] text-navy/30 italic">단일 부서 운영</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           {/* ========== 연락처 안내 ========== */}
-          <div className="bg-white rounded-2xl border border-foam p-8 md:p-10">
+          <div className="mt-16 md:mt-24 bg-white rounded-2xl border border-foam p-8 md:p-10">
             <h2 className="text-xl font-bold text-navy mb-6">연락처 안내</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="flex items-start gap-3">
