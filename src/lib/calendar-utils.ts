@@ -163,6 +163,22 @@ export function formatEventDate(event: CalendarEvent): string {
 }
 
 /**
+ * 제목에서 "회차N" 형식을 "N회차"로 정규화한다.
+ *
+ * 예시:
+ * - "랜드서핑 교실 상반기 회차1 - 메커니즘" → "랜드서핑 교실 상반기 1회차 - 메커니즘"
+ * - "맞춤형 서핑교실 회차7"              → "맞춤형 서핑교실 7회차"
+ * - "랜드서핑 교실 상반기 1회차"          → (변화 없음)
+ * - "회차별 운영 계획"                   → (변화 없음, 숫자 뒤따르지 않음)
+ *
+ * 위치 무관하게 문자열 전체에서 "회차<숫자>" 패턴을 모두 교체한다.
+ */
+export function normalizeRoundText(title: string): string {
+  if (!title) return title;
+  return title.replace(/회차\s*(\d+)/g, '$1회차');
+}
+
+/**
  * 제목에서 차수 정보 추출
  * 지원 패턴:
  * - "(Day N)", "Day N", "(N일차)", "N일차", "(N일)", "(N/M)"

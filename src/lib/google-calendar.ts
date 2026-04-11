@@ -9,6 +9,7 @@ import {
   type CalendarEvent,
   getEventStatus,
   mergeEventSeries,
+  normalizeRoundText,
 } from './calendar-utils';
 
 // 편의상 re-export (서버 컴포넌트에서 한 번의 import로 쓰도록)
@@ -107,7 +108,7 @@ async function fetchSingleCalendar(calendarId: string): Promise<CalendarEvent[]>
 
       events.push({
         uid: vevent.uid || key,
-        title: (vevent.summary as string) || '제목 없음',
+        title: normalizeRoundText((vevent.summary as string) || '제목 없음'),
         description: cleanDescription((vevent.description as string) || ''),
         location: (vevent.location as string) || '',
         start,
