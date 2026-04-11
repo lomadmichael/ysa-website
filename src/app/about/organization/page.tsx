@@ -12,35 +12,193 @@ const BREADCRUMBS = [
   { label: '조직도' },
 ];
 
+/** 리더십 체인 (회장 → 부회장 → 사무국장) */
+const LEADERSHIP: { title: string; description: string }[] = [
+  { title: '회장', description: '협회 최고 의결권자' },
+  { title: '부회장', description: '회장 직무 보좌' },
+  { title: '사무국장', description: '협회 실무 총괄' },
+];
+
+/**
+ * 4개 부서 구조.
+ * 각 부서는 사무국장 산하에서 해당 분야를 담당.
+ */
+const DEPARTMENTS: {
+  title: string;
+  description: string;
+  accent: 'sunset' | 'ocean' | 'teal' | 'navy';
+  items: string[];
+}[] = [
+  {
+    title: '기획/행정/회계',
+    description: '협회 운영 전반과 회계 관리',
+    accent: 'navy',
+    items: [],
+  },
+  {
+    title: '교육',
+    description: '지도자·선수·심판 전문인력 양성',
+    accent: 'ocean',
+    items: ['지도자', '심판', '선수', '레스큐', '대안서핑'],
+  },
+  {
+    title: '대회',
+    description: '서핑 대회 기획 및 현장 운영',
+    accent: 'sunset',
+    items: ['심판', '대회장 세팅', '운영'],
+  },
+  {
+    title: '경영지원',
+    description: '마케팅·홍보·공동사업 지원',
+    accent: 'teal',
+    items: ['페스티벌', '이벤트', '공동사업', '홍보'],
+  },
+];
+
+/** accent 색상 → Tailwind class 매핑 (JIT 정적 분석용 하드코드) */
+const ACCENT_STYLES: Record<
+  'sunset' | 'ocean' | 'teal' | 'navy',
+  { bar: string; badge: string; ring: string; chipBg: string; chipText: string }
+> = {
+  sunset: {
+    bar: 'bg-sunset',
+    badge: 'bg-sunset/10 text-sunset',
+    ring: 'ring-sunset/20',
+    chipBg: 'bg-sunset/10',
+    chipText: 'text-sunset',
+  },
+  ocean: {
+    bar: 'bg-ocean',
+    badge: 'bg-ocean/10 text-ocean',
+    ring: 'ring-ocean/20',
+    chipBg: 'bg-ocean/10',
+    chipText: 'text-ocean',
+  },
+  teal: {
+    bar: 'bg-teal',
+    badge: 'bg-teal/10 text-teal',
+    ring: 'ring-teal/20',
+    chipBg: 'bg-teal/10',
+    chipText: 'text-teal',
+  },
+  navy: {
+    bar: 'bg-navy',
+    badge: 'bg-navy/10 text-navy/70',
+    ring: 'ring-navy/20',
+    chipBg: 'bg-navy/5',
+    chipText: 'text-navy/60',
+  },
+};
+
 export default function OrganizationPage() {
   return (
     <>
-      <PageHeader title="조직도" breadcrumbs={BREADCRUMBS} />
+      <PageHeader
+        title="조직도"
+        breadcrumbs={BREADCRUMBS}
+        description="양양군서핑협회의 운영 조직 구조입니다."
+      />
 
       <section className="py-24 md:py-32">
         <div className="max-w-[1200px] mx-auto px-4">
-          {/* 조직도 이미지 플레이스홀더 */}
-          <div className="bg-foam rounded-2xl border border-foam min-h-[400px] md:min-h-[500px] flex items-center justify-center mb-16">
-            <div className="text-center text-navy/40">
-              <svg
-                className="w-20 h-20 mx-auto mb-4 opacity-40"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"
-                />
-              </svg>
-              <p className="text-base font-medium">조직도 이미지</p>
-              <p className="text-sm mt-1">준비 중입니다</p>
+          {/* ========== 리더십 체인 ========== */}
+          <div className="mb-16 md:mb-20">
+            <h2 className="text-xl md:text-2xl font-bold text-navy mb-6 md:mb-8">
+              리더십
+            </h2>
+            <div className="flex flex-col md:flex-row items-stretch gap-4 md:gap-0">
+              {LEADERSHIP.map((leader, i) => (
+                <div key={leader.title} className="flex-1 flex items-center">
+                  {/* 카드 */}
+                  <div className="relative flex-1 bg-white border border-foam rounded-2xl p-6 md:p-8 text-center shadow-sm hover:shadow-md transition-shadow">
+                    {/* 좌측 컬러 바 (세로 막대) */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-sunset rounded-l-2xl" aria-hidden />
+                    <p className="text-xs font-semibold uppercase tracking-wider text-sunset mb-2">
+                      LEADERSHIP
+                    </p>
+                    <h3 className="text-2xl md:text-3xl font-bold text-navy mb-2">
+                      {leader.title}
+                    </h3>
+                    <p className="text-sm text-navy/60">{leader.description}</p>
+                  </div>
+                  {/* 연결 화살표 (데스크탑: 가로, 모바일: 세로) */}
+                  {i < LEADERSHIP.length - 1 && (
+                    <>
+                      <div className="hidden md:flex items-center px-2 text-navy/30" aria-hidden>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </div>
+                      <div className="md:hidden flex justify-center py-1 text-navy/30" aria-hidden>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <polyline points="5 12 12 19 19 12" />
+                        </svg>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* 연락처 정보 */}
+          {/* ========== 부서 섹션 ========== */}
+          <div className="mb-16 md:mb-20">
+            <div className="flex items-baseline gap-3 mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-navy">
+                부서 및 분과
+              </h2>
+              <span className="text-xs text-navy/40 font-medium">
+                사무국장 산하 {DEPARTMENTS.length}개 부서
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {DEPARTMENTS.map((dept) => {
+                const styles = ACCENT_STYLES[dept.accent];
+                return (
+                  <div
+                    key={dept.title}
+                    className="relative overflow-hidden bg-white border border-foam rounded-2xl p-6 md:p-7 hover:shadow-md transition-shadow flex flex-col"
+                  >
+                    {/* 상단 컬러 바 */}
+                    <div className={`absolute top-0 left-0 right-0 h-1 ${styles.bar}`} aria-hidden />
+
+                    {/* 헤더 */}
+                    <div className="mb-5 pt-2">
+                      <h3 className="text-lg md:text-xl font-bold text-navy mb-1.5">
+                        {dept.title}
+                      </h3>
+                      <p className="text-xs text-navy/55 leading-relaxed">
+                        {dept.description}
+                      </p>
+                    </div>
+
+                    {/* 분과 목록 */}
+                    {dept.items.length > 0 ? (
+                      <ul className="flex flex-wrap gap-1.5 mt-auto">
+                        {dept.items.map((item) => (
+                          <li
+                            key={item}
+                            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${styles.chipBg} ${styles.chipText}`}
+                          >
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[11px] text-navy/30 italic mt-auto">
+                        단일 부서 운영
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ========== 연락처 안내 ========== */}
           <div className="bg-white rounded-2xl border border-foam p-8 md:p-10">
             <h2 className="text-xl font-bold text-navy mb-6">연락처 안내</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
