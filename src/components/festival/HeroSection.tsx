@@ -1,19 +1,16 @@
-'use client';
-
-import { useState } from 'react';
 import Image from 'next/image';
 
-export default function FestivalHero() {
-  const [imageLoaded, setImageLoaded] = useState(false);
+// hero_02.jpg의 축소/블러 처리된 16px JPEG (315 bytes, build time에 sharp로 생성).
+// placeholder='blur'로 첫 프레임부터 실제 이미지의 흐릿한 버전이 보여 깜박임 없음.
+const HERO_BLUR_DATA_URL =
+  'data:image/jpeg;base64,/9j/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAALABADASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAQIDBP/EACAQAAEEAgEFAAAAAAAAAAAAAAIAAQMEEiERFDJSYaH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABYRAAMAAAAAAAAAAAAAAAAAAAABE//aAAwDAQACEQMRAD8AQKtQI9nLl6ZVqn0kuYllrYvyyzjYl47vjIvYl832pmxRH//Z';
 
+export default function FestivalHero() {
   return (
-    <section
-      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy"
-      style={{ backgroundColor: '#0A3D62' }}
-    >
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy">
       {/*
-        <Image priority>로 LCP 이미지 프리로드 + Next.js 자동 최적화.
-        + onLoad 기반 fade-in으로 배경색 → 이미지 전환 시 깜박임 제거.
+        placeholder='blur' + blurDataURL = 첫 프레임부터 실제 사진의 흐릿한 버전 표시.
+        실제 이미지 로드 완료 시 Next.js가 자동으로 부드럽게 크로스페이드.
       */}
       <Image
         src="/images/history/hero_02.jpg"
@@ -22,10 +19,9 @@ export default function FestivalHero() {
         priority
         sizes="100vw"
         quality={85}
-        onLoad={() => setImageLoaded(true)}
-        className={`object-cover object-center transition-opacity duration-700 ease-out ${
-          imageLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        placeholder="blur"
+        blurDataURL={HERO_BLUR_DATA_URL}
+        className="object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy" />
 

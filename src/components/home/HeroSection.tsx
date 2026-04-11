@@ -1,23 +1,20 @@
-'use client';
-
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SITE } from '@/lib/constants';
 
-export default function HeroSection() {
-  // Image 로드 완료 여부. 완료 전엔 opacity 0 → 완료 시 fade-in.
-  // 깜박임(배경색 → 이미지 snap 전환) 방지용.
-  const [imageLoaded, setImageLoaded] = useState(false);
+// hero_03.png의 축소/블러 처리된 16px JPEG (291 bytes, build time에 sharp로 생성).
+// placeholder="blur" + blurDataURL 조합으로 첫 프레임부터 실제 이미지의
+// 흐릿한 버전이 보이게 해 배경색 노출 → 이미지 snap 전환 깜박임 제거.
+const HERO_BLUR_DATA_URL =
+  'data:image/jpeg;base64,/9j/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAJABADASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAQIEBf/EABwQAAICAgMAAAAAAAAAAAAAAAADAQIREyExQf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFREBAQAAAAAAAAAAAAAAAAAAABH/2gAMAwEAAhEDEQA/ANeLqxwyAbVe2wQr6GsIlf/Z';
 
+export default function HeroSection() {
   return (
-    <section
-      className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden"
-      style={{ backgroundColor: '#0A3D62' }}
-    >
+    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
       {/*
-        Next.js <Image priority> → HTML <head>에 rel="preload" 자동 삽입 + WebP/AVIF 변환.
-        + onLoad 기반 fade-in으로 배경색 → 이미지 전환 시 깜박임 제거.
+        placeholder='blur' + blurDataURL = 첫 프레임부터 실제 사진의 흐릿한 버전 표시.
+        실제 이미지 로드 완료 시 Next.js가 자동으로 부드럽게 크로스페이드.
+        → 배경색 snap 전환/깜박임 완전 제거.
       */}
       <Image
         src="/images/hero_03.png"
@@ -26,10 +23,9 @@ export default function HeroSection() {
         priority
         sizes="100vw"
         quality={85}
-        onLoad={() => setImageLoaded(true)}
-        className={`object-cover object-center transition-opacity duration-700 ease-out ${
-          imageLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        placeholder="blur"
+        blurDataURL={HERO_BLUR_DATA_URL}
+        className="object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
 
