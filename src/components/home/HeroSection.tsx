@@ -1,8 +1,15 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SITE } from '@/lib/constants';
 
 export default function HeroSection() {
+  // Image 로드 완료 여부. 완료 전엔 opacity 0 → 완료 시 fade-in.
+  // 깜박임(배경색 → 이미지 snap 전환) 방지용.
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <section
       className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden"
@@ -10,8 +17,7 @@ export default function HeroSection() {
     >
       {/*
         Next.js <Image priority> → HTML <head>에 rel="preload" 자동 삽입 + WebP/AVIF 변환.
-        CSS backgroundImage는 CSS 파싱 후에야 요청이 시작되어 배경색이 먼저 노출되는
-        이슈가 있어 <Image>로 전환.
+        + onLoad 기반 fade-in으로 배경색 → 이미지 전환 시 깜박임 제거.
       */}
       <Image
         src="/images/hero_03.png"
@@ -20,7 +26,10 @@ export default function HeroSection() {
         priority
         sizes="100vw"
         quality={85}
-        className="object-cover object-center"
+        onLoad={() => setImageLoaded(true)}
+        className={`object-cover object-center transition-opacity duration-700 ease-out ${
+          imageLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
 

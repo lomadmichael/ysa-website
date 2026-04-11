@@ -1,6 +1,11 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 
 export default function FestivalHero() {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <section
       className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy"
@@ -8,8 +13,7 @@ export default function FestivalHero() {
     >
       {/*
         <Image priority>로 LCP 이미지 프리로드 + Next.js 자동 최적화.
-        기존 CSS backgroundImage는 브라우저가 CSS 파싱 후에야 요청을 시작해
-        배경색이 먼저 노출되는 이슈가 있었음.
+        + onLoad 기반 fade-in으로 배경색 → 이미지 전환 시 깜박임 제거.
       */}
       <Image
         src="/images/history/hero_02.jpg"
@@ -18,7 +22,10 @@ export default function FestivalHero() {
         priority
         sizes="100vw"
         quality={85}
-        className="object-cover object-center"
+        onLoad={() => setImageLoaded(true)}
+        className={`object-cover object-center transition-opacity duration-700 ease-out ${
+          imageLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy" />
 
