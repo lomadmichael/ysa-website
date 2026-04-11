@@ -14,7 +14,6 @@ const tabs = [
   { label: '연간 일정', href: '/schedule', active: false },
   { label: '모집중 일정', href: '/schedule/open', active: true },
   { label: '종료된 일정', href: '/schedule/closed', active: false },
-  { label: '결과·기록', href: '/schedule/results', active: false },
 ];
 
 export default async function ScheduleOpenPage() {

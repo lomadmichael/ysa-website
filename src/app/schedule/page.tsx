@@ -15,7 +15,6 @@ const tabs = [
   { label: '연간 일정', href: '/schedule', active: true },
   { label: '모집중 일정', href: '/schedule/open', active: false },
   { label: '종료된 일정', href: '/schedule/closed', active: false },
-  { label: '결과·기록', href: '/schedule/results', active: false },
 ];
 
 /** 30일 이내 시작하는 upcoming/ongoing 이벤트 */

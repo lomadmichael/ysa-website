@@ -119,7 +119,7 @@ export default function CompetitionPage() {
                 진행 중이거나 예정된 대회 정보가 궁금하신가요?
               </h3>
               <p className="text-sm text-navy/60">
-                연간 일정, 모집중 일정, 결과·기록은 일정안내 페이지에서 확인하실 수 있습니다.
+                연간 일정, 모집중 일정, 종료된 일정은 일정안내 페이지에서 확인하실 수 있습니다.
               </p>
             </div>
             <Link

@@ -49,7 +49,6 @@ export const NAV_ITEMS = [
       { label: '연간 일정', href: '/schedule' },
       { label: '모집중 일정', href: '/schedule/open' },
       { label: '종료된 일정', href: '/schedule/closed' },
-      { label: '결과·기록', href: '/schedule/results' },
     ],
   },
   {
