@@ -42,7 +42,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     title: '2025 Yangyang Surfing Festival · 10주년',
     slogan: 'SAVE OUR SEAS',
     posterImage: '/images/history/2025-poster_01.jpg',
-    thumbnail: '/images/history/2025-photo.jpg',
+    thumbnail: '/images/history/Title Image/2025-title.jpg',
     descriptionKo:
       '2014년 첫 파도를 시작으로, 양양 서핑 페스티벌은 10년 동안 수많은 순간을 지나왔습니다. 파도는 거센 물결 속에서도 서퍼들과 함께 성장하며 대한민국 서핑문화의 역사를 써왔습니다. 이 기록은 단순한 대회의 면면이 아니라, 양양의 바다와 사람, 그리고 문화가 함께 만들어온 시간의 흔적입니다.',
     descriptionEn:
@@ -55,7 +55,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     period: '09.01 ~ 11.30',
     title: '제9회 양양군수배 국제서핑대회',
     posterImage: '/images/history/Poster/2024-poster.jpg',
-    thumbnail: '/images/history/2024-photo.jpg',
+    thumbnail: '/images/history/Title Image/2024-title.jpg',
     descriptionKo:
       '양양 전역이 파도를 타는 축제의 장으로 자리매김하며 비치요가, 서핑 체험 등 다양한 해변 프로그램을 선보이며 양양만의 해양문화 활성화를 이끌었습니다.',
     descriptionEn:
@@ -69,7 +69,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     title: '제8회 해양수산부장관배 서핑대회',
     slogan: '파도 있는 날',
     posterImage: '/images/history/Poster/2023-poster.jpg',
-    thumbnail: '/images/history/2023-photo.jpg',
+    thumbnail: '/images/history/Title Image/2023-title.jpg',
     descriptionKo:
       '서핑 페스티벌과 서핑 대회를 분리 개최함으로써 축제 거리와 전문성을 모두 확보하고자 했습니다. 양양이 서핑의 메카로 굳혀가는 한 해로 기록되었습니다.',
     descriptionEn:
@@ -96,7 +96,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     period: '10.11 ~ 10.13',
     title: '제6회 양양서핑페스티벌',
     posterImage: '/images/history/Poster/2019-poster.jpg',
-    thumbnail: '/images/history/2019-photo.jpg',
+    thumbnail: '/images/history/Title Image/2019-title.jpg',
     descriptionKo:
       '서핑의 세대교체와 진보적인 실력 향상을 보여준 경기로 평가받으며, 수준 높은 경기력이 펼쳐진 대회로 기록되었습니다.',
     descriptionEn:
