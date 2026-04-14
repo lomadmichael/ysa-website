@@ -1,13 +1,15 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
-// TODO: Supabase 연동 후 실제 데이터로 교체
+// 메인 갤러리 프리뷰: public/images/history/Gallery 의 대표 이미지 6장.
+// 전체 갤러리는 Supabase 연동 후 /notice/gallery 에서 제공.
 const galleryItems = [
-  { id: 1, title: '2024 양양군수배 국제서핑대회', alt: '국제서핑대회 사진' },
-  { id: 2, title: '2025 강사 양성교육', alt: '강사 양성교육 사진' },
-  { id: 3, title: '2023 해양수산부장관배 서핑대회', alt: '해양수산부장관배 사진' },
-  { id: 4, title: '서핑특화 교육 현장', alt: '서핑특화 교육 사진' },
-  { id: 5, title: '양양서핑페스티벌', alt: '페스티벌 사진' },
-  { id: 6, title: '비치요가 체험', alt: '비치요가 사진' },
+  { id: 1, src: '/images/history/Gallery/surfing_01.jpg', alt: '양양 서핑 현장' },
+  { id: 2, src: '/images/history/Gallery/surfing_02.jpg', alt: '양양 서핑 현장' },
+  { id: 3, src: '/images/history/Gallery/surfing_03.jpg', alt: '양양 서핑 현장' },
+  { id: 4, src: '/images/history/Gallery/surfing_06.jpg', alt: '양양 서핑 현장' },
+  { id: 5, src: '/images/history/Gallery/surfing_04.jpg', alt: '양양 서핑 현장' },
+  { id: 6, src: '/images/history/Gallery/surfing_05.jpg', alt: '양양 서핑 현장' },
 ];
 
 export default function GalleryPreview() {
@@ -45,24 +47,18 @@ export default function GalleryPreview() {
                   isLarge ? 'col-span-2 row-span-2 aspect-square' : 'aspect-[4/3]'
                 }`}
               >
-                <div className="absolute inset-0 flex items-center justify-center text-navy/15 text-xs text-center px-4">
-                  {item.alt}
-                </div>
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  sizes={isLarge ? '(max-width: 1024px) 100vw, 600px' : '(max-width: 1024px) 50vw, 300px'}
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <p className="absolute bottom-3 left-3 right-3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  {item.title}
-                </p>
               </Link>
             );
           })}
         </div>
-
-        {galleryItems.length === 0 && (
-          <div className="text-center py-16 text-navy/40">
-            <p className="mb-2">등록된 사진이 없습니다.</p>
-            <p className="text-sm">협회 활동 사진이 등록되면 이곳에서 확인하실 수 있습니다.</p>
-          </div>
-        )}
       </div>
     </section>
   );
