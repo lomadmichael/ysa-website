@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: '보도자료',
 };
 
+// admin에서 수정 즉시 목록에 반영되도록 매 요청 렌더
+export const dynamic = 'force-dynamic';
+
 const subNav = [
   { label: '공지사항', href: '/notice', active: false },
   { label: '보도자료', href: '/notice/press', active: true },
@@ -28,6 +31,21 @@ async function getPressItems(): Promise<PressItem[]> {
   } catch {
     return [];
   }
+}
+
+/** HTML 태그 제거 후 간단 요약 텍스트로 변환 */
+function stripHtml(html: string, maxLen = 140): string {
+  if (!html) return '';
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (text.length <= maxLen) return text;
+  return text.slice(0, maxLen) + '…';
 }
 
 export default async function PressPage() {
@@ -64,32 +82,50 @@ export default async function PressPage() {
 
           {items.length > 0 ? (
             <div className="space-y-3">
-              {items.map((item) => (
-                <a
-                  key={item.id}
-                  href={item.url || '#'}
-                  target={item.url ? '_blank' : undefined}
-                  rel={item.url ? 'noopener noreferrer' : undefined}
-                  className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
-                >
-                  {item.source && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean shrink-0">
-                      {item.source}
-                    </span>
-                  )}
-                  <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
-                    {item.title}
-                  </span>
-                  <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
-                    {new Date(item.date).toLocaleDateString('ko-KR')}
-                  </span>
-                  {item.url && (
-                    <svg className="w-4 h-4 text-navy/30 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
-                  )}
-                </a>
-              ))}
+              {items.map((item) => {
+                const summary = stripHtml(item.content ?? '');
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/notice/press/${item.id}`}
+                    className="block p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          {item.source && (
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
+                              {item.source}
+                            </span>
+                          )}
+                          <span className="text-xs text-navy/40">
+                            {new Date(item.date).toLocaleDateString('ko-KR')}
+                          </span>
+                        </div>
+                        <h3 className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors mb-1">
+                          {item.title}
+                        </h3>
+                        {summary && (
+                          <p className="text-xs text-navy/55 leading-relaxed line-clamp-2">
+                            {summary}
+                          </p>
+                        )}
+                      </div>
+                      {item.url && (
+                        <span
+                          className="shrink-0 inline-flex items-center gap-1 text-[11px] text-navy/40 mt-1"
+                          title="원문 링크가 있습니다"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                          </svg>
+                          원문
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-20 text-navy/40">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import TiptapEditor from '@/components/admin/TiptapEditor';
 
 export default function NewPress() {
   const router = useRouter();
@@ -10,6 +11,7 @@ export default function NewPress() {
   const [source, setSource] = useState('');
   const [url, setUrl] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,6 +23,7 @@ export default function NewPress() {
       source: source || null,
       url: url || null,
       date,
+      content,
     });
 
     if (error) {
@@ -72,7 +75,7 @@ export default function NewPress() {
         </div>
 
         <label className="block">
-          <span className="text-sm font-medium text-navy">기사 URL</span>
+          <span className="text-sm font-medium text-navy">원문 기사 URL</span>
           <input
             type="url"
             value={url}
@@ -81,9 +84,17 @@ export default function NewPress() {
             className="mt-1 block w-full px-3 py-2 border border-foam rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
           />
           <span className="mt-1 block text-xs text-navy/50">
-            비워두면 링크 없이 제목만 표시됩니다.
+            비워두면 상세 페이지에 '원문 보기' 버튼이 노출되지 않습니다.
           </span>
         </label>
+
+        <div>
+          <span className="text-sm font-medium text-navy block mb-1">본문 내용</span>
+          <TiptapEditor content={content} onChange={setContent} />
+          <span className="mt-1 block text-xs text-navy/50">
+            상세 페이지에 표시할 본문. 기사 요약, 협회 의견 등을 자유롭게 작성.
+          </span>
+        </div>
 
         <div className="flex gap-3 pt-2">
           <button

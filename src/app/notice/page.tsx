@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: '공지사항',
 };
 
+// admin에서 공지 작성/수정 즉시 목록에 반영되도록 매 요청 렌더
+// (기본값은 static이라 빌드 시점 데이터로 고정되어 실시간 반영 안 됨)
+export const dynamic = 'force-dynamic';
+
 /** Supabase 미설정 시 fallback 데이터. 프로젝트 연결 안 됐을 때만 표시. */
 const mockNotices: Notice[] = [
   {

@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: '사진·영상',
 };
 
+// admin 업로드 즉시 반영되도록 매 요청 렌더
+export const dynamic = 'force-dynamic';
+
 const subNav = [
   { label: '공지사항', href: '/notice', active: false },
   { label: '보도자료', href: '/notice/press', active: false },

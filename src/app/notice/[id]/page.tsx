@@ -5,6 +5,9 @@ import PageHeader from '@/components/shared/PageHeader';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { NOTICE_CATEGORY_LABEL, type Notice } from '@/lib/database.types';
 
+// admin 수정 즉시 반영되도록 매 요청 렌더
+export const dynamic = 'force-dynamic';
+
 const categoryColor: Record<string, string> = {
   '대회': 'bg-sunset/10 text-sunset',
   '교육': 'bg-teal/10 text-teal',

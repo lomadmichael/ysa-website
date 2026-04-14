@@ -54,6 +54,8 @@ export type PressItem = {
   url: string | null;
   date: string;
   created_at: string;
+  /** 본문 내용 (TiptapEditor로 생성된 HTML). migration 002 이후 추가됨. */
+  content: string;
 };
 
 export type FaqItem = {
