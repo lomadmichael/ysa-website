@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
+import NoticeList from '@/components/notice/NoticeList';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { NOTICE_CATEGORY_LABEL, type Notice } from '@/lib/database.types';
+import type { Notice } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: '공지사항',
 };
 
+/** Supabase 미설정 시 fallback 데이터. 프로젝트 연결 안 됐을 때만 표시. */
 const mockNotices: Notice[] = [
   {
     id: 1,
@@ -45,28 +47,20 @@ const mockNotices: Notice[] = [
 ];
 
 async function getNotices(): Promise<Notice[]> {
+  // 환경변수 미설정 시 mock 반환 (개발 편의)
+  if (!isSupabaseConfigured) return mockNotices;
   try {
-    if (!isSupabaseConfigured) return mockNotices;
     const { data, error } = await supabase
       .from('notices')
       .select('*')
       .order('pinned', { ascending: false })
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data && data.length > 0 ? data : mockNotices;
+    return data ?? [];
   } catch {
-    return mockNotices;
+    return [];
   }
 }
-
-const categories = ['전체', '대회', '교육', '행사', '협회'];
-
-const categoryColor: Record<string, string> = {
-  '대회': 'bg-sunset/10 text-sunset',
-  '교육': 'bg-teal/10 text-teal',
-  '행사': 'bg-ocean/10 text-ocean',
-  '협회': 'bg-navy/10 text-navy',
-};
 
 const subNav = [
   { label: '공지사항', href: '/notice', active: true },
@@ -108,63 +102,8 @@ export default async function NoticePage() {
             ))}
           </nav>
 
-          {/* Category Filter */}
-          <div className="flex gap-2 mb-8 overflow-x-auto pb-1">
-            {categories.map((cat, i) => (
-              <button
-                key={cat}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  i === 0
-                    ? 'bg-ocean text-white'
-                    : 'bg-foam text-navy/60 hover:bg-ocean/10 hover:text-ocean'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Notice List */}
-          <div className="space-y-3">
-            {notices.map((notice) => {
-              const categoryLabel = NOTICE_CATEGORY_LABEL[notice.category] || notice.category;
-              return (
-                <Link
-                  key={notice.id}
-                  href={`/notice/${notice.id}`}
-                  className="flex items-center gap-4 p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
-                >
-                  {notice.pinned && (
-                    <span className="text-sunset text-xs font-bold shrink-0">
-                      고정
-                    </span>
-                  )}
-                  <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-sm shrink-0 ${
-                      categoryColor[categoryLabel] || 'bg-foam text-navy/60'
-                    }`}
-                  >
-                    {categoryLabel}
-                  </span>
-                  <span className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors truncate flex-1">
-                    {notice.title}
-                  </span>
-                  <span className="text-xs text-navy/40 shrink-0 hidden sm:block">
-                    {new Date(notice.created_at).toLocaleDateString('ko-KR')}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-
-          {notices.length === 0 && (
-            <div className="text-center py-20 text-navy/40">
-              <p className="text-[15px] font-medium mb-1">등록된 공지가 없습니다.</p>
-              <p className="text-sm text-navy/30">
-                새로운 소식이 등록되면 이곳에서 확인하실 수 있습니다.
-              </p>
-            </div>
-          )}
+          {/* List + Filter (client) */}
+          <NoticeList notices={notices} />
         </div>
       </section>
     </>

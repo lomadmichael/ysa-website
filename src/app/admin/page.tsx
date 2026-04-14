@@ -4,9 +4,10 @@ import Link from 'next/link';
 
 const STATS = [
   { label: '공지사항', href: '/admin/notices', color: 'bg-ocean' },
-  { label: '프로그램', href: '/admin/programs', color: 'bg-teal' },
-  { label: '대회', href: '/admin/competitions', color: 'bg-sunset' },
-  { label: '갤러리', href: '/admin/gallery', color: 'bg-navy' },
+  { label: '보도자료', href: '/admin/press', color: 'bg-teal' },
+  { label: '프로그램', href: '/admin/programs', color: 'bg-sunset' },
+  { label: '대회', href: '/admin/competitions', color: 'bg-navy' },
+  { label: '갤러리', href: '/admin/gallery', color: 'bg-ocean' },
 ];
 
 export default function AdminDashboard() {

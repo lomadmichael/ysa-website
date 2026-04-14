@@ -9,6 +9,7 @@ import type { Session } from '@supabase/supabase-js';
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', icon: '□' },
   { href: '/admin/notices', label: '공지사항', icon: '□' },
+  { href: '/admin/press', label: '보도자료', icon: '□' },
   { href: '/admin/programs', label: '프로그램', icon: '□' },
   { href: '/admin/competitions', label: '대회', icon: '□' },
   { href: '/admin/gallery', label: '갤러리', icon: '□' },
