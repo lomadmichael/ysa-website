@@ -58,6 +58,18 @@ export type PressItem = {
   content: string;
 };
 
+export type DocumentItem = {
+  id: number;
+  title: string;
+  description: string | null;
+  file_url: string | null;
+  file_name: string | null;
+  file_size: number | null;
+  external_url: string | null;
+  date: string;
+  created_at: string;
+};
+
 export type FaqItem = {
   id: number;
   question: string;
@@ -88,6 +100,9 @@ export type GalleryUpdate = Partial<Omit<GalleryItem, 'id' | 'created_at'>>;
 
 export type PressInsert = NullableOptional<Omit<PressItem, 'id' | 'created_at'>>;
 export type PressUpdate = Partial<Omit<PressItem, 'id' | 'created_at'>>;
+
+export type DocumentInsert = NullableOptional<Omit<DocumentItem, 'id' | 'created_at'>>;
+export type DocumentUpdate = Partial<Omit<DocumentItem, 'id' | 'created_at'>>;
 
 export type FaqInsert = NullableOptional<Omit<FaqItem, 'id'>>;
 export type FaqUpdate = Partial<Omit<FaqItem, 'id'>>;
@@ -149,6 +164,12 @@ export type Database = {
         Row: PressItem;
         Insert: PressInsert;
         Update: PressUpdate;
+        Relationships: [];
+      };
+      documents: {
+        Row: DocumentItem;
+        Insert: DocumentInsert;
+        Update: DocumentUpdate;
         Relationships: [];
       };
       faq: {
