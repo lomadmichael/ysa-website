@@ -1,3 +1,6 @@
+// 갤러리·공지 등 admin 변경이 메인에 60초 내 반영되도록 ISR
+export const revalidate = 60;
+
 import HeroSection from '@/components/home/HeroSection';
 import QuickAccess from '@/components/home/QuickAccess';
 import AboutSummary from '@/components/home/AboutSummary';
