@@ -2,7 +2,22 @@ import Link from 'next/link';
 import { type ReactNode } from 'react';
 import { IconInstructor, IconReferee, IconSurf, IconTrophy, IconNotice } from '@/components/icons';
 
+const IconApply = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="3" width="14" height="18" rx="2" />
+    <path d="M9 7h6M9 11h6M9 15h4" />
+    <circle cx="17" cy="17" r="2.5" />
+    <path d="M15.5 17.5l1 1 2-2.5" />
+  </svg>
+);
+
 const items: { title: string; description: string; href: string; icon: ReactNode }[] = [
+  {
+    title: '교육 접수',
+    description: '심판/강사 인증 온라인 접수',
+    href: '/apply',
+    icon: <IconApply className="w-9 h-9" />,
+  },
   {
     title: '강사 교육',
     description: '서핑 강사 양성 프로그램',
@@ -42,7 +57,7 @@ export default function QuickAccess() {
         <h2 className="text-sm font-semibold text-purple tracking-widest uppercase mb-8 text-center">
           자주 찾는 안내
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {items.map((item) => (
             <Link
               key={item.title}

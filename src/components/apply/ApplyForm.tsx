@@ -1,0 +1,520 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+const CERT_API =
+  process.env.NEXT_PUBLIC_CERT_API_BASE ??
+  "https://cert-manager-taupe.vercel.app";
+
+interface Schedule {
+  id: string;
+  cert_type: "REF" | "INS";
+  round: number;
+  start_date: string;
+  end_date: string;
+  capacity: number;
+  current_count: number;
+  status: string;
+}
+
+interface Form {
+  schedule_id: string;
+  applicant_name: string;
+  applicant_name_en: string;
+  applicant_email: string;
+  applicant_phone: string;
+  applicant_birth_date: string;
+  applicant_gender: "" | "M" | "F";
+  applicant_address: string;
+  prev_completion: string;
+  photo_consent: boolean;
+  privacy_consent: boolean;
+}
+
+const PREV_COMPLETION_OPTIONS = [
+  { value: "completed_2022", label: "수료 (2022년)" },
+  { value: "completed_2023", label: "수료 (2023년)" },
+  { value: "completed_2024", label: "수료 (2024년)" },
+  { value: "completed_2025", label: "수료 (2025년)" },
+  { value: "none", label: "미수료" },
+];
+
+const certTypeLabel = (c: string) => (c === "REF" ? "심판" : "강사");
+
+const formatDate = (d: string) =>
+  new Date(d).toLocaleDateString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  });
+
+export default function ApplyForm() {
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState<{
+    waitlisted: boolean;
+    waitlistOrder?: number;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const [form, setForm] = useState<Form>({
+    schedule_id: "",
+    applicant_name: "",
+    applicant_name_en: "",
+    applicant_email: "",
+    applicant_phone: "",
+    applicant_birth_date: "",
+    applicant_gender: "",
+    applicant_address: "",
+    prev_completion: "",
+    photo_consent: false,
+    privacy_consent: false,
+  });
+
+  useEffect(() => {
+    fetch(`${CERT_API}/api/public/schedules`)
+      .then((r) => r.json())
+      .then((data: { schedules: Schedule[] }) => {
+        setSchedules(data.schedules ?? []);
+      })
+      .catch(() => setError("교육 일정을 불러올 수 없습니다."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  function updateField<K extends keyof Form>(key: K, value: Form[K]) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!form.privacy_consent) {
+      setError("개인정보 수집·이용에 동의해주세요.");
+      return;
+    }
+    if (
+      !form.schedule_id ||
+      !form.applicant_name ||
+      !form.applicant_email ||
+      !form.applicant_phone ||
+      !form.prev_completion
+    ) {
+      setError("필수 항목을 모두 입력해주세요.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${CERT_API}/api/public/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          schedule_id: form.schedule_id,
+          applicant_name: form.applicant_name,
+          applicant_name_en: form.applicant_name_en || null,
+          applicant_email: form.applicant_email,
+          applicant_phone: form.applicant_phone,
+          applicant_birth_date: form.applicant_birth_date || null,
+          applicant_gender: form.applicant_gender || null,
+          applicant_address: form.applicant_address || null,
+          prev_completion: form.prev_completion,
+          photo_consent: form.photo_consent,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "접수에 실패했습니다.");
+        return;
+      }
+      setSuccess({
+        waitlisted: data._waitlisted,
+        waitlistOrder: data._waitlistOrder,
+      });
+    } catch {
+      setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-12 animate-pulse rounded-lg bg-gray-100"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center space-y-4">
+        <div className="text-5xl">✅</div>
+        <h2 className="text-2xl font-bold text-green-900">
+          {success.waitlisted ? "대기 접수 완료" : "접수 완료"}
+        </h2>
+        <p className="text-green-800">
+          {success.waitlisted
+            ? `대기 순번 ${success.waitlistOrder}번으로 접수되었습니다. 빈 자리가 생기면 알림을 보내드립니다.`
+            : "접수가 정상적으로 완료되었습니다. 입력하신 연락처로 안내 메시지를 보내드립니다."}
+        </p>
+        <div className="flex justify-center gap-3 pt-2">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-lg bg-purple px-6 py-3 text-white font-medium hover:bg-purple/90"
+          >
+            홈으로
+          </Link>
+          <Link
+            href="/schedule"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50"
+          >
+            교육 일정 보기
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Group schedules by cert_type for display
+  const refSchedules = schedules.filter((s) => s.cert_type === "REF");
+  const insSchedules = schedules.filter((s) => s.cert_type === "INS");
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* 개인정보 동의 */}
+      <Section title="개인정보 수집 및 이용 동의">
+        <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700 space-y-2">
+          <p className="font-medium">수집 항목 및 목적</p>
+          <ul className="list-disc pl-5 space-y-1 text-xs">
+            <li>성명, 연락처, 이메일: 교육 안내 및 연락</li>
+            <li>생년월일, 성별, 영문명: 자격증 발급</li>
+            <li>주소: 자격증 배송</li>
+            <li>교육 수료 여부: 교육과정 편성</li>
+          </ul>
+          <p className="text-xs">
+            보유 기간: 교육 종료 후 3년 또는 자격증 유효기간 만료 시까지
+          </p>
+        </div>
+        <CheckRow
+          checked={form.privacy_consent}
+          onChange={(v) => updateField("privacy_consent", v)}
+          label="개인정보 수집 및 이용에 동의합니다. (필수)"
+        />
+      </Section>
+
+      {/* 신청자 정보 */}
+      <Section title="신청자 정보">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label="이름" required>
+            <input
+              type="text"
+              required
+              value={form.applicant_name}
+              onChange={(e) => updateField("applicant_name", e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="영문명">
+            <input
+              type="text"
+              value={form.applicant_name_en}
+              onChange={(e) => updateField("applicant_name_en", e.target.value)}
+              placeholder="Hong Gildong"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="생년월일">
+            <input
+              type="date"
+              value={form.applicant_birth_date}
+              onChange={(e) =>
+                updateField("applicant_birth_date", e.target.value)
+              }
+              className={inputCls}
+            />
+          </Field>
+          <Field label="성별">
+            <div className="flex gap-3 pt-2">
+              {(["M", "F"] as const).map((g) => (
+                <label
+                  key={g}
+                  className="inline-flex items-center gap-1.5 cursor-pointer text-sm"
+                >
+                  <input
+                    type="radio"
+                    name="gender"
+                    checked={form.applicant_gender === g}
+                    onChange={() => updateField("applicant_gender", g)}
+                  />
+                  {g === "M" ? "남" : "여"}
+                </label>
+              ))}
+            </div>
+          </Field>
+          <Field label="연락처" required>
+            <input
+              type="tel"
+              required
+              placeholder="010-1234-5678"
+              value={form.applicant_phone}
+              onChange={(e) => updateField("applicant_phone", e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="이메일" required>
+            <input
+              type="email"
+              required
+              value={form.applicant_email}
+              onChange={(e) => updateField("applicant_email", e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <div className="md:col-span-2">
+            <Field label="주소">
+              <input
+                type="text"
+                value={form.applicant_address}
+                onChange={(e) =>
+                  updateField("applicant_address", e.target.value)
+                }
+                className={inputCls}
+              />
+            </Field>
+          </div>
+        </div>
+      </Section>
+
+      {/* 교육일정 선택 */}
+      <Section title="교육 일정 선택">
+        {schedules.length === 0 ? (
+          <p className="text-sm text-gray-500 py-8 text-center">
+            현재 모집 중인 교육 일정이 없습니다.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {refSchedules.length > 0 && (
+              <ScheduleGroup
+                title="심판교육"
+                schedules={refSchedules}
+                selected={form.schedule_id}
+                onSelect={(id) => updateField("schedule_id", id)}
+              />
+            )}
+            {insSchedules.length > 0 && (
+              <ScheduleGroup
+                title="강사교육"
+                schedules={insSchedules}
+                selected={form.schedule_id}
+                onSelect={(id) => updateField("schedule_id", id)}
+              />
+            )}
+          </div>
+        )}
+      </Section>
+
+      {/* 강사인증 교육 수료 여부 */}
+      <Section title="강사인증 교육 수료 여부" required>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          {PREV_COMPLETION_OPTIONS.map((opt) => (
+            <label
+              key={opt.value}
+              className={`cursor-pointer rounded-lg border px-3 py-2 text-sm text-center transition ${
+                form.prev_completion === opt.value
+                  ? "border-purple bg-purple text-white"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
+            >
+              <input
+                type="radio"
+                name="prev_completion"
+                value={opt.value}
+                checked={form.prev_completion === opt.value}
+                onChange={() => updateField("prev_completion", opt.value)}
+                className="hidden"
+              />
+              {opt.label}
+            </label>
+          ))}
+        </div>
+      </Section>
+
+      {/* 촬영 홍보 활용 동의 */}
+      <Section title="촬영 홍보 활용 동의">
+        <p className="text-sm text-gray-600 mb-3">
+          교육 중 촬영된 사진 및 영상을 홍보 목적으로 활용하는 것에 동의하십니까?
+        </p>
+        <div className="flex gap-3">
+          {[true, false].map((v) => (
+            <label
+              key={String(v)}
+              className="inline-flex items-center gap-1.5 cursor-pointer text-sm"
+            >
+              <input
+                type="radio"
+                name="photo_consent"
+                checked={form.photo_consent === v}
+                onChange={() => updateField("photo_consent", v)}
+              />
+              {v ? "예" : "아니오"}
+            </label>
+          ))}
+        </div>
+      </Section>
+
+      {error && (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      <div className="flex justify-end gap-3 pt-4">
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50"
+        >
+          취소
+        </Link>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="inline-flex items-center justify-center rounded-lg bg-purple px-8 py-3 text-white font-bold hover:bg-purple/90 disabled:opacity-50"
+        >
+          {submitting ? "접수 중..." : "접수하기"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+const inputCls =
+  "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple/40 focus:border-purple";
+
+function Section({
+  title,
+  required,
+  children,
+}: {
+  title: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-lg font-semibold flex items-center gap-2">
+        {title}
+        {required && <span className="text-red-500 text-sm">*</span>}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function CheckRow({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
+  return (
+    <label className="flex items-center gap-2 text-sm cursor-pointer">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      {label}
+    </label>
+  );
+}
+
+function ScheduleGroup({
+  title,
+  schedules,
+  selected,
+  onSelect,
+}: {
+  title: string;
+  schedules: Schedule[];
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium text-gray-700">{title}</h3>
+      <div className="grid grid-cols-1 gap-2">
+        {schedules.map((s) => {
+          const remaining = s.capacity - s.current_count;
+          const isFull = remaining <= 0;
+          const isSelected = selected === s.id;
+          return (
+            <label
+              key={s.id}
+              className={`flex items-center justify-between gap-3 rounded-lg border p-3 cursor-pointer transition ${
+                isSelected
+                  ? "border-purple bg-purple/5"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="schedule_id"
+                  value={s.id}
+                  checked={isSelected}
+                  onChange={() => onSelect(s.id)}
+                />
+                <div>
+                  <p className="text-sm font-medium">
+                    [{certTypeLabel(s.cert_type)}] {s.round}차
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {formatDate(s.start_date)} ~ {formatDate(s.end_date)}
+                  </p>
+                </div>
+              </div>
+              <span
+                className={`text-xs font-medium ${
+                  isFull ? "text-red-500" : "text-gray-600"
+                }`}
+              >
+                {isFull ? "마감 (대기 가능)" : `${s.current_count}/${s.capacity}명`}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
