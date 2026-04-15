@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { GalleryItem } from '@/lib/database.types';
+import { deleteFromBucket } from '@/lib/storage-helpers';
 import Link from 'next/link';
 
 export default function AdminGallery() {
@@ -22,9 +23,13 @@ export default function AdminGallery() {
     fetchItems();
   }, []);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (item: GalleryItem) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
-    await supabase.from('gallery').delete().eq('id', id);
+    // Storage에 업로드된 미디어도 함께 삭제 (외부 URL은 무시됨)
+    if (item.media_urls.length > 0) {
+      await deleteFromBucket('media', item.media_urls);
+    }
+    await supabase.from('gallery').delete().eq('id', item.id);
     fetchItems();
   };
 
@@ -78,7 +83,7 @@ export default function AdminGallery() {
                     수정
                   </Link>
                   <button
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => handleDelete(item)}
                     className="text-red-500 hover:underline"
                   >
                     삭제
