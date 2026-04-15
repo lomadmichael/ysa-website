@@ -58,6 +58,8 @@ export default function ApplyForm() {
     waitlistOrder?: number;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const [form, setForm] = useState<Form>({
     schedule_id: "",
@@ -74,14 +76,34 @@ export default function ApplyForm() {
   });
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+
     fetch(`${CERT_API}/api/public/schedules`)
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}`);
+        }
+        return r.json();
+      })
       .then((data: { schedules: Schedule[] }) => {
+        if (cancelled) return;
         setSchedules(data.schedules ?? []);
       })
-      .catch(() => setError("교육 일정을 불러올 수 없습니다."))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch((err: Error) => {
+        if (cancelled) return;
+        console.error("[apply] schedule load failed:", err);
+        setLoadError(err.message ?? "알 수 없는 오류");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount]);
 
   function updateField<K extends keyof Form>(key: K, value: Form[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -149,6 +171,28 @@ export default function ApplyForm() {
             className="h-12 animate-pulse rounded-lg bg-gray-100"
           />
         ))}
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center space-y-4">
+        <div className="text-5xl">⚠️</div>
+        <h2 className="text-xl font-bold text-red-900">
+          교육 일정을 불러올 수 없습니다
+        </h2>
+        <p className="text-sm text-red-700">
+          일시적인 네트워크 오류일 수 있습니다. 잠시 후 다시 시도해주세요.
+        </p>
+        <p className="text-xs text-red-600 font-mono">{loadError}</p>
+        <button
+          type="button"
+          onClick={() => setRetryCount((c) => c + 1)}
+          className="inline-flex items-center justify-center rounded-lg bg-red-600 px-6 py-3 text-white font-medium hover:bg-red-700"
+        >
+          다시 시도
+        </button>
       </div>
     );
   }
