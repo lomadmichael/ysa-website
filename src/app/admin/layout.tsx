@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: '/admin/competitions', label: '대회', icon: '□' },
   { href: '/admin/gallery', label: '갤러리', icon: '□' },
   { href: '/admin/docs', label: '규정·서식', icon: '□' },
+  { href: '/admin/faq', label: 'FAQ', icon: '□' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -9,6 +9,7 @@ const STATS = [
   { label: '대회', href: '/admin/competitions', color: 'bg-navy' },
   { label: '갤러리', href: '/admin/gallery', color: 'bg-ocean' },
   { label: '규정·서식', href: '/admin/docs', color: 'bg-teal' },
+  { label: 'FAQ', href: '/admin/faq', color: 'bg-sunset' },
 ];
 
 export default function AdminDashboard() {
