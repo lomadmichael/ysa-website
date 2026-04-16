@@ -17,6 +17,7 @@ interface Schedule {
   end_date: string;
   capacity: number;
   current_count: number;
+  waitlist_count: number;
   status: string;
 }
 
@@ -531,16 +532,19 @@ function ScheduleGroup({
       <h3 className="text-sm font-medium text-gray-700">{title}</h3>
       <div className="grid grid-cols-1 gap-2">
         {schedules.map((s) => {
-          const remaining = s.capacity - s.current_count;
-          const isFull = remaining <= 0;
+          const confirmedFull = s.current_count >= s.capacity;
+          const waitlistFull = s.waitlist_count >= s.capacity;
+          const fullyClosed = confirmedFull && waitlistFull;
           const isSelected = selected === s.id;
           return (
             <label
               key={s.id}
-              className={`flex items-center justify-between gap-3 rounded-lg border p-3 cursor-pointer transition ${
-                isSelected
-                  ? "border-purple bg-purple/5"
-                  : "border-gray-300 hover:border-gray-400"
+              className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 transition ${
+                fullyClosed
+                  ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
+                  : isSelected
+                    ? "cursor-pointer border-purple bg-purple/5"
+                    : "cursor-pointer border-gray-300 hover:border-gray-400"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -549,7 +553,8 @@ function ScheduleGroup({
                   name="schedule_id"
                   value={s.id}
                   checked={isSelected}
-                  onChange={() => onSelect(s.id)}
+                  disabled={fullyClosed}
+                  onChange={() => !fullyClosed && onSelect(s.id)}
                 />
                 <div>
                   <p className="text-sm font-medium">
@@ -560,17 +565,52 @@ function ScheduleGroup({
                   </p>
                 </div>
               </div>
-              <span
-                className={`text-xs font-medium ${
-                  isFull ? "text-red-500" : "text-gray-600"
-                }`}
-              >
-                {isFull ? "마감 (대기 가능)" : `${s.current_count}/${s.capacity}명`}
-              </span>
+              <div className="flex items-center gap-2 ml-auto">
+                <CountPill
+                  label="정원"
+                  current={s.current_count}
+                  max={s.capacity}
+                  full={confirmedFull}
+                />
+                <CountPill
+                  label="대기"
+                  current={s.waitlist_count}
+                  max={s.capacity}
+                  full={waitlistFull}
+                  muted
+                />
+              </div>
             </label>
           );
         })}
       </div>
     </div>
+  );
+}
+
+function CountPill({
+  label,
+  current,
+  max,
+  full,
+  muted,
+}: {
+  label: string;
+  current: number;
+  max: number;
+  full: boolean;
+  muted?: boolean;
+}) {
+  const cls = full
+    ? "bg-red-100 text-red-700 border-red-200"
+    : muted
+      ? "bg-gray-100 text-gray-600 border-gray-200"
+      : "bg-green-50 text-green-700 border-green-200";
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${cls}`}
+    >
+      {label} {current} / {max}명
+    </span>
   );
 }

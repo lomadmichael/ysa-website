@@ -24,6 +24,7 @@ interface Schedule {
   end_date: string;
   capacity: number;
   current_count: number;
+  waitlist_count: number;
   status: string;
 }
 
