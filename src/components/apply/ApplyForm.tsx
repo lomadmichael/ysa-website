@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BirthDatePicker from "./BirthDatePicker";
+import AddressSearch from "./AddressSearch";
 
 const CERT_API =
   process.env.NEXT_PUBLIC_CERT_API_BASE ??
@@ -27,6 +29,7 @@ interface Form {
   applicant_birth_date: string;
   applicant_gender: "" | "M" | "F";
   applicant_address: string;
+  applicant_address_detail: string;
   prev_completion: string;
   photo_consent: boolean;
   privacy_consent: boolean;
@@ -74,6 +77,7 @@ export default function ApplyForm({
     applicant_birth_date: "",
     applicant_gender: "",
     applicant_address: "",
+    applicant_address_detail: "",
     prev_completion: "",
     photo_consent: true, // default: 예
     privacy_consent: false,
@@ -150,7 +154,10 @@ export default function ApplyForm({
           applicant_phone: form.applicant_phone,
           applicant_birth_date: form.applicant_birth_date || null,
           applicant_gender: form.applicant_gender || null,
-          applicant_address: form.applicant_address || null,
+          applicant_address:
+            form.applicant_address && form.applicant_address_detail
+              ? `${form.applicant_address} ${form.applicant_address_detail}`
+              : form.applicant_address || null,
           prev_completion: form.prev_completion,
           photo_consent: form.photo_consent,
         }),
@@ -285,13 +292,9 @@ export default function ApplyForm({
             />
           </Field>
           <Field label="생년월일">
-            <input
-              type="date"
+            <BirthDatePicker
               value={form.applicant_birth_date}
-              onChange={(e) =>
-                updateField("applicant_birth_date", e.target.value)
-              }
-              className={inputCls}
+              onChange={(v) => updateField("applicant_birth_date", v)}
             />
           </Field>
           <Field label="성별">
@@ -333,13 +336,13 @@ export default function ApplyForm({
           </Field>
           <div className="md:col-span-2">
             <Field label="주소">
-              <input
-                type="text"
+              <AddressSearch
                 value={form.applicant_address}
-                onChange={(e) =>
-                  updateField("applicant_address", e.target.value)
+                detailValue={form.applicant_address_detail}
+                onChange={(v) => updateField("applicant_address", v)}
+                onDetailChange={(v) =>
+                  updateField("applicant_address_detail", v)
                 }
-                className={inputCls}
               />
             </Field>
           </div>
