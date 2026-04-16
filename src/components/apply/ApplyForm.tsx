@@ -49,9 +49,13 @@ const formatDate = (d: string) =>
     weekday: "short",
   });
 
-export default function ApplyForm() {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ApplyForm({
+  initialSchedules = [],
+}: {
+  initialSchedules?: Schedule[];
+}) {
+  const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules);
+  const [loading, setLoading] = useState(initialSchedules.length === 0);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{
     waitlisted: boolean;
@@ -71,11 +75,16 @@ export default function ApplyForm() {
     applicant_gender: "",
     applicant_address: "",
     prev_completion: "",
-    photo_consent: false,
+    photo_consent: true, // default: 예
     privacy_consent: false,
   });
 
   useEffect(() => {
+    // Skip client fetch if SSR already provided schedules (unless retrying)
+    if (retryCount === 0 && initialSchedules.length > 0) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
@@ -103,7 +112,7 @@ export default function ApplyForm() {
     return () => {
       cancelled = true;
     };
-  }, [retryCount]);
+  }, [retryCount, initialSchedules.length]);
 
   function updateField<K extends keyof Form>(key: K, value: Form[K]) {
     setForm((f) => ({ ...f, [key]: value }));

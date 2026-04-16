@@ -9,7 +9,41 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://ysa-website.vercel.app/apply" },
 };
 
-export default function ApplyPage() {
+// ISR: revalidate every 60s
+export const revalidate = 60;
+
+const CERT_API =
+  process.env.NEXT_PUBLIC_CERT_API_BASE ??
+  "https://cert-manager-taupe.vercel.app";
+
+interface Schedule {
+  id: string;
+  cert_type: "REF" | "INS";
+  round: number;
+  start_date: string;
+  end_date: string;
+  capacity: number;
+  current_count: number;
+  status: string;
+}
+
+async function fetchSchedules(): Promise<Schedule[]> {
+  try {
+    const res = await fetch(`${CERT_API}/api/public/schedules`, {
+      next: { revalidate: 30 },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { schedules?: Schedule[] };
+    return data.schedules ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function ApplyPage() {
+  // Prefetch on server so client sees form instantly (no loading spinner)
+  const initialSchedules = await fetchSchedules();
+
   return (
     <>
       <PageHeader
@@ -21,7 +55,7 @@ export default function ApplyPage() {
         ]}
       />
       <section className="max-w-3xl mx-auto px-4 py-12 md:py-16">
-        <ApplyForm />
+        <ApplyForm initialSchedules={initialSchedules} />
       </section>
     </>
   );
