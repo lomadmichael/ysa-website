@@ -65,6 +65,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   verification: {
+    google: 'HakB1hV_3c09jbTA0acXQPqa4IDuUdR5GQ8USUQZek8',
     other: {
       // ysakorea.com(메인) + ysakoreaofficial.com(리디렉트 원본) 두 토큰 모두 노출.
       // ysakoreaofficial.com 은 308로 ysakorea.com 에 리디렉트되므로 네이버 크롤러가
