@@ -5,7 +5,7 @@ export default function FestivalHero() {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy">
       {/* priority로 preload, placeholder blur는 제거해 즉시 표시 */}
       <Image
-        src="/images/history/hero_02.jpg"
+        src="/images/hero_02.jpg"
         alt=""
         fill
         priority
