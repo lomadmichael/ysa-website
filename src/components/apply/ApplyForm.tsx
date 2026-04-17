@@ -134,11 +134,17 @@ export default function ApplyForm({
     if (
       !form.schedule_id ||
       !form.applicant_name ||
+      !form.applicant_name_en ||
       !form.applicant_email ||
       !form.applicant_phone ||
+      !form.applicant_address ||
       !form.prev_completion
     ) {
       setError("필수 항목을 모두 입력해주세요.");
+      return;
+    }
+    if (!form.photo_consent) {
+      setError("촬영 홍보 활용 동의가 필요합니다.");
       return;
     }
 
@@ -407,9 +413,10 @@ export default function ApplyForm({
               className={inputCls}
             />
           </Field>
-          <Field label="영문명">
+          <Field label="영문명" required>
             <input
               type="text"
+              required
               value={form.applicant_name_en}
               onChange={(e) => updateField("applicant_name_en", e.target.value)}
               placeholder="Hong Gildong"
@@ -460,7 +467,7 @@ export default function ApplyForm({
             />
           </Field>
           <div className="md:col-span-2">
-            <Field label="주소">
+            <Field label="주소" required>
               <AddressSearch
                 value={form.applicant_address}
                 detailValue={form.applicant_address_detail}
@@ -529,26 +536,16 @@ export default function ApplyForm({
       </Section>
 
       {/* 촬영 홍보 활용 동의 */}
-      <Section title="촬영 홍보 활용 동의">
+      <Section title="촬영 홍보 활용 동의" required>
         <p className="text-sm text-gray-600 mb-3">
-          교육 중 촬영된 사진 및 영상을 홍보 목적으로 활용하는 것에 동의하십니까?
+          교육 중 촬영된 사진 및 영상을 홍보 목적으로 활용하는 것에 동의합니다.
+          (교육 신청 시 필수 동의 항목)
         </p>
-        <div className="flex gap-3">
-          {[true, false].map((v) => (
-            <label
-              key={String(v)}
-              className="inline-flex items-center gap-1.5 cursor-pointer text-sm"
-            >
-              <input
-                type="radio"
-                name="photo_consent"
-                checked={form.photo_consent === v}
-                onChange={() => updateField("photo_consent", v)}
-              />
-              {v ? "예" : "아니오"}
-            </label>
-          ))}
-        </div>
+        <CheckRow
+          checked={form.photo_consent}
+          onChange={(v) => updateField("photo_consent", v)}
+          label="촬영 홍보 활용에 동의합니다. (필수)"
+        />
       </Section>
 
       {error && (
