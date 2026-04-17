@@ -10,5 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: 'https://ysakorea.com/sitemap.xml',
+    host: 'https://ysakorea.com',
   };
 }
