@@ -215,29 +215,153 @@ export default function ApplyForm({
   }
 
   if (success) {
+    const selectedSchedule = schedules.find((s) => s.id === form.schedule_id);
+    const isWaitlisted = success.waitlisted;
+    const accent = isWaitlisted ? "sunset" : "teal";
+
     return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-8 text-center space-y-4">
-        <div className="text-5xl">✅</div>
-        <h2 className="text-2xl font-bold text-green-900">
-          {success.waitlisted ? "대기 접수 완료" : "접수 완료"}
-        </h2>
-        <p className="text-green-800">
-          {success.waitlisted
-            ? `대기 순번 ${success.waitlistOrder}번으로 접수되었습니다. 빈 자리가 생기면 알림을 보내드립니다.`
-            : "접수가 정상적으로 완료되었습니다. 입력하신 연락처로 안내 메시지를 보내드립니다."}
-        </p>
-        <div className="flex justify-center gap-3 pt-2">
+      <div
+        className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+        style={{ animation: "ysaFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1)" }}
+      >
+        {/* Hero: icon + title */}
+        <div
+          className="px-6 sm:px-10 pt-10 pb-8 text-center"
+          style={{
+            background: `linear-gradient(to bottom, color-mix(in srgb, var(--color-${accent}) 10%, transparent), transparent)`,
+          }}
+        >
+          <div
+            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full shadow-lg"
+            style={{
+              background: `var(--color-${accent})`,
+              boxShadow: `0 10px 30px -10px color-mix(in srgb, var(--color-${accent}) 60%, transparent)`,
+              animation: "ysaScaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards",
+            }}
+          >
+            {isWaitlisted ? (
+              <svg
+                className="h-10 w-10 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+            ) : (
+              <svg
+                className="h-11 w-11 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 12.5l4.5 4.5L19 7"
+                  style={{
+                    strokeDasharray: 48,
+                    animation:
+                      "ysaCheckDraw 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.35s backwards",
+                  }}
+                />
+              </svg>
+            )}
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-navy tracking-tight">
+            {isWaitlisted ? "대기 접수 완료" : "접수가 완료되었습니다"}
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-navy/60">
+            {isWaitlisted
+              ? `대기순번 ${success.waitlistOrder}번으로 등록되었습니다`
+              : "입력하신 연락처로 안내 메시지를 보내드립니다"}
+          </p>
+        </div>
+
+        {/* Receipt */}
+        {selectedSchedule && (
+          <div className="border-t border-dashed border-gray-200 px-6 sm:px-10 py-6">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-navy/40">
+              신청 내역
+            </p>
+            <dl className="space-y-3 text-sm">
+              <ReceiptRow label="신청자" value={form.applicant_name} />
+              <ReceiptRow
+                label="교육"
+                value={`${certTypeLabel(selectedSchedule.cert_type)}교육 ${selectedSchedule.round}차`}
+              />
+              <ReceiptRow
+                label="일정"
+                value={`${formatDate(selectedSchedule.start_date)} ~ ${formatDate(selectedSchedule.end_date)}`}
+              />
+              <ReceiptRow
+                label="상태"
+                value={
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                    style={{
+                      background: `color-mix(in srgb, var(--color-${accent}) 12%, transparent)`,
+                      color: `var(--color-${accent})`,
+                    }}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ background: `var(--color-${accent})` }}
+                    />
+                    {isWaitlisted ? `대기 ${success.waitlistOrder}번` : "확정"}
+                  </span>
+                }
+              />
+            </dl>
+          </div>
+        )}
+
+        {/* Waitlist explainer */}
+        {isWaitlisted && (
+          <div
+            className="border-t border-gray-100 px-6 sm:px-10 py-4 text-xs sm:text-sm leading-relaxed text-navy/70"
+            style={{
+              background:
+                "color-mix(in srgb, var(--color-sunset) 6%, transparent)",
+            }}
+          >
+            빈 자리가 생기면 입력하신 연락처로 <strong className="text-navy">확정 안내</strong>를
+            보내드립니다. 자동 전환되므로 별도 재접수는 필요하지 않습니다.
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 border-t border-gray-100 bg-gray-50/50 px-6 sm:px-10 py-5">
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-lg bg-purple px-6 py-3 text-white font-medium hover:bg-purple/90"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-gray-50 transition"
           >
             홈으로
           </Link>
           <Link
             href="/schedule"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-purple px-5 py-2.5 text-sm font-bold text-white hover:bg-purple/90 transition"
           >
             교육 일정 보기
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </Link>
         </div>
       </div>
@@ -491,6 +615,21 @@ function Field({
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {children}
+    </div>
+  );
+}
+
+function ReceiptRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <dt className="shrink-0 text-navy/50">{label}</dt>
+      <dd className="text-right font-medium text-navy">{value}</dd>
     </div>
   );
 }
