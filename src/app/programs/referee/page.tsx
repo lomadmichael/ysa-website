@@ -95,7 +95,7 @@ export default function RefereePage() {
                 </dl>
 
                 <a
-                  href="#"
+                  href="/apply"
                   className="mt-8 w-full flex items-center justify-center gap-2 bg-sunset text-white px-6 py-4 rounded-xl font-medium hover:bg-sunset/90 transition-colors"
                 >
                   교육 신청
