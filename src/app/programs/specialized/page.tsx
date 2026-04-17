@@ -115,7 +115,9 @@ export default function SpecializedPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <a
-                href="#"
+                href="https://bpscomm.kr/yysports/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-sunset text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-sunset/90 transition-colors"
               >
                 교육 신청
