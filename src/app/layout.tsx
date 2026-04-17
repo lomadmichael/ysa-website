@@ -66,7 +66,13 @@ export const metadata: Metadata = {
   },
   verification: {
     other: {
-      'naver-site-verification': 'f44f9a865855ca603cb06b96eb62c3874ae70cf7',
+      // ysakorea.com(메인) + ysakoreaofficial.com(리디렉트 원본) 두 토큰 모두 노출.
+      // ysakoreaofficial.com 은 308로 ysakorea.com 에 리디렉트되므로 네이버 크롤러가
+      // 따라와 여기서 자기 토큰을 찾아 소유확인 완료.
+      'naver-site-verification': [
+        'f44f9a865855ca603cb06b96eb62c3874ae70cf7', // ysakorea.com
+        '8883c3f459f2db540ecd330508d11d29b6855057', // ysakoreaofficial.com
+      ],
     },
   },
   category: '스포츠',
