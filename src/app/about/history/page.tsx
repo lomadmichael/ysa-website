@@ -93,7 +93,7 @@ export default function HistoryPage() {
           {/* 상단 히어로 이미지 */}
           <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden mb-16 md:mb-20">
             <Image
-              src="/images/about_list.png"
+              src="/images/about_list.jpg"
               alt="양양의 석양 서핑"
               fill
               className="object-cover"
