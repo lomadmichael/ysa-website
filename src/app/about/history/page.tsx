@@ -4,6 +4,7 @@ import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
   title: '연혁',
+  description: '양양군서핑협회 설립부터 현재까지의 주요 연혁과 활동 기록. 양양서핑페스티벌 10주년을 포함한 협회의 발자취.',
 };
 
 const BREADCRUMBS = [

@@ -6,6 +6,7 @@ import { type PressItem } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: '보도자료',
+  description: '양양군서핑협회와 양양 서핑 문화에 대한 언론 보도자료. 대회·교육·행사 관련 기사 모음.',
 };
 
 // admin에서 수정 즉시 목록에 반영되도록 매 요청 렌더

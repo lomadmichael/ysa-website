@@ -7,6 +7,7 @@ import { fetchCalendarEvents, type CalendarEvent } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '일정안내',
+  description: '양양군서핑협회 연간 일정표. 대회·교육·행사 등 모든 협회 일정을 한눈에 확인하세요.',
 };
 
 export const revalidate = 3600;

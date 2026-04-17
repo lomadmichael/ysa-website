@@ -7,6 +7,7 @@ import { IconPhone, IconEmail, IconClock, IconLocation } from '@/components/icon
 
 export const metadata: Metadata = {
   title: '문의안내',
+  description: '양양군서핑협회 문의 채널 안내. 전화(033-671-6155), 이메일, 사무국 주소와 운영 시간.',
 };
 
 const subNav = [

@@ -6,6 +6,7 @@ import { type FaqItem } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: 'FAQ',
+  description: '양양군서핑협회에 자주 묻는 질문과 답변. 회원가입, 교육 프로그램, 대회 참가, 제휴 문의 등.',
 };
 
 // admin 수정 즉시 반영되도록 매 요청 렌더

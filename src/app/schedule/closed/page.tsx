@@ -10,6 +10,7 @@ import {
 
 export const metadata: Metadata = {
   title: '종료된 일정',
+  description: '양양군서핑협회에서 진행이 완료된 대회·교육·행사 일정 아카이브.',
 };
 
 export const revalidate = 3600;

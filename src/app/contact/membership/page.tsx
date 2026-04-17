@@ -5,6 +5,7 @@ import { IconCheck } from '@/components/icons';
 
 export const metadata: Metadata = {
   title: '회원안내',
+  description: '양양군서핑협회 회원가입 안내와 혜택. 정회원·일반회원 자격 요건과 신청 절차.',
 };
 
 const subNav = [

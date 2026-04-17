@@ -6,6 +6,7 @@ import { type DocumentItem } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: '규정·서식',
+  description: '양양군서핑협회 규정, 정관, 신청서, 서식 등 공식 문서 다운로드 자료실.',
 };
 
 // admin에서 수정 즉시 목록에 반영되도록 매 요청 렌더

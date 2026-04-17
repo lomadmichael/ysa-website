@@ -6,6 +6,7 @@ import { fetchCalendarEvents } from '@/lib/google-calendar';
 
 export const metadata: Metadata = {
   title: '모집중 일정',
+  description: '양양군서핑협회에서 현재 참가자·수강생을 모집 중인 대회와 교육 프로그램.',
 };
 
 export const revalidate = 3600;

@@ -3,6 +3,7 @@ import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
   title: '설립목적',
+  description: '양양군서핑협회 설립 목적과 핵심 가치. 서핑 보급, 교육, 안전문화 조성을 통한 지속 가능한 서핑 생태계 구축.',
 };
 
 const BREADCRUMBS = [

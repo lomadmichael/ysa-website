@@ -4,6 +4,7 @@ import { SITE } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: '조직도',
+  description: '양양군서핑협회 조직 구성과 주요 임원진 소개. 협회 운영 체계와 각 부서의 역할.',
 };
 
 const BREADCRUMBS = [

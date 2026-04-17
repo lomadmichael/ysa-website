@@ -4,6 +4,7 @@ import PageHeader from '@/components/shared/PageHeader';
 
 export const metadata: Metadata = {
   title: '회장 인사말',
+  description: '양양군서핑협회 회장 인사말. 파도를 넘어 사람과 문화를 잇는 양양의 지속 가능한 서핑 생태계를 향한 협회의 비전과 약속.',
 };
 
 const BREADCRUMBS = [

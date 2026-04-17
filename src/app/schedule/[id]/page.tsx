@@ -29,8 +29,27 @@ async function getCompetition(id: number): Promise<Competition | null> {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const competition = await getCompetition(Number(id));
+  if (!competition) {
+    return { title: '일정안내' };
+  }
+  const statusLabel = STATUS_LABEL[competition.status] || competition.status;
+  const scheduleText = competition.schedule ? ` ${competition.schedule}` : '';
+  const description =
+    (competition.description && competition.description.slice(0, 160)) ||
+    `[${statusLabel}]${scheduleText} — ${competition.name}. 양양군서핑협회 대회·프로그램 일정.`;
   return {
-    title: competition?.name || '일정안내',
+    title: competition.name,
+    description,
+    openGraph: {
+      title: competition.name,
+      description,
+      type: 'article',
+      url: `/schedule/${competition.id}`,
+      images: competition.image_url ? [competition.image_url] : undefined,
+    },
+    alternates: {
+      canonical: `/schedule/${competition.id}`,
+    },
   };
 }
 

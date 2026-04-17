@@ -30,11 +30,40 @@ async function getNotice(id: number): Promise<Notice | null> {
   }
 }
 
+/** HTML 태그 제거해서 검색·SNS 미리보기용 요약 텍스트 생성 */
+function stripHtml(html: string, maxLen = 160): string {
+  if (!html) return '';
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length <= maxLen ? text : `${text.slice(0, maxLen)}…`;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const notice = await getNotice(Number(id));
+  if (!notice) {
+    return { title: '공지사항' };
+  }
+  const summary = stripHtml(notice.content);
   return {
-    title: notice?.title || '공지사항',
+    title: notice.title,
+    description: summary || `${notice.title} — 양양군서핑협회 공지사항.`,
+    openGraph: {
+      title: notice.title,
+      description: summary || undefined,
+      type: 'article',
+      publishedTime: notice.created_at,
+      url: `/notice/${notice.id}`,
+    },
+    alternates: {
+      canonical: `/notice/${notice.id}`,
+    },
   };
 }
 

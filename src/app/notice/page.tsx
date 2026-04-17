@@ -7,6 +7,7 @@ import type { Notice } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: '공지사항',
+  description: '양양군서핑협회 공식 공지사항. 대회·교육·행사·협회 카테고리별 최신 소식을 확인하세요.',
 };
 
 // admin에서 공지 작성/수정 즉시 목록에 반영되도록 매 요청 렌더

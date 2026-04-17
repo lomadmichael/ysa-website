@@ -5,6 +5,7 @@ import { SITE } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: '오시는 길',
+  description: '양양군서핑협회 사무국 위치와 오시는 길 안내. 강원도 양양군 현남면 두리 해양종합레포츠센터.',
 };
 
 const BREADCRUMBS = [

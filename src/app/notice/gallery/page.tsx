@@ -7,6 +7,7 @@ import { type GalleryItem } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: '사진·영상',
+  description: '양양군서핑협회 대회, 교육, 행사 현장을 담은 사진·영상 갤러리. 양양 서핑의 순간들을 기록합니다.',
 };
 
 // admin 업로드 즉시 반영되도록 매 요청 렌더

@@ -23,6 +23,20 @@ async function getPressItem(id: number): Promise<PressItem | null> {
   }
 }
 
+/** HTML 태그 제거해서 검색·SNS 미리보기용 요약 텍스트 생성 */
+function stripHtml(html: string, maxLen = 160): string {
+  if (!html) return '';
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length <= maxLen ? text : `${text.slice(0, maxLen)}…`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -30,8 +44,24 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const item = await getPressItem(Number(id));
+  if (!item) {
+    return { title: '보도자료' };
+  }
+  const summary = stripHtml(item.content ?? '');
+  const descPrefix = item.source ? `[${item.source}] ` : '';
   return {
-    title: item?.title || '보도자료',
+    title: item.title,
+    description: summary || `${descPrefix}${item.title} — 양양군서핑협회 보도자료.`,
+    openGraph: {
+      title: item.title,
+      description: summary || undefined,
+      type: 'article',
+      publishedTime: item.date,
+      url: `/notice/press/${item.id}`,
+    },
+    alternates: {
+      canonical: `/notice/press/${item.id}`,
+    },
   };
 }
 
