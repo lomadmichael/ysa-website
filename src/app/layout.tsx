@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { SITE } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ysa-website.vercel.app'),
+  metadataBase: new URL('https://ysakorea.com'),
   title: {
     default: `${SITE.name} | ${SITE.slogan}`,
     template: `%s | ${SITE.name}`,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: 'https://ysa-website.vercel.app',
+    canonical: 'https://ysakorea.com',
   },
   verification: {
     other: {

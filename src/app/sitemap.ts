@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://ysa-website.vercel.app';
+const BASE_URL = 'https://ysakorea.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = [

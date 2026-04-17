@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/'],
       },
     ],
-    sitemap: 'https://ysa-website.vercel.app/sitemap.xml',
+    sitemap: 'https://ysakorea.com/sitemap.xml',
   };
 }
