@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://ysa-website.vercel.app',
   },
+  verification: {
+    other: {
+      'naver-site-verification': 'f44f9a865855ca603cb06b96eb62c3874ae70cf7',
+    },
+  },
 };
 
 export default function RootLayout({
