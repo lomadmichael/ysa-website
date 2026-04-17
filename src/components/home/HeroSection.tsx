@@ -7,7 +7,7 @@ export default function HeroSection() {
     <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-ocean">
       {/* priority로 preload, placeholder blur는 제거해 즉시 표시 */}
       <Image
-        src="/images/hero_03.png"
+        src="/images/hero_03.jpg"
         alt=""
         fill
         priority

@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { SITE } from "@/lib/constants";
 
 const SITE_URL = 'https://ysakorea.com';
-const OG_IMAGE = '/images/hero_03.png'; // 1200x630 이상 권장 (SEO 점검 시 전용 OG 제작 고려)
+const OG_IMAGE = '/images/og.jpg'; // 1200x630 전용 OG 이미지
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
