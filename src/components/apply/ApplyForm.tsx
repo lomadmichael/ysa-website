@@ -55,10 +55,16 @@ const formatDate = (d: string) =>
 
 export default function ApplyForm({
   initialSchedules = [],
+  certType,
 }: {
   initialSchedules?: Schedule[];
+  certType?: "REF" | "INS";
 }) {
-  const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules);
+  const filterByCert = (list: Schedule[]) =>
+    certType ? list.filter((s) => s.cert_type === certType) : list;
+  const [schedules, setSchedules] = useState<Schedule[]>(
+    filterByCert(initialSchedules)
+  );
   const [loading, setLoading] = useState(initialSchedules.length === 0);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{
@@ -103,7 +109,7 @@ export default function ApplyForm({
       })
       .then((data: { schedules: Schedule[] }) => {
         if (cancelled) return;
-        setSchedules(data.schedules ?? []);
+        setSchedules(filterByCert(data.schedules ?? []));
       })
       .catch((err: Error) => {
         if (cancelled) return;
@@ -485,7 +491,11 @@ export default function ApplyForm({
       <Section title="교육 일정 선택">
         {schedules.length === 0 ? (
           <p className="text-sm text-gray-500 py-8 text-center">
-            현재 모집 중인 교육 일정이 없습니다.
+            {certType === "REF"
+              ? "현재 모집 중인 심판교육 일정이 없습니다."
+              : certType === "INS"
+                ? "현재 모집 중인 강사교육 일정이 없습니다."
+                : "현재 모집 중인 교육 일정이 없습니다."}
           </p>
         ) : (
           <div className="space-y-4">

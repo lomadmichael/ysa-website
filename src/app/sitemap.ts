@@ -31,6 +31,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/contact',
     '/contact/membership',
     '/contact/partnership',
+    '/apply',
+    '/apply/referee',
+    '/apply/instructor',
   ];
 
   return staticPages.map((path) => ({
