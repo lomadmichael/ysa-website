@@ -2,20 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SITE } from '@/lib/constants';
 
-// hero_03.png의 축소/블러 처리된 16px JPEG (291 bytes, build time에 sharp로 생성).
-// placeholder="blur" + blurDataURL 조합으로 첫 프레임부터 실제 이미지의
-// 흐릿한 버전이 보이게 해 배경색 노출 → 이미지 snap 전환 깜박임 제거.
-const HERO_BLUR_DATA_URL =
-  'data:image/jpeg;base64,/9j/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAJABADASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAQIEBf/EABwQAAICAgMAAAAAAAAAAAAAAAADAQIREyExQf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFREBAQAAAAAAAAAAAAAAAAAAABH/2gAMAwEAAhEDEQA/ANeLqxwyAbVe2wQr6GsIlf/Z';
-
 export default function HeroSection() {
   return (
-    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/*
-        placeholder='blur' + blurDataURL = 첫 프레임부터 실제 사진의 흐릿한 버전 표시.
-        실제 이미지 로드 완료 시 Next.js가 자동으로 부드럽게 크로스페이드.
-        → 배경색 snap 전환/깜박임 완전 제거.
-      */}
+    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-ocean">
+      {/* priority로 preload, placeholder blur는 제거해 즉시 표시 */}
       <Image
         src="/images/hero_03.png"
         alt=""
@@ -23,8 +13,6 @@ export default function HeroSection() {
         priority
         sizes="100vw"
         quality={85}
-        placeholder="blur"
-        blurDataURL={HERO_BLUR_DATA_URL}
         className="object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
