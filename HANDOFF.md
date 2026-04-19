@@ -1,7 +1,7 @@
 # ysa-website 작업 인수인계
 
 > 최종 업데이트: 2026-04-19
-> 마지막 커밋: `aee599c feat(notice): add multi-file attachments to notices`
+> 마지막 커밋: `d5a3836 feat(notice): cascading storage cleanup + drag-drop uploader`
 > 브랜치: `master`
 > 작업 디렉토리: `C:\Users\hongk\Desktop\ClaudeCode\ysa-website`
 > 라이브: https://ysakorea.com
@@ -41,12 +41,26 @@
 - `C:\Users\hongk\Desktop\ClaudeCode\create_ysa_estimate_pdf.py` — 재생성/수정용 Python 스크립트 (reportlab + 맑은고딕)
 - 제출 전 공급자 섹션 4곳 수기 기재 필요: 사업자등록번호, 주소, 연락처, 대표자명
 
+### 🔄 후속 개선 (같은 날 추가, commit `d5a3836`)
+
+**3. 🗑️ 공지 첨부 Storage cascading 정리**
+- `/admin/notices` 삭제: DB 삭제 후 `attachments` URL을 `deleteFromBucket('documents', ...)`로 일괄 정리
+- `/admin/notices/[id]/edit` 저장: `originalAttachments`와 diff 계산, 제거된 URL만 Storage에서 삭제 (취소 시엔 원본 보존)
+- `src/lib/storage-helpers.ts`의 `deleteFromBucket`·`extractStoragePath` 재사용
+
+**4. 📥 AttachmentUploader 드래그&드롭 + 용량 체크**
+- 점선 드롭존 + 드래그 중 `border-ocean bg-ocean/5` 하이라이트
+- 키보드 접근성: `role="button"` + Enter/Space 키로 파일 선택 다이얼로그
+- `maxSizeMB` prop (기본 50MB, Supabase 버킷 한도) — 초과 파일은 업로드 전 필터링 + 에러 메시지
+- 기존 클릭 input과 드롭이 동일한 `handleFiles` 경로 공유
+
 ### 📋 다음 할 일 / 후속 옵션
 
 - [ ] (선택) Supabase RLS 정책에 이메일 화이트리스트 직접 걸기 — 3중 방어
-- [ ] (선택) 공지 삭제 시 Storage 파일 cascading 정리 (현재는 고아 파일 남음)
-- [ ] (선택) 파일 업로드 드래그&드롭 UX (현재 클릭 선택만)
-- [ ] (선택) 파일 용량 클라이언트 체크 (현재 Supabase 기본 50MB)
+- [x] ~~공지 삭제 시 Storage 파일 cascading 정리~~ → 2026-04-19 완료
+- [x] ~~파일 업로드 드래그&드롭 UX~~ → 2026-04-19 완료
+- [x] ~~파일 용량 클라이언트 체크~~ → 2026-04-19 완료 (50MB 기본)
+- [ ] (선택) **신규 공지 폼 취소 시 업로드된 Storage 파일 고아 처리** — 현재 `/admin/notices/new`에서 파일 업로드 후 저장 없이 이탈하면 Storage에 고아 파일 남음. `beforeunload` 또는 unmount cleanup 필요
 - [ ] 견적서 PDF 확정 버전 — 공급자 빈칸 값 받은 뒤 재생성
 
 ## 🎯 프로덕션 현황
@@ -224,7 +238,7 @@ C:\Users\hongk\Desktop\
 - `src/components/shared/PageHeader.tsx` — Breadcrumb + JSON-LD 자동
 - `src/components/shared/JsonLd.tsx` — `BreadcrumbJsonLd` 헬퍼
 - `src/components/admin/TiptapEditor.tsx` — 리치 에디터
-- `src/components/admin/AttachmentUploader.tsx` — 다중 파일 업로더 (2026-04-19 추가)
+- `src/components/admin/AttachmentUploader.tsx` — 다중 파일 업로더 + 드래그&드롭 + 용량 체크 (2026-04-19)
 - `src/components/notice/NoticeList.tsx` — 필터+검색+페이지네이션
 - `src/components/notice/GalleryLightbox.tsx` — 모달+슬라이드
 - `src/components/home/HeroSection.tsx`, `GalleryPreview.tsx`, `LatestNotices.tsx`
