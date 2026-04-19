@@ -2,10 +2,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SITE } from '@/lib/constants';
 
+// hero_03.jpg LQIP (16px blur, scripts/optimize-hero.mjs 재생성)
+const HERO_BLUR =
+  'data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAJABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABQAD/8QAHRAAAgIBBQAAAAAAAAAAAAAAAQMAEQITITEygf/EABQBAQAAAAAAAAAAAAAAAAAAAAH/xAAWEQEBAQAAAAAAAAAAAAAAAAAAERL/2gAMAwEAAhEDEQA/AHgxNCmiWsk7HOvIWrrNM+IQaf/Z';
+
 export default function HeroSection() {
   return (
     <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-ocean">
-      {/* priority로 preload, placeholder blur는 제거해 즉시 표시 */}
+      {/* priority preload + LQIP blur placeholder (배경색 노출 제거) */}
       <Image
         src="/images/hero_03.jpg"
         alt=""
@@ -13,6 +17,8 @@ export default function HeroSection() {
         priority
         sizes="100vw"
         quality={85}
+        placeholder="blur"
+        blurDataURL={HERO_BLUR}
         className="object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ocean/50 via-ocean/30 to-ocean/70" />
