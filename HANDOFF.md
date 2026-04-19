@@ -1,134 +1,238 @@
 # ysa-website 작업 인수인계
 
-> 생성일: 2026-04-14
-> 이전 채팅 마지막 커밋: `fdbf88c fix(notice): 실시간 반영 + 보도자료 본문 필드 추가`
+> 최종 업데이트: 2026-04-19
+> 마지막 커밋: `aee599c feat(notice): add multi-file attachments to notices`
 > 브랜치: `master`
 > 작업 디렉토리: `C:\Users\hongk\Desktop\ClaudeCode\ysa-website`
+> 라이브: https://ysakorea.com
 
-## 지금까지 진행된 것 (이번 세션)
+## 🆕 최근 세션 (2026-04-19) — 보안 강화 + 공지 파일첨부
 
-### 1. 도메인 연결 (완료)
-- `ysakorea.com`을 Vercel + 가비아 DNS + 네임서버(Vercel)로 연결 완료
-- SSL 자동 발급 (Let's Encrypt, 2026-07-12 만료, 자동 갱신)
-- `www.ysakorea.com` → `ysakorea.com` 자동 리디렉트
-- 초기 HSTS 캐시 이슈 해결 (브라우저 로컬 상태 문제였음)
+### 배포된 변경사항
 
-### 2. Supabase 프로젝트 연결 (완료)
-- **Project**: ysa-website 전용 신규 (Project ref: `cpibyzivkhvzusqmznsf`)
-- **URL**: `https://cpibyzivkhvzusqmznsf.supabase.co`
-- **환경변수 설정**:
-  - 로컬 `.env.local`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-  - Vercel Production + Development (Preview는 미설정)
-- **Storage 버킷**: `media`, `documents` (둘 다 public)
-- **Auth**: 관리자 계정 1개 생성 완료 (사용자 설정)
-- **스키마 적용**:
-  - `migrations/001_initial_schema.sql` (notices, programs, competitions, gallery, press, faq)
-  - `migrations/002_add_press_content.sql` (press.content 추가) — **실행 완료**
+**1. 🔒 어드민 보안 2중 방어** (commit `7a8c278`)
+- Supabase 대시보드 **"Allow new users to sign up" OFF** — anon signup 시 `"Signups not allowed for this instance"` 반환 확인
+- `src/app/admin/layout.tsx`에 `ALLOWED_ADMINS` 이메일 화이트리스트 추가
+- 화이트리스트 밖 유저 로그인 시 즉시 `supabase.auth.signOut()` + "관리자 권한 없음" 메시지
+- 기존 세션·신규 로그인 양쪽 체크
+- 신규 관리자 provisioning 스크립트: `scripts/create-admin.mjs` (service_role로 `supabase.auth.admin.createUser()` 호출)
 
-### 3. 공지·자료실 구현 (Phase 1 + 2 완료)
+**2. 📎 공지사항 다중 파일 첨부** (commit `aee599c`)
+- migration `007_add_notices_attachments.sql` — `notices.attachments JSONB NOT NULL DEFAULT '[]'`
+- 공용 컴포넌트 `src/components/admin/AttachmentUploader.tsx` — 다중 선택, 개별 제거, 크기 표시, 업로드 진행 상태
+- 관리자 `/admin/notices/new`, `/admin/notices/[id]/edit` 업로더 연결
+- 공개 `/notice/[id]` 첨부파일 박스 렌더 (첨부 0개면 자동 숨김)
+- 스토리지: 기존 `documents` 버킷 재사용, 경로 접두사 `notices/`
+- 기존 공지는 빈 배열(`[]`) 자동 초기화 → 하위호환 OK
+- mock 픽스처 (`/notice`, `LatestNotices`)도 attachments 필드 추가해 타입 호환
 
-#### Phase 1: 공지사항
-- `src/components/notice/NoticeList.tsx` 신규 — client 컴포넌트로 카테고리 필터 동작
-- `src/app/notice/page.tsx` server component 유지, NoticeList 사용
-- 필터: 전체 / 대회 / 교육 / 행사 / 협회, 각 건수 표시
-- `/admin/notices` 는 기존에 완성돼 있어 그대로 작동 (TiptapEditor 활용)
+### 🔑 등록된 관리자 계정 (auth.users)
 
-#### Phase 2: 보도자료
-- `/admin/press` 신규: 목록 + CRUD 버튼
-- `/admin/press/new`, `/admin/press/[id]/edit` 신규: 제목·출처·원문URL·본문(TiptapEditor)
-- `/notice/press` 리뉴얼: 외부 링크 직접 이동 → 상세 페이지로 전환, 본문 요약(140자) 표시
-- `/notice/press/[id]` 신규: 본문 + 원문 링크 박스
-- `admin/layout.tsx`에 `보도자료` NAV 추가, 대시보드 카드 추가
+| 이메일 | 용도 | 비밀번호 전달 |
+|---|---|---|
+| `michaellee.lomad@gmail.com` | 개발자 본인 | (기존) |
+| `ysa_korea@naver.com` | 서핑협회 콘텐츠 편집자 | `!yangyang6155` |
 
-### 4. 실시간 반영
-- 모든 `/notice/*` 경로에 `export const dynamic = 'force-dynamic'` 적용
-- 빌드 결과: `○ Static` → **`ƒ Dynamic`** (admin 수정 즉시 반영)
+추가 관리자 필요 시: ① `ALLOWED_ADMINS` 배열에 이메일 추가 → ② `scripts/create-admin.mjs` 값 수정 후 실행 → ③ 커밋·배포
 
-### 5. 연도별 타이틀 이미지 (이전 작업 정리)
-- `/festival` 페이지 타임라인에 10개 연도 (2014~2019, 2022~2025) 모두 실제 이미지 적용
-- `Title Image/{year}-title.jpg` 경로 구조
+### 📄 별도 산출물 (ysa-website 외부)
 
-## 다음 할 일
+- `C:\Users\hongk\Desktop\ClaudeCode\양양군서핑협회_홈페이지_견적서_2026-04-19.pdf` — 양양군체육회 제출용 2페이지 견적서 (공급가액 2천만원, 합계 2,200만원 VAT 포함)
+- `C:\Users\hongk\Desktop\ClaudeCode\create_ysa_estimate_pdf.py` — 재생성/수정용 Python 스크립트 (reportlab + 맑은고딕)
+- 제출 전 공급자 섹션 4곳 수기 기재 필요: 사업자등록번호, 주소, 연락처, 대표자명
 
-### 🔥 우선순위 높음
-- [ ] admin에서 공지사항 + 보도자료 **실제 컨텐츠 등록 및 검증**
-- [ ] **규정·서식(docs) 구현 (Phase 3)**
-  - Migration 003 (documents 테이블) 작성
-  - `/admin/documents` CRUD (파일 업로드 + 외부 URL 지원)
-  - `/notice/docs` 공개 페이지 리뉴얼 (현재 placeholder)
-  - Supabase Storage `documents` 버킷 사용
+### 📋 다음 할 일 / 후속 옵션
 
-### 🟡 우선순위 중간
-- [ ] **사진·영상 완성 (Phase 4)**
-  - `/notice/gallery` 상세 모달/라이트박스 추가
-  - `/admin/gallery` Supabase 연결 후 실제 업로드 검증
-  - `public/images/history/Gallery/` 에 올려둔 서핑 사진 활용 방식 결정
-- [ ] FAQ admin 페이지 (`/admin/faq`) 추가
-- [ ] 홈 `GalleryPreview.tsx` TODO 해결 (Supabase 연결)
+- [ ] (선택) Supabase RLS 정책에 이메일 화이트리스트 직접 걸기 — 3중 방어
+- [ ] (선택) 공지 삭제 시 Storage 파일 cascading 정리 (현재는 고아 파일 남음)
+- [ ] (선택) 파일 업로드 드래그&드롭 UX (현재 클릭 선택만)
+- [ ] (선택) 파일 용량 클라이언트 체크 (현재 Supabase 기본 50MB)
+- [ ] 견적서 PDF 확정 버전 — 공급자 빈칸 값 받은 뒤 재생성
 
-### 🟢 우선순위 낮음
-- [ ] Vercel Preview 환경변수 추가 (Supabase URL/KEY)
-- [ ] 공지사항 검색 기능 (제목 + 본문)
-- [ ] 페이지네이션 (공지 많아지면)
+## 🎯 프로덕션 현황
 
-## 결정/합의사항
+| 영역 | 상태 |
+|---|---|
+| 메인 도메인 | **https://ysakorea.com** (SSL, HSTS 2년) |
+| 서브 도메인 | `www.ysakorea.com` → apex 자동 리디렉트 |
+| 구 도메인 | `ysakoreaofficial.com` + `www` → **308 리디렉트** → ysakorea.com |
+| Vercel 프로젝트 | `michaelleelomad-5867s-projects/ysa-website` |
+| Supabase 프로젝트 | `cpibyzivkhvzusqmznsf` (ysakorea) |
 
-- **Supabase 프로젝트**: FormPay와 분리된 **ysa-website 전용** 프로젝트 사용 (관리/권한 독립)
-- **실시간 반영 방식**: `revalidate` ISR 대신 `force-dynamic`으로 매 요청 렌더. 트래픽 낮고 admin 수정 후 즉시 확인이 중요.
-- **Press 본문**: 상세 페이지 추가하여 본문 + 원문 링크 함께 제공. 카드 클릭 = 상세로 이동 (이전엔 외부 직링크).
-- **규정·서식**: 파일 업로드 + 외부 URL 둘 다 지원 (file_url OR external_url), 카테고리 없이 단일 목록 (사용자 확정)
+## 🛠️ 주요 완성 기능
 
-## 막혔던 지점
+### 1. 공지·자료실 (5개 탭 모두 완성)
+- **공지사항** `/notice` — 카테고리 필터 + 검색(제목·본문) + 페이지네이션(10/p) + **다중 파일 첨부** (2026-04-19 추가)
+- **보도자료** `/notice/press` — admin CRUD + 상세 페이지 (TiptapEditor 본문)
+- **사진·영상** `/notice/gallery` — 라이트박스 모달 + 키보드 네비게이션 + 다중 파일 업로드
+- **규정·서식** `/notice/docs` — 파일 업로드 or 외부 URL 둘 다 지원
+- **FAQ** `/notice/faq` — admin CRUD + ▲▼ 정렬
 
-- 처음엔 admin에서 보도자료 저장 시 `Could not find the 'content' column of 'press' in the schema cache` 발생
-  → 원인: Migration 002 미실행. 사용자가 SQL Editor에서 `ALTER TABLE press ADD COLUMN content TEXT NOT NULL DEFAULT ''` 실행으로 해결.
-- `ysakorea.com` HSTS 캐시 문제로 인증서 오류 (어제~오늘): 시크릿 창에선 정상 → 브라우저 캐시 문제. `chrome://net-internals/#hsts` 에서 삭제로 해결.
+### 2. 관리자 (Admin) 기능
+- `/admin/notices`, `/admin/press`, `/admin/docs`, `/admin/gallery`, `/admin/faq`, `/admin/programs`, `/admin/competitions`
+- Supabase Auth 로그인 게이트 + **이메일 화이트리스트 2중 방어** (2026-04-19 강화)
+- Supabase signup **차단됨** (외부 가입 불가, 등록은 service_role로만)
+- TiptapEditor로 리치 본문 작성
+- Storage 업로드 + 삭제 시 연동 정리
+- 공지사항 다중 파일 첨부 (`AttachmentUploader` 공용 컴포넌트)
 
-## 관련 파일
+### 3. 교육 접수 (/apply)
+- `/apply` — 강사·심판 교육 공통 접수 페이지
+- `/apply/instructor`, `/apply/referee` — 교육별 분리된 접수
+- **외부 서핑특화 교육**: `https://bpscomm.kr/yysports/` (새 탭)
+- cert-manager API 연동 (SSR prefetch)
+- BirthDatePicker, Kakao 주소 검색, 영수증 레이아웃
 
-### 신규
-- `src/components/notice/NoticeList.tsx`
-- `src/app/admin/press/page.tsx`
-- `src/app/admin/press/new/page.tsx`
-- `src/app/admin/press/[id]/edit/page.tsx`
-- `src/app/notice/press/[id]/page.tsx`
-- `supabase/migrations/002_add_press_content.sql`
-- `.env.local` (Supabase 키 3개 추가됨)
+### 4. 페스티벌 10주년 `/festival`
+- 연도별 타이틀 이미지 (2014~2025, Title Image 폴더)
+- 포스터 갤러리, 역대 입상자, 타임라인
 
-### 수정
-- `src/app/notice/page.tsx` (dynamic + NoticeList 사용)
-- `src/app/notice/[id]/page.tsx` (dynamic)
-- `src/app/notice/press/page.tsx` (상세 링크로 전환 + 요약)
-- `src/app/notice/gallery/page.tsx` (dynamic)
-- `src/app/notice/faq/page.tsx` (dynamic)
-- `src/lib/database.types.ts` (PressItem.content)
-- `src/app/admin/layout.tsx` (NAV 추가)
-- `src/app/admin/page.tsx` (대시보드 카드)
+### 5. 실시간 반영
+- 모든 `/notice/*` 경로 `force-dynamic`
+- 홈 `/` ISR `revalidate = 60` (admin 등록 후 1분 내 메인 반영)
 
-### 미커밋 리소스
-- `public/images/history/Gallery/` — 서핑 사진들 (surfing_01~07.jpg 등). 아직 코드 연동 안 됨. Phase 4(사진·영상) 또는 festival 페이지 보강에 사용 예상.
+## 📡 SEO & 마케팅
 
-## 배포/빌드 상태
+### 검색엔진 등록
+| 플랫폼 | 상태 | 토큰 |
+|---|---|---|
+| 네이버 서치어드바이저 (ysakorea.com) | ✅ | `f44f9a865855ca603cb06b96eb62c3874ae70cf7` |
+| 네이버 서치어드바이저 (ysakoreaofficial.com) | ✅ | `8883c3f459f2db540ecd330508d11d29b6855057` |
+| 구글 Search Console | ✅ | `HakB1hV_3c09jbTA0acXQPqa4IDuUdR5GQ8USUQZek8` |
 
-- **Production URL**: `https://ysakorea.com` (커스텀 도메인), `https://ysa-website.vercel.app` (vercel alias)
-- **최근 배포**: `fdbf88c` 커밋 기반, Ready 상태
-- **Next.js build**: 성공, 모든 `/notice/*` Dynamic rendering 확인
-- **Vercel**: michaelleelomad-5867s-projects / ysa-website 프로젝트
+### 메타데이터 현황
+- **루트 metadata** (layout.tsx): canonical, OG(1200x630 og.jpg), Twitter Card, JSON-LD(SportsOrganization)
+- **정적 페이지 15개** 개별 description 추가 완료
+- **동적 페이지 3개** (`/notice/[id]`, `/notice/press/[id]`, `/schedule/[id]`): title·description·og:article·publishedTime·canonical
+- **PageHeader** 컴포넌트에 **BreadcrumbList JSON-LD** 자동 주입 (~25개 페이지 적용)
+- **sitemap.xml**: 30개 정적 경로 + `ysakorea.com` 정규화
+- **robots.txt**: admin/api 차단 + `Host: https://ysakorea.com`
 
-## 환경변수 체크리스트
+### 이미지 최적화 완료
+- `hero_03.jpg` 메인 배너 (536KB, Squoosh MozJPEG 85)
+- `hero_02.jpg` 10주년 배너 (698KB)
+- `about_list.jpg` 연혁 (708KB)
+- `og.jpg` SNS 공유 전용 (168KB, 1200×630)
 
-로컬 `.env.local`:
-- ✅ `GOOGLE_CALENDAR_API_KEY`
-- ✅ `NEXT_PUBLIC_SUPABASE_URL`
-- ✅ `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- ✅ `SUPABASE_SERVICE_ROLE_KEY`
+### 보안 — 민감 파일 git 히스토리에서 완전 제거
+- 입상자 명단 엑셀 → git-filter-repo로 전체 히스토리 rewrite + force push
+- 포크 0개 확인 → 외부 유출 없음
 
-Vercel:
-- ✅ Production: 위 4개 모두
-- ✅ Development: 위 4개 모두
-- ⚠️ Preview: Supabase 3개 미설정 (필요 시 추가)
+## 🗄️ Supabase 스키마
 
-## 새 채팅 첫 메시지 (이것만 복사해서 붙여넣으면 됨)
+| 테이블 | 용도 | RLS |
+|---|---|---|
+| notices | 공지사항 (category, pinned, content, **attachments JSONB**) | public read + auth write |
+| press | 보도자료 (content 컬럼) | public read + auth write |
+| gallery | 사진/영상 (media_urls JSONB 배열) | public read + auth write |
+| documents | 규정·서식 (file_url OR external_url) | public read + auth write |
+| faq | FAQ (sort_order) | public read + auth write |
+| programs, competitions | 프로그램/대회 | public read + auth write |
+
+**Storage 버킷**: `media` (갤러리), `documents` (규정·서식) — 둘 다 public read + authenticated write RLS 적용
+
+## 📁 마이그레이션 현황
+
+```
+supabase/migrations/
+├── 001_initial_schema.sql       (notices, programs, competitions, gallery, press, faq)
+├── 002_add_press_content.sql    (press.content 컬럼)
+├── 003_add_documents.sql        (documents 테이블)
+├── 004_storage_documents_policies.sql  (documents 버킷 RLS)
+├── 005_documents_rls.sql        (documents 테이블 RLS)
+├── 006_storage_media_policies.sql      (media 버킷 RLS)
+└── 007_add_notices_attachments.sql     (notices.attachments JSONB, 2026-04-19)
+```
+
+모든 마이그레이션은 Supabase 프로덕션에 적용 완료.
+
+## 🔗 외부 연동
+
+- **Google Calendar API v3** — `src/lib/google-calendar.ts`, 환경변수 `GOOGLE_CALENDAR_API_KEY`
+  - 서핑협회 일정 캘린더 + 접수일정 캘린더 2개 연동
+  - `revalidate: 300` (5분)
+- **Kakao Daum 주소 검색** — 접수 페이지
+- **cert-manager API** — 교육 접수 prefetch/submit
+- **bpscomm.kr/yysports** — 서핑특화 교육 외부 링크
+
+## 🔑 환경변수 체크리스트
+
+| 변수 | 로컬 `.env.local` | Vercel Production | Vercel Development | Vercel Preview |
+|---|---|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | ✅ | ✅ | ❌ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | ✅ | ✅ | ❌ |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | ✅ | ✅ | ❌ |
+| `GOOGLE_CALENDAR_API_KEY` | ✅ | ✅ | ✅ | ❌ |
+
+## 📋 남은 작업 (TODO)
+
+### 🟢 낮음 (필요할 때 진행)
+- [ ] Vercel Preview 환경변수 추가 (Supabase 3개 + Google Calendar)
+- [ ] hreflang (현재는 한국어만이라 불필요)
+- [ ] 페이지네이션 크기 조정 (공지 수 증가 시)
+
+### 💡 향후 아이디어
+- [ ] 공지사항 RSS 피드
+- [ ] 뉴스레터 구독
+- [ ] 다국어 지원 (영어/일어)
+
+## 🗂️ 데스크탑 백업 폴더
+
+```
+C:\Users\hongk\Desktop\
+├── ysa-cleanup-2026-04-17\                          (제거한 파일들)
+│   ├── 역대 양양서핑페스티벌 입상자 명단_20251016.xlsx
+│   ├── hero.png, about.png, program-instructor.png
+│   ├── value-4-1.png, staff.jpg
+│
+└── ysa-website-backup-before-filter-20260417-200338\ (히스토리 rewrite 전 리포)
+    (사이트 정상 확인 후 삭제 권장 — 엑셀 포함)
+```
+
+## ⚠️ 주의사항
+
+1. **HWP 작업 패턴** (다른 프로젝트 작업 시)
+   - `hwp_replace_text`는 반드시 한 줄씩 개별 실행
+   - 표 셀은 `hwp_fill_cells` 사용
+
+2. **public/ 폴더는 공개 공간**
+   - 민감 파일(개인정보, 엑셀, 내부 문서) 절대 금지
+   - 필요 시 Supabase Storage private 버킷 사용
+
+3. **Next.js 15+ 주의**
+   - `AGENTS.md`: "This is NOT the Next.js you know" — 새 API 확인 후 코드 작성
+   - 동적 params는 `Promise<{ id: string }>` + `use()` 또는 `await params`
+   - `node_modules/next/dist/docs/` 참고
+
+4. **HSTS 캐시 주의 (브라우저)**
+   - 도메인 설정 변경 후 본인 PC에서만 이상 동작 → 시크릿 창으로 확인
+   - `chrome://net-internals/#hsts` 에서 수동 삭제 가능
+
+## 📂 주요 파일 경로
+
+### 프레임워크 설정
+- `src/app/layout.tsx` — 루트 메타데이터, JSON-LD, 검증 토큰
+- `src/app/sitemap.ts` — 30개 정적 경로
+- `src/app/robots.ts` — admin/api 차단
+- `src/lib/constants.ts` — SITE, NAV_ITEMS
+- `src/lib/supabase.ts` — 브라우저 + admin 클라이언트
+- `src/lib/storage-helpers.ts` — 공통 업로드/삭제 유틸
+- `src/lib/google-calendar.ts` — Calendar API v3
+- `src/lib/database.types.ts` — 타입 정의
+
+### 공통 컴포넌트
+- `src/components/shared/PageHeader.tsx` — Breadcrumb + JSON-LD 자동
+- `src/components/shared/JsonLd.tsx` — `BreadcrumbJsonLd` 헬퍼
+- `src/components/admin/TiptapEditor.tsx` — 리치 에디터
+- `src/components/admin/AttachmentUploader.tsx` — 다중 파일 업로더 (2026-04-19 추가)
+- `src/components/notice/NoticeList.tsx` — 필터+검색+페이지네이션
+- `src/components/notice/GalleryLightbox.tsx` — 모달+슬라이드
+- `src/components/home/HeroSection.tsx`, `GalleryPreview.tsx`, `LatestNotices.tsx`
+
+### 운영 스크립트
+- `scripts/create-admin.mjs` — 신규 관리자 Supabase auth.users 생성 (service_role)
+
+## 🚀 새 채팅 첫 메시지 (복사용)
 
 ```
 C:\Users\hongk\Desktop\ClaudeCode\ysa-website\HANDOFF.md 읽고 이어서 작업해줘
