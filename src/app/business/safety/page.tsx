@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 import { IconSafety, IconRescue, IconEducation } from '@/components/icons';
@@ -36,9 +37,15 @@ export default function SafetyPage() {
             </p>
           </div>
 
-          {/* Placeholder image */}
-          <div className="w-full aspect-[21/9] bg-foam rounded-2xl mb-16 flex items-center justify-center">
-            <p className="text-navy/30 text-lg">안전문화 활동 이미지</p>
+          {/* Hero image */}
+          <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden mb-16">
+            <Image
+              src="/images/business-safety.jpg"
+              alt="해양 안전 교육 및 비치클린 캠페인 현장"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1200px) 100vw, 1200px"
+            />
           </div>
 
           {/* Safety Areas */}

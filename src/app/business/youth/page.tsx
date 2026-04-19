@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 
@@ -35,9 +36,15 @@ export default function YouthPage() {
             </p>
           </div>
 
-          {/* Placeholder image */}
-          <div className="w-full aspect-[21/9] bg-foam rounded-2xl mb-16 flex items-center justify-center">
-            <p className="text-navy/30 text-lg">청소년 서핑 교육 이미지</p>
+          {/* Hero image */}
+          <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden mb-16">
+            <Image
+              src="/images/business-youth.jpg"
+              alt="청소년 서핑 교육 및 선수 육성 현장"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1200px) 100vw, 1200px"
+            />
           </div>
 
           {/* Key Areas */}
