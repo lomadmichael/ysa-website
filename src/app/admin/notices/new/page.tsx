@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { NOTICE_CATEGORY_LABEL } from '@/lib/database.types';
-import type { NoticeCategory } from '@/lib/database.types';
+import type { NoticeCategory, NoticeAttachment } from '@/lib/database.types';
 import TiptapEditor from '@/components/admin/TiptapEditor';
+import AttachmentUploader from '@/components/admin/AttachmentUploader';
 
 export default function NewNotice() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function NewNotice() {
   const [category, setCategory] = useState<NoticeCategory>('association');
   const [pinned, setPinned] = useState(false);
   const [content, setContent] = useState('');
+  const [attachments, setAttachments] = useState<NoticeAttachment[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,6 +26,7 @@ export default function NewNotice() {
       category,
       pinned,
       content,
+      attachments,
     });
 
     if (error) {
@@ -83,6 +86,12 @@ export default function NewNotice() {
           <span className="text-sm font-medium text-navy block mb-1">내용</span>
           <TiptapEditor content={content} onChange={setContent} />
         </div>
+
+        <AttachmentUploader
+          value={attachments}
+          onChange={setAttachments}
+          pathPrefix="notices/"
+        />
 
         <div className="flex gap-3">
           <button

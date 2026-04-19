@@ -26,6 +26,7 @@ const mockNotices: Notice[] = [
     updated_at: '',
     author: null,
     thumbnail_url: null,
+    attachments: [],
   },
   {
     id: 2,
@@ -37,6 +38,7 @@ const mockNotices: Notice[] = [
     updated_at: '',
     author: null,
     thumbnail_url: null,
+    attachments: [],
   },
   {
     id: 3,
@@ -48,6 +50,7 @@ const mockNotices: Notice[] = [
     updated_at: '',
     author: null,
     thumbnail_url: null,
+    attachments: [],
   },
 ];
 

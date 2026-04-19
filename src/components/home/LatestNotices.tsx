@@ -13,6 +13,7 @@ const mockNotices = [
     updated_at: '',
     author: null,
     thumbnail_url: null,
+    attachments: [] as never[],
   },
   {
     id: 2,
@@ -24,6 +25,7 @@ const mockNotices = [
     updated_at: '',
     author: null,
     thumbnail_url: null,
+    attachments: [] as never[],
   },
   {
     id: 3,
@@ -35,6 +37,7 @@ const mockNotices = [
     updated_at: '',
     author: null,
     thumbnail_url: null,
+    attachments: [] as never[],
   },
 ];
 

@@ -4,8 +4,9 @@ import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { NOTICE_CATEGORY_LABEL } from '@/lib/database.types';
-import type { NoticeCategory, Notice } from '@/lib/database.types';
+import type { NoticeCategory, Notice, NoticeAttachment } from '@/lib/database.types';
 import TiptapEditor from '@/components/admin/TiptapEditor';
+import AttachmentUploader from '@/components/admin/AttachmentUploader';
 
 export default function EditNotice({
   params,
@@ -18,6 +19,7 @@ export default function EditNotice({
   const [category, setCategory] = useState<NoticeCategory>('association');
   const [pinned, setPinned] = useState(false);
   const [content, setContent] = useState('');
+  const [attachments, setAttachments] = useState<NoticeAttachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -34,6 +36,8 @@ export default function EditNotice({
         setCategory(data.category);
         setPinned(data.pinned);
         setContent(data.content);
+        // 기존 공지는 null일 수 있음 (마이그레이션 전 데이터) → 안전 폴백
+        setAttachments(Array.isArray(data.attachments) ? data.attachments : []);
       }
       setLoading(false);
     };
@@ -46,7 +50,7 @@ export default function EditNotice({
 
     const { error } = await supabase
       .from('notices')
-      .update({ title, category, pinned, content })
+      .update({ title, category, pinned, content, attachments })
       .eq('id', Number(id));
 
     if (error) {
@@ -108,6 +112,12 @@ export default function EditNotice({
           <span className="text-sm font-medium text-navy block mb-1">내용</span>
           <TiptapEditor content={content} onChange={setContent} />
         </div>
+
+        <AttachmentUploader
+          value={attachments}
+          onChange={setAttachments}
+          pathPrefix="notices/"
+        />
 
         <div className="flex gap-3">
           <button

@@ -3,7 +3,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/shared/PageHeader';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { NOTICE_CATEGORY_LABEL, type Notice } from '@/lib/database.types';
+import { NOTICE_CATEGORY_LABEL, type Notice, type NoticeAttachment } from '@/lib/database.types';
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 // admin 수정 즉시 반영되도록 매 요청 렌더
 export const dynamic = 'force-dynamic';
@@ -115,6 +121,42 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
             className="prose prose-sm max-w-none text-navy/80 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: notice.content }}
           />
+
+          {/* Attachments */}
+          {Array.isArray(notice.attachments) && notice.attachments.length > 0 && (
+            <div className="mt-10 p-5 border border-foam rounded-xl bg-foam/20">
+              <h2 className="text-sm font-bold text-navy mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                </svg>
+                첨부파일 ({notice.attachments.length})
+              </h2>
+              <ul className="space-y-2">
+                {(notice.attachments as NoticeAttachment[]).map((att, idx) => (
+                  <li key={`${att.url}-${idx}`}>
+                    <a
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={att.name}
+                      className="flex items-center gap-3 px-3 py-2 bg-white border border-foam rounded-lg hover:border-ocean hover:bg-white transition-colors group"
+                    >
+                      <span className="text-lg shrink-0" aria-hidden>📄</span>
+                      <span className="flex-1 min-w-0 truncate text-sm text-navy group-hover:text-ocean">
+                        {att.name}
+                      </span>
+                      <span className="text-xs text-navy/50 shrink-0">
+                        {formatSize(att.size)}
+                      </span>
+                      <span className="text-xs text-ocean shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        다운로드
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Back Button */}
           <div className="mt-12 pt-6 border-t border-foam">

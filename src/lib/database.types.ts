@@ -1,4 +1,10 @@
 // Row types (what you get back from select)
+export type NoticeAttachment = {
+  url: string;
+  name: string;
+  size: number;
+};
+
 export type Notice = {
   id: number;
   title: string;
@@ -9,6 +15,8 @@ export type Notice = {
   updated_at: string;
   author: string | null;
   thumbnail_url: string | null;
+  /** 다중 첨부파일. migration 007 이후 추가됨. 기본값 []. */
+  attachments: NoticeAttachment[];
 };
 
 export type Program = {
