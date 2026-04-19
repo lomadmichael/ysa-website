@@ -6,6 +6,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
 
+// 어드민 접근 허용 이메일 화이트리스트
+// 추가 시: 이 배열에 이메일 추가 + scripts/create-admin.mjs로 auth.users 생성
+const ALLOWED_ADMINS = [
+  'michaellee.lomad@gmail.com',
+  'ysa_korea@naver.com',
+] as const;
+
+function isAllowedAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return ALLOWED_ADMINS.includes(email.toLowerCase() as (typeof ALLOWED_ADMINS)[number]);
+}
+
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', icon: '□' },
   { href: '/admin/notices', label: '공지사항', icon: '□' },
@@ -26,15 +38,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const applySession = async (nextSession: Session | null) => {
+      if (nextSession && !isAllowedAdmin(nextSession.user.email)) {
+        // 로그인은 됐지만 화이트리스트 밖 → 강제 로그아웃
+        await supabase.auth.signOut();
+        setSession(null);
+        setLoginError('이 계정에는 관리자 권한이 없습니다. 관리자에게 문의하세요.');
+        return;
+      }
+      setSession(nextSession);
+    };
+
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      await applySession(s);
       setLoading(false);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, s) => {
+      void applySession(s);
     });
 
     return () => subscription.unsubscribe();
@@ -43,9 +66,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setLoginError(error.message);
+      return;
+    }
+    // 로그인 성공해도 화이트리스트 밖이면 차단
+    if (!isAllowedAdmin(data.user?.email)) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setLoginError('이 계정에는 관리자 권한이 없습니다. 관리자에게 문의하세요.');
     }
   };
 
