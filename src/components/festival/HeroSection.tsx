@@ -1,9 +1,13 @@
 import Image from 'next/image';
 
+// hero_02.jpg LQIP (16px blur, scripts/optimize-hero.mjs 재생성)
+const HERO_BLUR =
+  'data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAwIE/8QAHxAAAQQCAgMAAAAAAAAAAAAAAQACAwQRIRIyM0Gh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAL/xAAWEQADAAAAAAAAAAAAAAAAAAAAARP/2gAMAwEAAhEDEQA/ADjpUY4tyT88egE1KQ0JubXhwI205CyttzAd/gVOtz48h2okxVH/2Q==';
+
 export default function FestivalHero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-navy">
-      {/* priority로 preload, placeholder blur는 제거해 즉시 표시 */}
+      {/* priority preload + LQIP blur placeholder (배경색 노출 제거) */}
       <Image
         src="/images/hero_02.jpg"
         alt=""
@@ -11,6 +15,8 @@ export default function FestivalHero() {
         priority
         sizes="100vw"
         quality={85}
+        placeholder="blur"
+        blurDataURL={HERO_BLUR}
         className="object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy" />
