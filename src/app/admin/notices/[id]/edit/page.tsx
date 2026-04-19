@@ -7,6 +7,7 @@ import { NOTICE_CATEGORY_LABEL } from '@/lib/database.types';
 import type { NoticeCategory, Notice, NoticeAttachment } from '@/lib/database.types';
 import TiptapEditor from '@/components/admin/TiptapEditor';
 import AttachmentUploader from '@/components/admin/AttachmentUploader';
+import { deleteFromBucket } from '@/lib/storage-helpers';
 
 export default function EditNotice({
   params,
@@ -20,6 +21,7 @@ export default function EditNotice({
   const [pinned, setPinned] = useState(false);
   const [content, setContent] = useState('');
   const [attachments, setAttachments] = useState<NoticeAttachment[]>([]);
+  const [originalAttachments, setOriginalAttachments] = useState<NoticeAttachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,7 +39,9 @@ export default function EditNotice({
         setPinned(data.pinned);
         setContent(data.content);
         // 기존 공지는 null일 수 있음 (마이그레이션 전 데이터) → 안전 폴백
-        setAttachments(Array.isArray(data.attachments) ? data.attachments : []);
+        const initial = Array.isArray(data.attachments) ? data.attachments : [];
+        setAttachments(initial);
+        setOriginalAttachments(initial);
       }
       setLoading(false);
     };
@@ -57,6 +61,15 @@ export default function EditNotice({
       alert('수정 실패: ' + error.message);
       setSubmitting(false);
       return;
+    }
+
+    // 폼에서 제거된 첨부는 Storage에서도 삭제
+    const remaining = new Set(attachments.map((a) => a.url));
+    const removedUrls = originalAttachments
+      .map((a) => a.url)
+      .filter((url) => url && !remaining.has(url));
+    if (removedUrls.length > 0) {
+      await deleteFromBucket('documents', removedUrls);
     }
 
     router.push('/admin/notices');

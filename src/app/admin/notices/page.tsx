@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { NOTICE_CATEGORY_LABEL } from '@/lib/database.types';
-import type { Notice } from '@/lib/database.types';
+import type { Notice, NoticeAttachment } from '@/lib/database.types';
+import { deleteFromBucket } from '@/lib/storage-helpers';
 import Link from 'next/link';
 
 export default function AdminNotices() {
@@ -24,8 +25,28 @@ export default function AdminNotices() {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    await supabase.from('notices').delete().eq('id', id);
+    if (!confirm('정말 삭제하시겠습니까? 첨부파일도 함께 삭제됩니다.')) return;
+
+    const { data: row } = await supabase
+      .from('notices')
+      .select('attachments')
+      .eq('id', id)
+      .returns<{ attachments: NoticeAttachment[] | null }[]>()
+      .single();
+
+    const urls = Array.isArray(row?.attachments)
+      ? row.attachments.map((a) => a.url).filter(Boolean)
+      : [];
+
+    const { error } = await supabase.from('notices').delete().eq('id', id);
+    if (error) {
+      alert('삭제 실패: ' + error.message);
+      return;
+    }
+
+    if (urls.length > 0) {
+      await deleteFromBucket('documents', urls);
+    }
     fetchNotices();
   };
 
