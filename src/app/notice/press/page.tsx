@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -35,7 +36,7 @@ async function getPressItems(): Promise<PressItem[]> {
 }
 
 /** HTML 태그 제거 후 간단 요약 텍스트로 변환 */
-function stripHtml(html: string, maxLen = 140): string {
+function stripHtml(html: string, maxLen = 120): string {
   if (!html) return '';
   const text = html
     .replace(/<[^>]+>/g, ' ')
@@ -47,6 +48,11 @@ function stripHtml(html: string, maxLen = 140): string {
     .trim();
   if (text.length <= maxLen) return text;
   return text.slice(0, maxLen) + '…';
+}
+
+function isSupabaseUrl(url: string | null): boolean {
+  if (!url) return false;
+  return /\.supabase\.co\//i.test(url);
 }
 
 export default async function PressPage() {
@@ -82,46 +88,76 @@ export default async function PressPage() {
           </nav>
 
           {items.length > 0 ? (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {items.map((item) => {
                 const summary = stripHtml(item.content ?? '');
+                const thumb = item.thumbnail_url;
                 return (
                   <Link
                     key={item.id}
                     href={`/notice/press/${item.id}`}
-                    className="block p-5 bg-white rounded-lg border border-foam hover:border-ocean/20 hover:bg-ocean/5 transition-colors group"
+                    className="group flex flex-col bg-white rounded-xl border border-foam overflow-hidden hover:border-ocean/30 hover:shadow-md transition-all"
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          {item.source && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
-                              {item.source}
-                            </span>
-                          )}
-                          <span className="text-xs text-navy/40">
-                            {new Date(item.date).toLocaleDateString('ko-KR')}
-                          </span>
+                    {/* 썸네일 */}
+                    <div className="relative aspect-[16/9] bg-foam overflow-hidden">
+                      {thumb ? (
+                        <Image
+                          src={thumb}
+                          alt={item.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                          unoptimized={!isSupabaseUrl(thumb)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-navy/20">
+                          <svg
+                            className="w-12 h-12"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6V7.5Z"
+                            />
+                          </svg>
                         </div>
-                        <h3 className="text-[15px] text-navy font-medium group-hover:text-ocean transition-colors mb-1">
-                          {item.title}
-                        </h3>
-                        {summary && (
-                          <p className="text-xs text-navy/55 leading-relaxed line-clamp-2">
-                            {summary}
-                          </p>
-                        )}
-                      </div>
+                      )}
                       {item.url && (
                         <span
-                          className="shrink-0 inline-flex items-center gap-1 text-[11px] text-navy/40 mt-1"
-                          title="원문 링크가 있습니다"
+                          className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/95 text-navy/70 backdrop-blur-sm shadow-sm"
+                          title="원문 링크 있음"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                           </svg>
                           원문
                         </span>
+                      )}
+                    </div>
+
+                    {/* 텍스트 */}
+                    <div className="flex-1 flex flex-col p-5">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        {item.source && (
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-sm bg-ocean/10 text-ocean">
+                            {item.source}
+                          </span>
+                        )}
+                        <span className="text-[11px] text-navy/40">
+                          {new Date(item.date).toLocaleDateString('ko-KR')}
+                        </span>
+                      </div>
+                      <h3 className="text-[15px] text-navy font-semibold leading-snug mb-2 line-clamp-2 group-hover:text-ocean transition-colors">
+                        {item.title}
+                      </h3>
+                      {summary && (
+                        <p className="text-xs text-navy/55 leading-relaxed line-clamp-2">
+                          {summary}
+                        </p>
                       )}
                     </div>
                   </Link>

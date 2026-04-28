@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import TiptapEditor from '@/components/admin/TiptapEditor';
+import PressMetaFields from '@/components/admin/PressMetaFields';
 
 export default function NewPress() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function NewPress() {
   const [url, setUrl] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [content, setContent] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,6 +26,7 @@ export default function NewPress() {
       url: url || null,
       date,
       content,
+      thumbnail_url: thumbnailUrl,
     });
 
     if (error) {
@@ -39,6 +42,18 @@ export default function NewPress() {
     <div>
       <h1 className="text-2xl font-bold text-navy mb-6">새 보도자료 등록</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-5 max-w-2xl">
+        <PressMetaFields
+          url={url}
+          onUrlChange={setUrl}
+          thumbnailUrl={thumbnailUrl}
+          onThumbnailChange={setThumbnailUrl}
+          onAutofill={(data) => {
+            // 사용자가 비어있는 필드만 채워주는 게 자연스러움 (덮어쓰기 방지)
+            if (data.title && !title) setTitle(data.title);
+            if (data.source && !source) setSource(data.source);
+          }}
+        />
+
         <label className="block">
           <span className="text-sm font-medium text-navy">제목</span>
           <input
@@ -73,20 +88,6 @@ export default function NewPress() {
             />
           </label>
         </div>
-
-        <label className="block">
-          <span className="text-sm font-medium text-navy">원문 기사 URL</span>
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://..."
-            className="mt-1 block w-full px-3 py-2 border border-foam rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
-          />
-          <span className="mt-1 block text-xs text-navy/50">
-            비워두면 상세 페이지에 '원문 보기' 버튼이 노출되지 않습니다.
-          </span>
-        </label>
 
         <div>
           <span className="text-sm font-medium text-navy block mb-1">본문 내용</span>

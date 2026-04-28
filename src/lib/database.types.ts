@@ -64,6 +64,8 @@ export type PressItem = {
   created_at: string;
   /** 본문 내용 (TiptapEditor로 생성된 HTML). migration 002 이후 추가됨. */
   content: string;
+  /** 대표 이미지 URL. OG 자동 추출 or 수동 업로드. migration 008 이후 추가됨. */
+  thumbnail_url: string | null;
 };
 
 export type DocumentItem = {

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/shared/PageHeader';
@@ -58,11 +59,17 @@ export async function generateMetadata({
       type: 'article',
       publishedTime: item.date,
       url: `/notice/press/${item.id}`,
+      images: item.thumbnail_url ? [item.thumbnail_url] : undefined,
     },
     alternates: {
       canonical: `/notice/press/${item.id}`,
     },
   };
+}
+
+function isSupabaseUrl(url: string | null): boolean {
+  if (!url) return false;
+  return /\.supabase\.co\//i.test(url);
 }
 
 export default async function PressDetailPage({
@@ -107,6 +114,21 @@ export default async function PressDetailPage({
               <span>{new Date(item.date).toLocaleDateString('ko-KR')}</span>
             </div>
           </div>
+
+          {/* 대표 이미지 */}
+          {item.thumbnail_url && (
+            <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-8 bg-foam">
+              <Image
+                src={item.thumbnail_url}
+                alt={item.title}
+                fill
+                priority
+                sizes="(max-width: 800px) 100vw, 800px"
+                className="object-cover"
+                unoptimized={!isSupabaseUrl(item.thumbnail_url)}
+              />
+            </div>
+          )}
 
           {/* Body Content (HTML from TiptapEditor) */}
           {item.content && item.content.trim().length > 0 ? (

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { PressItem } from '@/lib/database.types';
 import TiptapEditor from '@/components/admin/TiptapEditor';
+import PressMetaFields from '@/components/admin/PressMetaFields';
 
 export default function EditPress({
   params,
@@ -18,6 +19,7 @@ export default function EditPress({
   const [url, setUrl] = useState('');
   const [date, setDate] = useState('');
   const [content, setContent] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -35,6 +37,7 @@ export default function EditPress({
         setUrl(data.url ?? '');
         setDate(data.date);
         setContent(data.content ?? '');
+        setThumbnailUrl(data.thumbnail_url ?? null);
       }
       setLoading(false);
     };
@@ -53,6 +56,7 @@ export default function EditPress({
         url: url || null,
         date,
         content,
+        thumbnail_url: thumbnailUrl,
       })
       .eq('id', Number(id));
 
@@ -73,6 +77,17 @@ export default function EditPress({
     <div>
       <h1 className="text-2xl font-bold text-navy mb-6">보도자료 수정</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-5 max-w-2xl">
+        <PressMetaFields
+          url={url}
+          onUrlChange={setUrl}
+          thumbnailUrl={thumbnailUrl}
+          onThumbnailChange={setThumbnailUrl}
+          onAutofill={(data) => {
+            if (data.title && !title) setTitle(data.title);
+            if (data.source && !source) setSource(data.source);
+          }}
+        />
+
         <label className="block">
           <span className="text-sm font-medium text-navy">제목</span>
           <input
@@ -107,20 +122,6 @@ export default function EditPress({
             />
           </label>
         </div>
-
-        <label className="block">
-          <span className="text-sm font-medium text-navy">원문 기사 URL</span>
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://..."
-            className="mt-1 block w-full px-3 py-2 border border-foam rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
-          />
-          <span className="mt-1 block text-xs text-navy/50">
-            비워두면 상세 페이지에 '원문 보기' 버튼이 노출되지 않습니다.
-          </span>
-        </label>
 
         <div>
           <span className="text-sm font-medium text-navy block mb-1">본문 내용</span>

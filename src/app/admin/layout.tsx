@@ -2,21 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { isAllowedAdmin } from '@/lib/admin-auth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
-
-// 어드민 접근 허용 이메일 화이트리스트
-// 추가 시: 이 배열에 이메일 추가 + scripts/create-admin.mjs로 auth.users 생성
-const ALLOWED_ADMINS = [
-  'michaellee.lomad@gmail.com',
-  'ysa_korea@naver.com',
-] as const;
-
-function isAllowedAdmin(email: string | null | undefined): boolean {
-  if (!email) return false;
-  return ALLOWED_ADMINS.includes(email.toLowerCase() as (typeof ALLOWED_ADMINS)[number]);
-}
 
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', icon: '□' },
