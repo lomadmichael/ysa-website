@@ -5,9 +5,13 @@ import Link from "next/link";
 import BirthDatePicker from "./BirthDatePicker";
 import AddressSearch from "./AddressSearch";
 
+// cert-manager moved to golineup.kr; the old cert-manager-taupe.vercel.app
+// host now responds with a 308 permanent redirect, which CORS preflight
+// (OPTIONS) requests cannot follow per browser policy. Hardcoding the
+// current host as the fallback keeps the form working when the env var
+// is missing on Vercel. Override via NEXT_PUBLIC_CERT_API_BASE if needed.
 const CERT_API =
-  process.env.NEXT_PUBLIC_CERT_API_BASE ??
-  "https://cert-manager-taupe.vercel.app";
+  process.env.NEXT_PUBLIC_CERT_API_BASE ?? "https://golineup.kr";
 
 interface Schedule {
   id: string;
