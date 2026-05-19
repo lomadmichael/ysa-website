@@ -1,12 +1,70 @@
 # ysa-website 작업 인수인계
 
-> 최종 업데이트: 2026-04-19
-> 마지막 커밋: `d5a3836 feat(notice): cascading storage cleanup + drag-drop uploader`
+> 최종 업데이트: 2026-04-28
+> 마지막 커밋: `15f9167 feat(press): OG metadata auto-fetch + thumbnail support`
 > 브랜치: `master`
 > 작업 디렉토리: `C:\Users\hongk\Desktop\ClaudeCode\ysa-website`
 > 라이브: https://ysakorea.com
 
-## 🆕 최근 세션 (2026-04-19) — 보안 강화 + 공지 파일첨부
+## 🆕 최근 세션 (2026-04-28) — 콘텐츠 추가 + 성능 + 어드민 기능화 + 보도자료 OG
+
+### 배포된 변경사항
+
+**1. 📝 연혁 2023~2025 추가** (commit `20591b4`)
+- `src/app/about/history/page.tsx` TIMELINE 최상단에 3년치 11건 추가
+  - 2025: 10년의 기록 전시회, 제2회 군의장배, 제10회 페스티벌, 전문인력 양성, 레저스포츠 체험, 오션프렌들리 (6건)
+  - 2024: 제1회 군의장배, 제9회 페스티벌, 전문인력 양성 (3건)
+  - 2023: 제8회 페스티벌, 나는 양양의 서핑강사다 (2건)
+- 같은 연도 안에서도 최신 월이 위에 오도록 정렬
+
+**2. 🖼️ 협회사업 3개 페이지 hero 이미지 적용** (commit `20591b4`)
+- placeholder div → `<Image>` 교체
+- `business-education.jpg` (108KB), `business-safety.jpg` (95KB), `business-youth.jpg` (364KB)
+- 공통: `aspect-[21/9]` + `fill` + `object-cover`
+
+**3. ⚡ 메인 hero 최적화 + LQIP** (commit `e4a00e3`)
+- `hero_03.jpg` 534KB → **128KB** (-76%, MozJPEG q75 / 4:2:0)
+- `HeroSection`에 `placeholder="blur"` + `blurDataURL` 복구 → 배경색 튐 제거
+- `scripts/optimize-hero.mjs` 재인코딩 + LQIP 자동 생성 유틸
+
+**4. ⚡ 10주년 hero 최적화** (commit `c60a409`)
+- `hero_02.jpg` 682KB → **165KB** (-76%)
+- `FestivalHero` blur placeholder 복구
+- `scripts/optimize-hero.mjs` 메인+10주년 둘 다 처리하도록 일반화
+
+**5. 📊 어드민 대시보드 기능화** (commit `bd78f1f`)
+- `src/app/admin/page.tsx` placeholder(—) → 실제 기능
+- 7개 테이블 카드: 실제 카운트 (`count: 'exact', head: true` 병렬)
+- 최근 업데이트 섹션: 공지·보도·갤러리 통합 최근 8건 + 상대시간(`방금 전 / N분 전`) + 배지
+- 빠른 작성 CTA 3개 (공지/보도자료/갤러리) 상단 배치 → 원클릭 진입
+
+**6. 📰 보도자료 OG 자동 추출 + 썸네일 시스템** (commit `15f9167`)
+- migration `008_add_press_thumbnail.sql` — `press.thumbnail_url TEXT` 추가, 프로덕션 적용 완료
+- `cheerio` 의존성 추가
+- API route `POST /api/admin/fetch-og` — Bearer 토큰 검증 + ALLOWED_ADMINS 화이트리스트
+  - 외부 페이지 fetch (Chrome UA) → cheerio로 OG 메타 파싱
+  - 추출 항목: og:title / og:description / og:site_name / og:image
+  - 이미지는 다운로드 후 Supabase Storage `media/press-og/`에 백업 저장 (외부 URL 깨짐 방지)
+  - 폴백: Storage 업로드 실패 시 외부 URL 그대로 사용
+- `src/lib/admin-auth.ts` — `ALLOWED_ADMINS` + `isAllowedAdmin()` admin layout과 API에서 공통 사용
+- `src/components/admin/PressMetaFields.tsx` — 공용 컴포넌트
+  - URL 옆 **🔍 정보 가져오기** 버튼 → 자동 채움 (제목·출처·썸네일)
+  - 자동 채움은 **빈 필드만** 채워 사용자 입력 보존
+  - 직접 업로드 옵션 + 미리보기 + 이미지 제거
+- `next.config.ts`에 `*.supabase.co` 이미지 도메인 등록
+- 공개 `/notice/press` 리스트형 → **카드형 그리드** (1/2/3열 반응형, 16:9 썸네일, source 배지, 요약 2줄)
+- 공개 `/notice/press/[id]` 본문 위 대표 이미지 + `og:image` 메타 추가
+
+### 📋 다음 할 일 / 후속 옵션
+
+- [ ] (선택) 본문 자동 추출 (Mozilla Readability + jsdom) — 저작권/정확도 이슈로 보류 중
+- [ ] (선택) 신규 공지·보도자료 폼 취소 시 업로드된 Storage 고아 파일 정리
+- [ ] (선택) Supabase RLS 정책에 이메일 화이트리스트 직접 걸기 — 3중 방어
+- [ ] 견적서 PDF 확정 버전 — 공급자 빈칸 값 받은 뒤 재생성
+
+---
+
+## 🗂️ 이전 세션 (2026-04-19) — 보안 강화 + 공지 파일첨부
 
 ### 배포된 변경사항
 
@@ -123,10 +181,12 @@
 - **robots.txt**: admin/api 차단 + `Host: https://ysakorea.com`
 
 ### 이미지 최적화 완료
-- `hero_03.jpg` 메인 배너 (536KB, Squoosh MozJPEG 85)
-- `hero_02.jpg` 10주년 배너 (698KB)
+- `hero_03.jpg` 메인 배너 — **128KB** (2026-04-28 재인코딩, MozJPEG q75 + LQIP blur)
+- `hero_02.jpg` 10주년 배너 — **165KB** (2026-04-28 재인코딩, MozJPEG q75 + LQIP blur)
 - `about_list.jpg` 연혁 (708KB)
 - `og.jpg` SNS 공유 전용 (168KB, 1200×630)
+- `business-education.jpg` (108KB), `business-safety.jpg` (95KB), `business-youth.jpg` (364KB)
+- 재인코딩 유틸: `node scripts/optimize-hero.mjs` — 메인+10주년 이미지 일괄 처리 + blurDataURL 자동 생성
 
 ### 보안 — 민감 파일 git 히스토리에서 완전 제거
 - 입상자 명단 엑셀 → git-filter-repo로 전체 히스토리 rewrite + force push
@@ -137,13 +197,16 @@
 | 테이블 | 용도 | RLS |
 |---|---|---|
 | notices | 공지사항 (category, pinned, content, **attachments JSONB**) | public read + auth write |
-| press | 보도자료 (content 컬럼) | public read + auth write |
+| press | 보도자료 (content + **thumbnail_url**) | public read + auth write |
 | gallery | 사진/영상 (media_urls JSONB 배열) | public read + auth write |
 | documents | 규정·서식 (file_url OR external_url) | public read + auth write |
 | faq | FAQ (sort_order) | public read + auth write |
 | programs, competitions | 프로그램/대회 | public read + auth write |
 
-**Storage 버킷**: `media` (갤러리), `documents` (규정·서식) — 둘 다 public read + authenticated write RLS 적용
+**Storage 버킷**:
+- `media` — 갤러리 + **press-og/** (보도자료 OG 썸네일 백업)
+- `documents` — 규정·서식 + 공지 첨부
+- 둘 다 public read + authenticated write RLS 적용
 
 ## 📁 마이그레이션 현황
 
@@ -155,7 +218,8 @@ supabase/migrations/
 ├── 004_storage_documents_policies.sql  (documents 버킷 RLS)
 ├── 005_documents_rls.sql        (documents 테이블 RLS)
 ├── 006_storage_media_policies.sql      (media 버킷 RLS)
-└── 007_add_notices_attachments.sql     (notices.attachments JSONB, 2026-04-19)
+├── 007_add_notices_attachments.sql     (notices.attachments JSONB, 2026-04-19)
+└── 008_add_press_thumbnail.sql         (press.thumbnail_url TEXT, 2026-04-28)
 ```
 
 모든 마이그레이션은 Supabase 프로덕션에 적용 완료.
@@ -228,23 +292,31 @@ C:\Users\hongk\Desktop\
 - `src/app/layout.tsx` — 루트 메타데이터, JSON-LD, 검증 토큰
 - `src/app/sitemap.ts` — 30개 정적 경로
 - `src/app/robots.ts` — admin/api 차단
+- `next.config.ts` — `*.supabase.co` 이미지 도메인 (2026-04-28)
 - `src/lib/constants.ts` — SITE, NAV_ITEMS
 - `src/lib/supabase.ts` — 브라우저 + admin 클라이언트
+- `src/lib/admin-auth.ts` — `ALLOWED_ADMINS` 화이트리스트 + `isAllowedAdmin()` (admin layout + API route 공통)
 - `src/lib/storage-helpers.ts` — 공통 업로드/삭제 유틸
 - `src/lib/google-calendar.ts` — Calendar API v3
 - `src/lib/database.types.ts` — 타입 정의
+
+### API Routes
+- `src/app/api/admin/fetch-og/route.ts` — Bearer 인증 + cheerio OG 메타 추출 + Supabase Storage 백업 (2026-04-28)
 
 ### 공통 컴포넌트
 - `src/components/shared/PageHeader.tsx` — Breadcrumb + JSON-LD 자동
 - `src/components/shared/JsonLd.tsx` — `BreadcrumbJsonLd` 헬퍼
 - `src/components/admin/TiptapEditor.tsx` — 리치 에디터
 - `src/components/admin/AttachmentUploader.tsx` — 다중 파일 업로더 + 드래그&드롭 + 용량 체크 (2026-04-19)
+- `src/components/admin/PressMetaFields.tsx` — 보도자료 URL→OG 자동채움 + 썸네일 업로더 (2026-04-28)
 - `src/components/notice/NoticeList.tsx` — 필터+검색+페이지네이션
 - `src/components/notice/GalleryLightbox.tsx` — 모달+슬라이드
 - `src/components/home/HeroSection.tsx`, `GalleryPreview.tsx`, `LatestNotices.tsx`
+- `src/components/festival/HeroSection.tsx` — 10주년 페이지 hero (LQIP blur 적용)
 
 ### 운영 스크립트
 - `scripts/create-admin.mjs` — 신규 관리자 Supabase auth.users 생성 (service_role)
+- `scripts/optimize-hero.mjs` — 메인+10주년 hero 일괄 재인코딩 + blurDataURL 자동 생성
 
 ## 🚀 새 채팅 첫 메시지 (복사용)
 
