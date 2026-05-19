@@ -107,7 +107,7 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     year: 2018,
     edition: 5,
     period: '10.13 ~ 10.14',
-    title: '제5회 까뛰베 양양서핑페스티벌',
+    title: '제5회 K-WAY배 양양서핑페스티벌',
     posterImage: '/images/history/Poster/2018-poster.jpg',
     thumbnail: '/images/history/Title Image/2018-title.jpg',
     descriptionKo:
@@ -160,11 +160,11 @@ export const FESTIVAL_HISTORY: FestivalYear[] = [
     year: 2014,
     edition: 1,
     period: '10.11 ~ 10.12',
-    title: '제1회 양양군수배 국제 서핑페스티벌',
+    title: '제1회 양양군수배 국제서핑페스티벌',
     posterImage: '/images/history/Poster/2014-poster.jpg',
     thumbnail: '/images/history/Title Image/2014-title.jpg',
     descriptionKo:
-      '국내에 서핑문화는 것이 아직 알려지지 이전 강원지역의 서핑숍들이 함께 하여 "강원 서핑연합"이 주최로 행사가 개최되었습니다.',
+      '국내에 서핑문화가 아직 알려지기 이전, 강원지역의 서핑숍들이 함께한 「강원 서핑연합」 주최로 행사가 개최되었습니다.',
     descriptionEn:
       'Before surfing culture became widely known in Korea, the event was organized by the Gangwon Surfing Association, formed by surf shops along the Gangwon coast.',
     highlights: ['대한민국 서핑대회의 시작', '강원 서핑연합 주최'],
