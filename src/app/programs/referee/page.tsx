@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
+import EducationFAQ from '@/components/programs/EducationFAQ';
 
 export const metadata: Metadata = {
   title: '심판 교육',
@@ -65,6 +66,8 @@ export default function RefereePage() {
                 서핑 경기에 대한 이해와 기본적인 서핑 경험이 있는 분이라면 누구나 지원할 수 있습니다.
                 교육 수료 후 실기 평가를 통과하면 양양군서핑협회 공인 심판 자격이 부여됩니다.
               </p>
+
+              <EducationFAQ />
             </div>
 
             {/* Sidebar */}

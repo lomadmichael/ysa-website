@@ -666,6 +666,24 @@ function CheckRow({
   );
 }
 
+function getClosedReason(s: Schedule): 'finished' | 'status' | 'full' | null {
+  // 1) end_date가 오늘보다 과거면 종료된 교육
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const endDate = new Date(s.end_date);
+  if (endDate < today) return 'finished';
+
+  // 2) status가 명시적으로 'open'이 아니면 마감 처리 (cert-manager에서 수동 마감 가능)
+  if (s.status && s.status !== 'open') return 'status';
+
+  // 3) 정원·대기 모두 가득 차면 마감
+  const confirmedFull = s.current_count >= s.capacity;
+  const waitlistFull = s.waitlist_count >= s.capacity;
+  if (confirmedFull && waitlistFull) return 'full';
+
+  return null;
+}
+
 function ScheduleGroup({
   title,
   schedules,
@@ -684,13 +702,24 @@ function ScheduleGroup({
         {schedules.map((s) => {
           const confirmedFull = s.current_count >= s.capacity;
           const waitlistFull = s.waitlist_count >= s.capacity;
-          const fullyClosed = confirmedFull && waitlistFull;
+          const closedReason = getClosedReason(s);
+          const closed = closedReason !== null;
           const isSelected = selected === s.id;
+
+          const badge =
+            closedReason === 'finished'
+              ? { label: '종료', cls: 'bg-gray-200 text-gray-600' }
+              : closedReason === 'status'
+                ? { label: '마감', cls: 'bg-gray-200 text-gray-600' }
+                : closedReason === 'full'
+                  ? { label: '정원 마감', cls: 'bg-red-100 text-red-700' }
+                  : null;
+
           return (
             <label
               key={s.id}
               className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 transition ${
-                fullyClosed
+                closed
                   ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
                   : isSelected
                     ? "cursor-pointer border-purple bg-purple/5"
@@ -703,12 +732,19 @@ function ScheduleGroup({
                   name="schedule_id"
                   value={s.id}
                   checked={isSelected}
-                  disabled={fullyClosed}
-                  onChange={() => !fullyClosed && onSelect(s.id)}
+                  disabled={closed}
+                  onChange={() => !closed && onSelect(s.id)}
                 />
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-sm font-medium flex items-center gap-2">
                     [{certTypeLabel(s.cert_type)}] {s.round}차
+                    {badge && (
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.cls}`}
+                      >
+                        {badge.label}
+                      </span>
+                    )}
                   </p>
                   <p className="text-xs text-gray-500">
                     {formatDate(s.start_date)} ~ {formatDate(s.end_date)}
