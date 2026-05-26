@@ -92,13 +92,23 @@ export default function ApplyInstructorPage() {
           </div>
 
           <div
-            className="border-t border-gray-100 px-6 sm:px-10 py-4 text-xs sm:text-sm leading-relaxed text-navy/70"
+            className="border-t border-gray-100 px-6 sm:px-10 py-4 text-xs sm:text-sm leading-relaxed text-navy/70 space-y-1.5"
             style={{
               background:
                 "color-mix(in srgb, var(--color-sunset) 6%, transparent)",
             }}
           >
-            접수 오픈 시 홈페이지 · 인스타그램(@ysa_korea)을 통해 공지합니다.
+            <p>접수 오픈 시 홈페이지 · 인스타그램(@ysa_korea)을 통해 공지합니다.</p>
+            <p>
+              신청 후 차수 변경·취소 방법은{' '}
+              <Link
+                href="/programs/instructor#faq"
+                className="text-ocean underline underline-offset-2 hover:text-ocean/80 font-medium"
+              >
+                강사 교육 안내 페이지의 FAQ
+              </Link>
+              를 참고하세요.
+            </p>
           </div>
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 border-t border-gray-100 bg-gray-50/50 px-6 sm:px-10 py-5">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
+import EducationFAQ from '@/components/programs/EducationFAQ';
 
 export const metadata: Metadata = {
   title: '강사 교육',
@@ -65,6 +66,8 @@ export default function InstructorPage() {
                 KSA 자격을 보유한 국내 최고 수준의 강사진이 교육을 진행합니다.
                 풍부한 현장 경험과 전문 지식을 바탕으로 실질적이고 체계적인 교육을 제공합니다.
               </p>
+
+              <EducationFAQ />
             </div>
 
             {/* Sidebar */}
