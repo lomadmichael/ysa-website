@@ -715,6 +715,11 @@ function ScheduleGroup({
                   ? { label: '정원 마감', cls: 'bg-red-100 text-red-700' }
                   : null;
 
+          // 종료/마감(close)된 차수는 정원·대기 숫자가 의미 없으므로 숨김
+          // 단 '정원 마감(full)'은 정원/대기가 가득 찬 상태이므로 그대로 표시
+          const showCounts =
+            closedReason !== 'finished' && closedReason !== 'status';
+
           return (
             <label
               key={s.id}
@@ -751,21 +756,23 @@ function ScheduleGroup({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 ml-auto">
-                <CountPill
-                  label="정원"
-                  current={s.current_count}
-                  max={s.capacity}
-                  full={confirmedFull}
-                />
-                <CountPill
-                  label="대기"
-                  current={s.waitlist_count}
-                  max={s.capacity}
-                  full={waitlistFull}
-                  muted
-                />
-              </div>
+              {showCounts && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <CountPill
+                    label="정원"
+                    current={s.current_count}
+                    max={s.capacity}
+                    full={confirmedFull}
+                  />
+                  <CountPill
+                    label="대기"
+                    current={s.waitlist_count}
+                    max={s.capacity}
+                    full={waitlistFull}
+                    muted
+                  />
+                </div>
+              )}
             </label>
           );
         })}
