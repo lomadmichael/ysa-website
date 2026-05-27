@@ -429,7 +429,7 @@ export default function ApplyForm({
               required
               value={form.applicant_name_en}
               onChange={(e) => updateField("applicant_name_en", e.target.value)}
-              placeholder="Hong Gildong"
+              placeholder="Gildong Hong"
               className={inputCls}
             />
           </Field>
@@ -461,7 +461,7 @@ export default function ApplyForm({
             <input
               type="tel"
               required
-              placeholder="010-1234-5678"
+              placeholder="01012345678"
               value={form.applicant_phone}
               onChange={(e) => updateField("applicant_phone", e.target.value)}
               className={inputCls}
