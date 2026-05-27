@@ -1,12 +1,47 @@
 # ysa-website 작업 인수인계
 
-> 최종 업데이트: 2026-04-28
-> 마지막 커밋: `15f9167 feat(press): OG metadata auto-fetch + thumbnail support`
+> 최종 업데이트: 2026-05-27
+> 마지막 커밋: `4dc3e23 fix(apply): hide capacity counts for finished/closed schedules`
 > 브랜치: `master`
 > 작업 디렉토리: `C:\Users\hongk\Desktop\ClaudeCode\ysa-website`
 > 라이브: https://ysakorea.com
 
-## 🆕 최근 세션 (2026-04-28) — 콘텐츠 추가 + 성능 + 어드민 기능화 + 보도자료 OG
+## 🆕 최근 세션 (2026-05-27) — 교육 접수 종료 처리 + FAQ + 페스티벌 오탈자
+
+### 1. 페스티벌 후원사명·오타 수정 (commit `8e8aea4`)
+- **제5회**: `까뛰베` → **`K-WAY배`** (정확한 후원사명)
+- **제1회**: `국제 서핑페스티벌` → `국제서핑페스티벌` (띄어쓰기 일관성)
+- **제1회 descriptionKo**: 한글 오타·어순 정돈 + 따옴표 「 」로 통일
+- 다른 회차 (제2/3/6/10회 후원사 없는 것)는 의도된 표기로 그대로 둠
+
+### 2. 교육 접수 종료 차수 자동 마감 + FAQ (commit `359e691`, `83e4190`, `4dc3e23`)
+
+#### 접수 폼 마감 표시 강화 (`ApplyForm`)
+- `end_date < 오늘` → **"종료" 배지** + 선택 불가 (1~3차 즉시 적용)
+- `status !== 'open'` → "마감" 배지 (cert-manager에서 수동 마감 시 즉시 반영)
+- 정원·대기 둘 다 가득 → "정원 마감" 배지
+- **종료/마감(closed) 차수는 정원·대기 숫자 숨김** (의미 없는 정보 노이즈 제거)
+- cert-manager 데이터 안 건드려도 시즌 진행되면 자동 전환
+
+#### FAQ 시스템 추가
+- **공용 컴포넌트 신규**: `src/components/programs/EducationFAQ.tsx`
+  - 4건: 차수 변경 / 취소(무료라 환불 X) / 대기 자동 전환·알림톡 / 당일 결석 033-671-6155
+  - `<details>` 기반 collapsible (JS 없이 작동, SEO 친화)
+  - referee + instructor 양쪽에서 재사용
+- **노출 위치**:
+  - `/programs/referee`, `/programs/instructor` 하단 FAQ 섹션
+  - `/apply/referee` 폼 상단 안내 박스 + FAQ 페이지 링크
+  - `/apply/instructor` "9월 오픈 예정" 카드 안내문에 FAQ 링크 한 줄
+
+### 정책 안내 (FAQ 답변 근거)
+- 차수 변경·취소: **golineup.kr 회원가입 후 마이페이지에서 직접 처리**
+- 환불: **무료 교육이라 별도 환불 절차 없음**
+- 대기 → 확정 자동 전환: 확정자 취소 시 대기 순번에 따라 자동, 알림톡 발송
+- 당일 결석: 협회 대표번호 **033-671-6155**로 연락
+
+---
+
+## 🗂️ 이전 세션 (2026-04-28) — 콘텐츠 추가 + 성능 + 어드민 기능화 + 보도자료 OG
 
 ### 배포된 변경사항
 
@@ -309,6 +344,8 @@ C:\Users\hongk\Desktop\
 - `src/components/admin/TiptapEditor.tsx` — 리치 에디터
 - `src/components/admin/AttachmentUploader.tsx` — 다중 파일 업로더 + 드래그&드롭 + 용량 체크 (2026-04-19)
 - `src/components/admin/PressMetaFields.tsx` — 보도자료 URL→OG 자동채움 + 썸네일 업로더 (2026-04-28)
+- `src/components/programs/EducationFAQ.tsx` — 심판·강사 교육 공용 FAQ 4건 (2026-05-27)
+- `src/components/apply/ApplyForm.tsx` — 종료/마감 차수 자동 처리 + 정원 숫자 숨김 (2026-05-27)
 - `src/components/notice/NoticeList.tsx` — 필터+검색+페이지네이션
 - `src/components/notice/GalleryLightbox.tsx` — 모달+슬라이드
 - `src/components/home/HeroSection.tsx`, `GalleryPreview.tsx`, `LatestNotices.tsx`
