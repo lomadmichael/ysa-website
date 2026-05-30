@@ -12,8 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 const CERT_API =
-  process.env.NEXT_PUBLIC_CERT_API_BASE ??
-  "https://cert-manager-taupe.vercel.app";
+  process.env.NEXT_PUBLIC_CERT_API_BASE ?? "https://golineup.kr";
 
 interface Schedule {
   id: string;
@@ -43,6 +42,7 @@ async function fetchSchedules(): Promise<Schedule[]> {
 export default async function ApplyPage() {
   const schedules = await fetchSchedules();
   const refCount = schedules.filter((s) => s.cert_type === "REF").length;
+  const insCount = schedules.filter((s) => s.cert_type === "INS").length;
 
   return (
     <>
@@ -87,10 +87,10 @@ export default async function ApplyPage() {
             accent="sunset"
             eyebrow="INSTRUCTOR"
             title="강사교육 접수"
-            description="2026년 10월 진행 예정"
-            statusLabel="9월 접수 오픈 예정"
-            active={false}
-            cta="자세히 보기"
+            description="2026년 6월 진행"
+            statusLabel={`${insCount > 0 ? `${insCount}개 회차 접수 중` : "접수 준비 중"}`}
+            active={insCount > 0}
+            cta={insCount > 0 ? "접수하기" : "자세히 보기"}
             icon={
               <svg
                 className="h-9 w-9 text-white"
