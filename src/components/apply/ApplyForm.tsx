@@ -66,6 +66,9 @@ export default function ApplyForm({
 }) {
   const filterByCert = (list: Schedule[]) =>
     certType ? list.filter((s) => s.cert_type === certType) : list;
+  // 강사(INS) 접수에서는 "강사인증 교육 수료 여부"를 묻지 않는다.
+  // API 는 prev_completion 을 필수로 받으므로 INS 는 기본값 "none"(미수료)로 전송.
+  const showPrevCompletion = certType !== "INS";
   const [schedules, setSchedules] = useState<Schedule[]>(
     filterByCert(initialSchedules)
   );
@@ -89,7 +92,7 @@ export default function ApplyForm({
     applicant_gender: "",
     applicant_address: "",
     applicant_address_detail: "",
-    prev_completion: "",
+    prev_completion: certType === "INS" ? "none" : "",
     photo_consent: true, // default: 예
     privacy_consent: false,
   });
@@ -148,7 +151,7 @@ export default function ApplyForm({
       !form.applicant_email ||
       !form.applicant_phone ||
       !form.applicant_address ||
-      !form.prev_completion
+      (showPrevCompletion && !form.prev_completion)
     ) {
       setError("필수 항목을 모두 입력해주세요.");
       return;
@@ -523,31 +526,33 @@ export default function ApplyForm({
         )}
       </Section>
 
-      {/* 강사인증 교육 수료 여부 */}
-      <Section title="강사인증 교육 수료 여부" required>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          {PREV_COMPLETION_OPTIONS.map((opt) => (
-            <label
-              key={opt.value}
-              className={`cursor-pointer rounded-lg border px-3 py-2 text-sm text-center transition ${
-                form.prev_completion === opt.value
-                  ? "border-purple bg-purple text-white"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-            >
-              <input
-                type="radio"
-                name="prev_completion"
-                value={opt.value}
-                checked={form.prev_completion === opt.value}
-                onChange={() => updateField("prev_completion", opt.value)}
-                className="hidden"
-              />
-              {opt.label}
-            </label>
-          ))}
-        </div>
-      </Section>
+      {/* 강사인증 교육 수료 여부 (강사 접수에서는 미노출) */}
+      {showPrevCompletion && (
+        <Section title="강사인증 교육 수료 여부" required>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {PREV_COMPLETION_OPTIONS.map((opt) => (
+              <label
+                key={opt.value}
+                className={`cursor-pointer rounded-lg border px-3 py-2 text-sm text-center transition ${
+                  form.prev_completion === opt.value
+                    ? "border-purple bg-purple text-white"
+                    : "border-gray-300 hover:border-gray-400"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="prev_completion"
+                  value={opt.value}
+                  checked={form.prev_completion === opt.value}
+                  onChange={() => updateField("prev_completion", opt.value)}
+                  className="hidden"
+                />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* 촬영 홍보 활용 동의 */}
       <Section title="촬영 홍보 활용 동의" required>
