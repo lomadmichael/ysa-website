@@ -151,9 +151,11 @@ export default function ApplyForm({
       !form.applicant_email ||
       !form.applicant_phone ||
       !form.applicant_address ||
+      !form.applicant_birth_date ||
+      !form.applicant_gender ||
       (showPrevCompletion && !form.prev_completion)
     ) {
-      setError("필수 항목을 모두 입력해주세요.");
+      setError("필수 항목을 모두 입력해주세요. (생년월일·성별 포함)");
       return;
     }
     if (!form.photo_consent) {
@@ -436,13 +438,13 @@ export default function ApplyForm({
               className={inputCls}
             />
           </Field>
-          <Field label="생년월일">
+          <Field label="생년월일" required>
             <BirthDatePicker
               value={form.applicant_birth_date}
               onChange={(v) => updateField("applicant_birth_date", v)}
             />
           </Field>
-          <Field label="성별">
+          <Field label="성별" required>
             <div className="flex gap-3 pt-2">
               {(["M", "F"] as const).map((g) => (
                 <label
