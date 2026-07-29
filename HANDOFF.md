@@ -1,10 +1,33 @@
 # ysa-website 작업 인수인계
 
-> 최종 업데이트: 2026-05-27
-> 마지막 커밋: `4dc3e23 fix(apply): hide capacity counts for finished/closed schedules`
-> 브랜치: `master`
+> 최종 업데이트: 2026-07-29
+> 브랜치: `master` (라이브) + `feat/comp-entry` (2026 대회 접수폼, 배포 대기)
 > 작업 디렉토리: `C:\Users\hongk\Desktop\ClaudeCode\ysa-website`
 > 라이브: https://ysakorea.com
+
+## 🆕 최근 세션 (2026-07-29) — 2026 페스티벌·대회 허브 + 복수 종목 접수폼
+
+### ✅ 라이브 배포됨 (master `cf271f3`)
+- **nav 개편**: `양양서핑페스티벌 10주년` → **`서핑페스티벌·대회`** (드롭다운: 2026 페스티벌·대회 `/festival` · 10년의 기록 `/festival/history`)
+- **`/festival` 전면 재작성** — 2026 허브: Hero → 갈림길 카드 → 대회 3종 카드(비기너 8/29~30 죽도 · SUP 레이스 · 오픈부 웨이브) → 8월 일정 타임라인 → 페스티벌 준비중 → 10년의 기록 배너
+- **`/festival/history`** — 기존 10주년 아카이브 이관 (컴포넌트 무수정)
+- apply 폼 소소한 수정: FAQ 폼 하단 이동(모바일 개선), placeholder `Gildong Hong`/`01012345678` (`df952d1`)
+
+### 🔨 feat/comp-entry 브랜치 (구현 완료, 배포는 D-1 8/3)
+- **`/apply/competition` 복수 종목 접수폼** (`55e5a7d`): 체크박스 복수 선택 + sticky 합산 바(종목당 5만원) + 선수사진 업로드(canvas 1600px 리사이즈, 2단계 제출) + 환불 동의 + 로마드 제3자 제공 고지 + DepositNotice(신한은행 100-035-939329 국민생활체육양양군서핑연합회)
+- **EntryCta**: festival 카드에 접수창 자동 게이트 — 비기너·SUP 8/4 00:00~8/9 23:59 KST, 오픈부 8/13~8/22 (`src/lib/festival-2026.ts` UTC 상수)
+- robots: 접수 오픈 후 자동 index 전환 (generateMetadata + revalidate 30)
+
+### 🔗 두 채팅 분업 (중요!)
+- **cert-manager(golineup.kr) API·DB·운영배포 = LINEUP 채팅 소유** — 명세는 `C:\Users\hongk\Desktop\ClaudeCode\cert-manager\docs\2026-entry-api-brief.md` (API 계약 + 마이그레이션 033 + 등록 스크립트 + 배포 순서 + 검증 시나리오). **계약 변경 시 이 브리프 먼저 갱신.**
+- 전체 플랜: `C:\Users\hongk\.claude\plans\1-dynamic-mountain.md`
+
+### 📋 배포 순서 (남은 것)
+1. LINEUP 채팅: 브리프대로 cert-manager 구현 → 스테이징 검증 → master 머지 → 운영 DB 020~033 → **8/3 플래그 ON + 2026 대회 등록**
+2. 이 채팅: 스테이징 API로 폼 E2E 확인 → **8/3 `feat/comp-entry` → master 머지·배포** (cert-manager 후행 필수 — 역순이면 폼 400)
+3. 8/4 00:05 실접수 검증(복수 부문+사진) → 테스트 엔트리 삭제
+4. 8/5 오픈부 요강 확정 → LINEUP 스크립트 `--open` 재실행
+- 대기: 입금 확인 알림톡 미구현(수동 안내 또는 후속), 오픈부 부문 구성(8/5)
 
 ## 🆕 최근 세션 (2026-05-27) — 교육 접수 종료 처리 + FAQ + 페스티벌 오탈자
 
