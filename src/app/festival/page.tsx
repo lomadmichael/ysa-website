@@ -104,28 +104,6 @@ const COMPETITIONS: Competition[] = [
   },
 ];
 
-interface ScheduleItem {
-  date: string;
-  label: string;
-  highlight?: boolean;
-}
-
-const SCHEDULE: ScheduleItem[] = [
-  { date: '8/1', label: '대회 포스터 공지' },
-  { date: '8/2', label: '비기너 · SUP 레이스 모집요강 공지' },
-  { date: '8/4 ~ 8/9', label: '비기너 · SUP 레이스 선수 접수', highlight: true },
-  { date: '8/5', label: '오픈부 세부 모집요강 공지' },
-  { date: '8/13 ~ 8/22', label: '오픈부 선수 접수', highlight: true },
-  { date: '8/14', label: '비기너 · SUP 레이스 심사기준 · 대회 안내사항 공지' },
-  { date: '8/16', label: '선수 접수 현황 공지' },
-  { date: '8/21', label: '선수 대진 공지' },
-  {
-    date: '8/29 ~ 8/30',
-    label: '비기너 · SUP 레이스 대회 (죽도해변)',
-    highlight: true,
-  },
-];
-
 export default function FestivalPage() {
   return (
     <div className="-mt-16">
@@ -275,37 +253,13 @@ export default function FestivalPage() {
       {/* 주요 일정 */}
       <section className="bg-white py-20 md:py-28">
         <div className="mx-auto max-w-[1200px] px-4">
-          <div className="mb-12 max-w-3xl">
+          <div className="max-w-3xl">
             <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-teal">SCHEDULE</p>
             <h2 className="mb-4 text-2xl font-bold text-navy md:text-3xl">주요 일정</h2>
             <p className="leading-relaxed text-navy/70">
               공지와 접수, 대회까지 8월 한 달간의 일정입니다. 기상 상황에 따라 변경될 수 있습니다.
             </p>
           </div>
-
-          <ol className="relative max-w-3xl border-l border-foam pl-6 md:pl-8">
-            {SCHEDULE.map((item) => (
-              <li key={`${item.date}-${item.label}`} className="relative pb-8 last:pb-0">
-                <span
-                  className={`absolute -left-[1.6rem] top-1.5 h-3 w-3 rounded-full border-2 border-white md:-left-[2.1rem] ${
-                    item.highlight ? 'bg-sunset' : 'bg-foam'
-                  }`}
-                />
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-5">
-                  <span
-                    className={`shrink-0 font-mono text-sm font-semibold sm:w-28 ${
-                      item.highlight ? 'text-sunset' : 'text-ocean'
-                    }`}
-                  >
-                    {item.date}
-                  </span>
-                  <span className="text-sm leading-relaxed text-navy/80 md:text-base">
-                    {item.label}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ol>
         </div>
       </section>
 
