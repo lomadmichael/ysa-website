@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "대회 참가 신청",
     description:
-      "양양군서핑협회 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.",
+      "대한서핑협회장배 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.",
     alternates: { canonical: "https://ysakorea.com/apply/competition" },
     robots: entryOpened
       ? { index: true, follow: true }
@@ -47,7 +47,7 @@ export default async function ApplyCompetitionPage() {
     <>
       <PageHeader
         title="대회 참가 신청"
-        description="양양군서핑협회 주관 서핑대회 온라인 참가 신청"
+        description="대한서핑협회장배 서핑대회 온라인 참가 신청 (주관: 양양군서핑협회)"
         breadcrumbs={[
           { label: "홈", href: "/" },
           { label: "대회 참가 신청", href: "/apply/competition" },
