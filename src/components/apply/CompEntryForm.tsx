@@ -49,14 +49,22 @@ interface SuccessPayload {
 interface Form {
   division_ids: string[];
   athlete_name: string;
+  /** 영문 성명 — 국가대표 선발 관련 대회라 필수 (2026-07-29 계약 확장) */
+  athlete_name_en: string;
   athlete_phone: string;
   athlete_birth_date: string;
   athlete_gender: "" | "M" | "F";
   athlete_email: string;
   affiliation: string;
+  /** 주소 — 기념품/공문 발송용 필수 */
+  address: string;
   privacy_consent: boolean;
   publicity_consent: boolean;
   refund_consent: boolean;
+  /** 초상권 사용 동의 (필수) */
+  portrait_consent: boolean;
+  /** 참가자격 확인 — 비기너 부문 선택 시에만 필수 (2023-01-01 이후 입문) */
+  eligibility_consent: boolean;
 }
 
 const formatDate = (d: string) =>
@@ -184,14 +192,18 @@ export default function CompEntryForm({
   const [form, setForm] = useState<Form>({
     division_ids: [],
     athlete_name: "",
+    athlete_name_en: "",
     athlete_phone: "",
     athlete_birth_date: "",
     athlete_gender: "",
     athlete_email: "",
     affiliation: "",
+    address: "",
     privacy_consent: false,
     publicity_consent: false,
     refund_consent: false,
+    portrait_consent: false,
+    eligibility_consent: false,
   });
 
   useEffect(() => {
@@ -245,6 +257,16 @@ export default function CompEntryForm({
   }, [competitions]);
 
   const selectedCount = form.division_ids.length;
+
+  // 비기너 부문 포함 여부 — 참가자격(2023-01-01 이후 입문) 확인이 필수가 된다.
+  // slug 하드코딩 대신 대회명으로 판별 (스테이징 테스트 대회도 커버)
+  const beginnerSelected = useMemo(
+    () =>
+      form.division_ids.some((id) =>
+        divisionIndex.get(id)?.competition.name.includes("비기너")
+      ),
+    [form.division_ids, divisionIndex]
+  );
   const selectedFeeTotal = useMemo(
     () =>
       form.division_ids.reduce((sum, id) => {
@@ -336,8 +358,16 @@ export default function CompEntryForm({
       setError("환불 정책에 동의해주세요.");
       return;
     }
+    if (!form.portrait_consent) {
+      setError("초상권 사용에 동의해주세요.");
+      return;
+    }
     if (form.division_ids.length === 0) {
       setError("참가 부문을 1개 이상 선택해주세요.");
+      return;
+    }
+    if (beginnerSelected && !form.eligibility_consent) {
+      setError("비기너 부문 참가자격(2023년 1월 1일 이후 입문) 확인에 체크해주세요.");
       return;
     }
     if (!photoBlob && !photoPath) {
@@ -351,6 +381,14 @@ export default function CompEntryForm({
       !form.athlete_gender
     ) {
       setError("필수 항목을 모두 입력해주세요. (생년월일·성별 포함)");
+      return;
+    }
+    if (!form.athlete_name_en.trim()) {
+      setError("영문 이름을 입력해주세요. (필수)");
+      return;
+    }
+    if (!form.address.trim()) {
+      setError("주소를 입력해주세요. (필수)");
       return;
     }
 
@@ -394,14 +432,21 @@ export default function CompEntryForm({
           division_ids: form.division_ids,
           photo_path: uploadedPath,
           athlete_name: form.athlete_name,
+          athlete_name_en: form.athlete_name_en.trim(),
           athlete_phone: form.athlete_phone,
           athlete_birth_date: form.athlete_birth_date,
           athlete_gender: form.athlete_gender,
           athlete_email: form.athlete_email || null,
           affiliation: form.affiliation || null,
+          address: form.address.trim(),
           privacy_consent: form.privacy_consent,
           publicity_consent: form.publicity_consent,
           refund_consent: form.refund_consent,
+          portrait_consent: form.portrait_consent,
+          // 참가자격 확인은 비기너 부문 선택 시에만 전송 (계약: 보낸 경우만 기록)
+          ...(beginnerSelected
+            ? { eligibility_consent: form.eligibility_consent }
+            : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -427,12 +472,12 @@ export default function CompEntryForm({
   if (loading) {
     return (
       <>
-        {children}
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />
           ))}
         </div>
+        {children}
       </>
     );
   }
@@ -646,7 +691,7 @@ export default function CompEntryForm({
 
   return (
     <>
-      {children}
+      {/* 참가비 입금 안내(children)는 폼 하단으로 이동 (형님 확정 2026-07-29) */}
       <form
         id="comp-entry-form"
         onSubmit={handleSubmit}
@@ -657,9 +702,10 @@ export default function CompEntryForm({
           <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700 space-y-2">
             <p className="font-medium">수집 항목 및 목적</p>
             <ul className="list-disc pl-5 space-y-1 text-xs">
-              <li>성명, 연락처: 대회 운영 안내 및 본인 확인</li>
+              <li>성명(국문·영문), 연락처: 대회 운영 안내 및 본인 확인</li>
               <li>생년월일, 성별: 부문 편성 및 보험 가입</li>
               <li>소속: 대회 안내 방송 및 결과 표기</li>
+              <li>주소: 기념품·공문 발송</li>
               <li>선수 사진: 대회 중계 화면·전광판 선수 이미지</li>
             </ul>
             <p className="text-xs">보유 기간: 대회 종료 후 1년</p>
@@ -673,6 +719,20 @@ export default function CompEntryForm({
             onChange={(v) => updateField("privacy_consent", v)}
             label="개인정보 수집 및 이용에 동의합니다. (필수)"
           />
+
+          {/* 초상권 사용 안내 (형님 확정 2026-07-29) */}
+          <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700 space-y-2">
+            <p className="font-medium">초상권 사용 안내</p>
+            <p className="text-xs">
+              대한서핑협회장배 서핑대회 기간 중 촬영된 사진이나 동영상은 관련
+              공공기관 및 양양군서핑협회 홍보 활동 등에 사용될 수 있습니다.
+            </p>
+          </div>
+          <CheckRow
+            checked={form.portrait_consent}
+            onChange={(v) => updateField("portrait_consent", v)}
+            label="초상권 사용에 동의합니다. (필수)"
+          />
         </Section>
 
         {/* 선수 정보 */}
@@ -684,6 +744,16 @@ export default function CompEntryForm({
                 required
                 value={form.athlete_name}
                 onChange={(e) => updateField("athlete_name", e.target.value)}
+                className={inputCls}
+              />
+            </Field>
+            <Field label="영문 이름" required>
+              <input
+                type="text"
+                required
+                placeholder="예: HONG GILDONG"
+                value={form.athlete_name_en}
+                onChange={(e) => updateField("athlete_name_en", e.target.value)}
                 className={inputCls}
               />
             </Field>
@@ -738,6 +808,18 @@ export default function CompEntryForm({
                 className={inputCls}
               />
             </Field>
+            <div className="md:col-span-2">
+              <Field label="주소" required>
+                <input
+                  type="text"
+                  required
+                  placeholder="예: 강원특별자치도 양양군 현남면 ○○길 12, 101호"
+                  value={form.address}
+                  onChange={(e) => updateField("address", e.target.value)}
+                  className={inputCls}
+                />
+              </Field>
+            </div>
           </div>
         </Section>
 
@@ -897,6 +979,21 @@ export default function CompEntryForm({
           )}
         </Section>
 
+        {/* 참가자격 확인 — 비기너 부문 선택 시에만 (형님 확정: 2023년 1월 1일 기준) */}
+        {beginnerSelected && (
+          <Section title="참가자격 확인 (비기너)" required>
+            <p className="text-sm text-gray-600 mb-3">
+              2023년 1월 1일 이후 서핑 입문자가 맞나요? (입상 후 2023년 1월 1일
+              이전 입문 제보 시 입상 자격이 박탈됩니다.)
+            </p>
+            <CheckRow
+              checked={form.eligibility_consent}
+              onChange={(v) => updateField("eligibility_consent", v)}
+              label="예, 2023년 1월 1일 이후 서핑에 입문했습니다. (필수)"
+            />
+          </Section>
+        )}
+
         {/* 대회 기록 공개 동의 */}
         <Section title="대회 기록 공개 동의" required>
           <p className="text-sm text-gray-600 mb-3">
@@ -921,6 +1018,9 @@ export default function CompEntryForm({
             label="환불 정책에 동의합니다. (필수)"
           />
         </Section>
+
+        {/* 참가비 입금 안내 — 제일 하단 배치 (형님 확정 2026-07-29) */}
+        {children}
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800">

@@ -54,9 +54,10 @@ export default async function ApplyCompetitionPage() {
         ]}
       />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-        {/* 접수 완료 화면에서는 합계가 포함된 안내로 대체되므로 폼이 슬롯을 제어한다 */}
+        {/* 접수 완료 화면에서는 합계가 포함된 안내로 대체되므로 폼이 슬롯을 제어한다.
+            폼이 이 슬롯을 제일 하단에 배치한다 (형님 확정 2026-07-29) */}
         <CompEntryForm initialCompetitions={initialCompetitions}>
-          <DepositNotice className="mb-8" />
+          <DepositNotice />
         </CompEntryForm>
       </div>
     </>
