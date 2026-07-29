@@ -3,15 +3,24 @@ import PageHeader from "@/components/shared/PageHeader";
 import CompEntryForm, {
   type Competition,
 } from "@/components/apply/CompEntryForm";
+import DepositNotice from "@/components/apply/DepositNotice";
+import { ENTRY_WINDOWS } from "@/lib/festival-2026";
 
-export const metadata: Metadata = {
-  title: "대회 참가 신청",
-  description:
-    "양양군서핑협회 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.",
-  alternates: { canonical: "https://ysakorea.com/apply/competition" },
-  // 대회 오픈 공지 전까지 검색 비노출 (URL 직접 접근만)
-  robots: { index: false, follow: false },
-};
+// 접수 시작(8/4 00:00 KST) 전까지는 검색 비노출, 오픈 이후 자동으로 index 허용.
+// `revalidate = 30` 덕분에 오픈 직후 최대 30초 안에 메타데이터가 갱신된다.
+export async function generateMetadata(): Promise<Metadata> {
+  const entryOpened = Date.now() >= ENTRY_WINDOWS.beach.opensAt;
+
+  return {
+    title: "대회 참가 신청",
+    description:
+      "양양군서핑협회 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.",
+    alternates: { canonical: "https://ysakorea.com/apply/competition" },
+    robots: entryOpened
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+  };
+}
 
 export const revalidate = 30;
 
@@ -45,7 +54,10 @@ export default async function ApplyCompetitionPage() {
         ]}
       />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-        <CompEntryForm initialCompetitions={initialCompetitions} />
+        {/* 접수 완료 화면에서는 합계가 포함된 안내로 대체되므로 폼이 슬롯을 제어한다 */}
+        <CompEntryForm initialCompetitions={initialCompetitions}>
+          <DepositNotice className="mb-8" />
+        </CompEntryForm>
       </div>
     </>
   );

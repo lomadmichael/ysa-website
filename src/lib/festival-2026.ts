@@ -1,0 +1,57 @@
+/**
+ * 2026 양양 서핑페스티벌·대회 접수 공통 상수/유틸
+ *
+ * - 접수창(ENTRY_WINDOWS)은 KST 기준 일정을 UTC epoch(ms)로 고정해 둔다.
+ *   서버(UTC)와 브라우저(로컬 타임존)에서 동일한 값을 계산해야 하므로
+ *   `new Date("...")` 문자열 파싱 대신 `Date.UTC()`를 사용한다. (month는 0-index)
+ * - 입금 계좌 / 참가비는 협회 확정값이며 임의로 변경하지 않는다.
+ */
+
+export const ENTRY_WINDOWS = {
+  /** 비기너 대회 · SUP 레이스 — 8/4 00:00 ~ 8/9 23:59 (KST) */
+  beach: {
+    opensAt: Date.UTC(2026, 7, 3, 15, 0, 0),
+    closesAt: Date.UTC(2026, 7, 9, 14, 59, 59),
+  },
+  /** 오픈부(롱보드·숏보드·SUP서핑) — 8/13 00:00 ~ 8/22 23:59 (KST) */
+  open: {
+    opensAt: Date.UTC(2026, 7, 12, 15, 0, 0),
+    closesAt: Date.UTC(2026, 7, 22, 14, 59, 59),
+  },
+} as const;
+
+export type EntryWindowKey = keyof typeof ENTRY_WINDOWS;
+
+export type EntryWindowState = "before" | "open" | "closed";
+
+/** 주어진 시각(now, epoch ms) 기준 접수창 상태 */
+export function entryWindowState(
+  key: EntryWindowKey,
+  now: number
+): EntryWindowState {
+  const window = ENTRY_WINDOWS[key];
+  if (now < window.opensAt) return "before";
+  if (now > window.closesAt) return "closed";
+  return "open";
+}
+
+/** 참가비 입금 계좌 (협회 확정) */
+export const DEPOSIT_ACCOUNT = {
+  bank: "신한은행",
+  number: "100-035-939329",
+  holder: "국민생활체육양양군서핑연합회",
+} as const;
+
+/** 부문(종목) 1개당 기본 참가비 — API가 금액을 주지 않을 때의 폴백 */
+export const ENTRY_FEE_PER_DIVISION = 50000;
+
+/**
+ * 천 단위 콤마 포맷.
+ * `toLocaleString`은 서버/클라이언트 로케일에 따라 결과가 달라져
+ * hydration mismatch를 유발할 수 있어 결정적 구현을 사용한다.
+ */
+export function formatKrw(value: number): string {
+  const n = Math.round(Number.isFinite(value) ? value : 0);
+  const sign = n < 0 ? "-" : "";
+  return sign + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
