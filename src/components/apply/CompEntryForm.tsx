@@ -58,11 +58,10 @@ interface Form {
   affiliation: string;
   /** 주소 — 기념품/공문 발송용 필수 */
   address: string;
+  /** 개인정보 수집·이용 + 초상권 사용 + 대회 기록 공개 통합 동의 (형님 확정 —
+      체크 1개로 받고 API 에는 privacy/portrait/publicity 세 값으로 전송) */
   privacy_consent: boolean;
-  publicity_consent: boolean;
   refund_consent: boolean;
-  /** 초상권 사용 동의 (필수) */
-  portrait_consent: boolean;
   /** 참가자격 확인 — 비기너 부문 선택 시에만 필수 (2023-01-01 이후 입문) */
   eligibility_consent: boolean;
 }
@@ -200,9 +199,7 @@ export default function CompEntryForm({
     affiliation: "",
     address: "",
     privacy_consent: false,
-    publicity_consent: false,
     refund_consent: false,
-    portrait_consent: false,
     eligibility_consent: false,
   });
 
@@ -347,19 +344,11 @@ export default function CompEntryForm({
     setError(null);
 
     if (!form.privacy_consent) {
-      setError("개인정보 수집·이용에 동의해주세요.");
-      return;
-    }
-    if (!form.publicity_consent) {
-      setError("대회 기록 공개에 동의해주세요.");
+      setError("개인정보 수집·이용 및 초상권·대회 기록 공개에 동의해주세요.");
       return;
     }
     if (!form.refund_consent) {
       setError("환불 정책에 동의해주세요.");
-      return;
-    }
-    if (!form.portrait_consent) {
-      setError("초상권 사용에 동의해주세요.");
       return;
     }
     if (form.division_ids.length === 0) {
@@ -439,10 +428,11 @@ export default function CompEntryForm({
           athlete_email: form.athlete_email || null,
           affiliation: form.affiliation || null,
           address: form.address.trim(),
+          // 통합 체크 1개가 개인정보·기록 공개·초상권 세 동의를 함께 의미한다
           privacy_consent: form.privacy_consent,
-          publicity_consent: form.publicity_consent,
+          publicity_consent: form.privacy_consent,
           refund_consent: form.refund_consent,
-          portrait_consent: form.portrait_consent,
+          portrait_consent: form.privacy_consent,
           // 참가자격 확인은 비기너 부문 선택 시에만 전송 (계약: 보낸 경우만 기록)
           ...(beginnerSelected
             ? { eligibility_consent: form.eligibility_consent }
@@ -714,24 +704,23 @@ export default function CompEntryForm({
               이름·연락처, 발송 후 삭제
             </p>
           </div>
-          <CheckRow
-            checked={form.privacy_consent}
-            onChange={(v) => updateField("privacy_consent", v)}
-            label="개인정보 수집 및 이용에 동의합니다. (필수)"
-          />
-
-          {/* 초상권 사용 안내 (형님 확정 2026-07-29) */}
+          {/* 초상권·기록 공개 안내 — 개인정보 동의에 포함해 체크 1개로 통합 (형님 확정) */}
           <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700 space-y-2">
             <p className="font-medium">초상권 사용 안내</p>
             <p className="text-xs">
               대한서핑협회장배 서핑대회 기간 중 촬영된 사진이나 동영상은 관련
               공공기관 및 양양군서핑협회 홍보 활동 등에 사용될 수 있습니다.
             </p>
+            <p className="font-medium pt-1">대회 기록 공개 안내</p>
+            <p className="text-xs">
+              대회 진행을 위해 성명·소속·순위·점수가 현장 전광판, 협회 홈페이지,
+              중계 화면에 공개됩니다.
+            </p>
           </div>
           <CheckRow
-            checked={form.portrait_consent}
-            onChange={(v) => updateField("portrait_consent", v)}
-            label="초상권 사용에 동의합니다. (필수)"
+            checked={form.privacy_consent}
+            onChange={(v) => updateField("privacy_consent", v)}
+            label="개인정보 수집·이용, 초상권 사용 및 대회 기록 공개에 모두 동의합니다. (필수)"
           />
         </Section>
 
@@ -949,26 +938,8 @@ export default function CompEntryForm({
                               )}
                             </p>
                           </div>
-                          <div className="flex items-center gap-2 ml-auto">
-                            <span className="text-xs font-medium text-navy/50">
-                              {formatKrw(divisionFee(d, c))}원
-                            </span>
-                            <CountPill
-                              label="정원"
-                              current={d.confirmed_count}
-                              max={d.capacity}
-                              full={confirmedFull}
-                            />
-                            {d.waitlist_count > 0 && (
-                              <CountPill
-                                label="대기"
-                                current={d.waitlist_count}
-                                max={d.capacity}
-                                full={waitlistFull}
-                                muted
-                              />
-                            )}
-                          </div>
+                          {/* 2026 대회는 정원 없이 전원 접수 — 정원·참가비 표기 제거
+                              (형님 확정 2026-07-29. 합계는 하단 합산 바가 안내) */}
                         </label>
                       );
                     })}
@@ -979,9 +950,9 @@ export default function CompEntryForm({
           )}
         </Section>
 
-        {/* 참가자격 확인 — 비기너 부문 선택 시에만 (형님 확정: 2023년 1월 1일 기준) */}
+        {/* 참가 자격 동의 — 비기너 부문 선택 시에만 (형님 확정: 2023년 1월 1일 기준) */}
         {beginnerSelected && (
-          <Section title="참가자격 확인 (비기너)" required>
+          <Section title="참가 자격 동의 (비기너)" required>
             <p className="text-sm text-gray-600 mb-3">
               2023년 1월 1일 이후 서핑 입문자가 맞나요? (입상 후 2023년 1월 1일
               이전 입문 제보 시 입상 자격이 박탈됩니다.)
@@ -994,18 +965,8 @@ export default function CompEntryForm({
           </Section>
         )}
 
-        {/* 대회 기록 공개 동의 */}
-        <Section title="대회 기록 공개 동의" required>
-          <p className="text-sm text-gray-600 mb-3">
-            대회 진행을 위해 성명·소속·순위·점수가 현장 전광판, 협회 홈페이지,
-            중계 화면에 공개되는 것에 동의합니다. (참가 필수 동의 항목)
-          </p>
-          <CheckRow
-            checked={form.publicity_consent}
-            onChange={(v) => updateField("publicity_consent", v)}
-            label="대회 기록 공개에 동의합니다. (필수)"
-          />
-        </Section>
+        {/* 대회 기록 공개 동의는 개인정보 통합 동의에 포함됨 (형님 확정 —
+            비기너 흐름에서는 이 자리가 참가 자격 동의) */}
 
         {/* 환불 정책 동의 */}
         <Section title="환불 정책 동의" required>
@@ -1186,29 +1147,5 @@ function CheckRow({
   );
 }
 
-function CountPill({
-  label,
-  current,
-  max,
-  full,
-  muted,
-}: {
-  label: string;
-  current: number;
-  max: number;
-  full: boolean;
-  muted?: boolean;
-}) {
-  const cls = full
-    ? "bg-red-100 text-red-700 border-red-200"
-    : muted
-      ? "bg-gray-100 text-gray-600 border-gray-200"
-      : "bg-green-50 text-green-700 border-green-200";
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${cls}`}
-    >
-      {label} {current} / {max}명
-    </span>
-  );
-}
+// CountPill(정원/대기 표시)은 2026 무제한 접수 대회에서 표기 제거로 미사용 —
+// 정원제 대회가 다시 생기면 git 이력에서 복원
