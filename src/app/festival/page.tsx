@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: '서핑페스티벌·대회',
   description:
-    '2026 양양 서핑페스티벌·대회 안내. 8월 죽도해변에서 열리는 비기너 대회, SUP 레이스, 오픈부(롱보드·숏보드·SUP서핑) 일정과 접수 정보를 안내합니다.',
+    '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너, SUP 레이스, 오픈부(롱보드·숏보드·SUP서핑) 일정과 접수 정보를 안내합니다.',
   alternates: { canonical: 'https://ysakorea.com/festival' },
 };
 
@@ -118,12 +118,12 @@ export default function FestivalPage() {
             2026 · JUKDO BEACH, YANGYANG
           </p>
           <h1 className="mb-6 text-4xl font-extrabold leading-[1.15] tracking-tight md:text-6xl lg:text-7xl">
-            2026 양양
+            2026
             <br />
-            <span className="text-sunset">서핑페스티벌·대회</span>
+            <span className="text-sunset">양양서핑페스티벌</span>
           </h1>
           <p className="mx-auto max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
-            8월 죽도해변에서 펼쳐지는 서핑 축제와 대회
+            8월 죽도해변 — 대한서핑협회장배 서핑대회와 함께 펼쳐지는 서핑 축제
           </p>
         </div>
       </section>
@@ -190,10 +190,13 @@ export default function FestivalPage() {
             <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-teal">
               COMPETITION
             </p>
-            <h2 className="mb-4 text-2xl font-bold text-navy md:text-3xl">2026 대회 안내</h2>
+            <h2 className="mb-4 text-2xl font-bold text-navy md:text-3xl">
+              대한서핑협회장배 서핑대회
+            </h2>
             <p className="leading-relaxed text-navy/70">
-              8월 죽도해변에서 비기너 대회와 SUP 레이스를 진행하며, 파도 상황에 맞춰 오픈부 웨이브
-              대회를 함께 운영합니다. 종목별 참가 자격과 접수 기간이 다르니 아래 내용을 확인해 주세요.
+              2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너와 SUP
+              레이스는 8월 말 죽도해변에서, 오픈부 웨이브 대회는 파도 상황에 맞춰 진행합니다.
+              종목별 참가 자격과 접수 기간이 다르니 아래 내용을 확인해 주세요.
             </p>
           </div>
 
