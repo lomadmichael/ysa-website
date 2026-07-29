@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/schedule/open',
     '/schedule/closed',
     '/festival',
+    '/festival/history',
     '/notice',
     '/notice/press',
     '/notice/gallery',

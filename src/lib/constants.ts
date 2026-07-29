@@ -52,8 +52,12 @@ export const NAV_ITEMS = [
     ],
   },
   {
-    label: '양양서핑페스티벌 10주년',
+    label: '서핑페스티벌·대회',
     href: '/festival',
+    children: [
+      { label: '2026 페스티벌·대회', href: '/festival' },
+      { label: '10년의 기록', href: '/festival/history' },
+    ],
   },
   {
     label: '공지·자료실',
