@@ -291,6 +291,19 @@ export default function CompEntryForm({
     }));
   }
 
+  /** 성별 선택/변경 — 새 성별과 맞지 않는 부문 선택을 자동 해제
+      (남자 부문 + 여자 부문 동시 선택 방지, 형님 확정 2026-07-29) */
+  function selectGender(g: "M" | "F") {
+    setForm((f) => ({
+      ...f,
+      athlete_gender: g,
+      division_ids: f.division_ids.filter((id) => {
+        const hit = divisionIndex.get(id);
+        return !hit?.division.gender || hit.division.gender === g;
+      }),
+    }));
+  }
+
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -353,6 +366,15 @@ export default function CompEntryForm({
     }
     if (form.division_ids.length === 0) {
       setError("참가 부문을 1개 이상 선택해주세요.");
+      return;
+    }
+    // 성별-부문 불일치 이중 방어 (UI 잠금 + 자동 해제가 1차, 여기가 2차)
+    const genderMismatched = form.division_ids.some((id) => {
+      const hit = divisionIndex.get(id);
+      return !!hit?.division.gender && hit.division.gender !== form.athlete_gender;
+    });
+    if (genderMismatched) {
+      setError("성별과 맞지 않는 부문이 선택되어 있습니다. 선택을 확인해주세요.");
       return;
     }
     if (beginnerSelected && !form.eligibility_consent) {
@@ -773,7 +795,7 @@ export default function CompEntryForm({
                       type="radio"
                       name="gender"
                       checked={form.athlete_gender === g}
-                      onChange={() => updateField("athlete_gender", g)}
+                      onChange={() => selectGender(g)}
                     />
                     {g === "M" ? "남" : "여"}
                   </label>
@@ -886,7 +908,10 @@ export default function CompEntryForm({
         <Section title="참가 부문 선택" required>
           <p className="text-sm text-gray-600">
             여러 종목에 함께 신청할 수 있습니다. 참가비는 선택한 종목 수만큼
-            합산됩니다.
+            합산됩니다.{" "}
+            <span className="font-medium text-gray-700">
+              성별을 먼저 선택하면 참가 가능한 부문이 활성화됩니다.
+            </span>
           </p>
           {competitions.length === 0 ? (
             <p className="text-sm text-gray-500 py-8 text-center">
@@ -908,12 +933,17 @@ export default function CompEntryForm({
                       const confirmedFull = d.confirmed_count >= d.capacity;
                       const waitlistFull = d.waitlist_count >= d.capacity;
                       const closed = confirmedFull && waitlistFull;
+                      // 성별 연동 — 성별 미선택이거나 다른 성별 부문이면 잠금
+                      // (남자 부문 + 여자 부문 동시 선택 방지, 형님 확정)
+                      const genderLocked =
+                        !!d.gender && d.gender !== form.athlete_gender;
+                      const disabled = closed || genderLocked;
                       const isSelected = form.division_ids.includes(d.id);
                       return (
                         <label
                           key={d.id}
                           className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 transition ${
-                            closed
+                            disabled
                               ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
                               : isSelected
                                 ? "cursor-pointer border-purple bg-purple/5"
@@ -926,8 +956,8 @@ export default function CompEntryForm({
                               name="division_ids"
                               value={d.id}
                               checked={isSelected}
-                              disabled={closed}
-                              onChange={() => !closed && toggleDivision(d.id)}
+                              disabled={disabled}
+                              onChange={() => !disabled && toggleDivision(d.id)}
                             />
                             <p className="text-sm font-medium">
                               {d.name}
