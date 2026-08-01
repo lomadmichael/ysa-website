@@ -112,8 +112,8 @@ const COMPETITIONS: Competition[] = [
 ];
 
 const ORGANIZERS = [
-  { label: '주관', value: '양양군' },
-  { label: '주최', value: '양양군서핑협회(YSA) · 대한서핑협회(KSA)' },
+  { label: '주최', value: '양양군' },
+  { label: '주관', value: '양양군서핑협회(YSA) · 대한서핑협회(KSA)' },
   {
     label: '후원',
     value: '문화체육관광부 · 강원특별자치도 · 양양군체육회 · 강원특별자치도서핑협회',
