@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import EntryCta from '@/components/festival/EntryCta';
 import type { EntryWindowKey } from '@/lib/festival-2026';
+import mainBannerPc from '../../../public/images/festival/mainbanner_2026_pc.jpg';
 
 export const metadata: Metadata = {
   title: '서핑페스티벌·대회',
@@ -114,13 +116,23 @@ const COMPETITIONS: Competition[] = [
 export default function FestivalPage() {
   return (
     <div className="-mt-16">
-      {/* Hero */}
-      <section className="relative flex min-h-[72vh] items-center overflow-hidden bg-navy pt-16">
-        <div className="absolute inset-0 bg-gradient-to-br from-ocean via-navy to-navy" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(27,154,170,0.38),transparent_58%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-navy to-transparent" />
+      {/* Hero — 데스크톱은 공식 배너(타이틀 포함 디자인), 모바일은 배너 수급 전까지 그라데이션 */}
+      <section className="relative flex min-h-[72vh] items-center overflow-hidden bg-navy pt-16 md:block md:aspect-video md:min-h-0">
+        <Image
+          src={mainBannerPc}
+          alt="2026 양양서핑페스티벌 — 8월 죽도해변, 대한서핑협회장배 서핑대회와 함께 펼쳐지는 서핑 축제"
+          fill
+          priority
+          placeholder="blur"
+          sizes="100vw"
+          className="hidden object-cover md:block"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-ocean via-navy to-navy md:hidden" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(27,154,170,0.38),transparent_58%)] md:hidden" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-navy to-transparent md:h-24" />
 
-        <div className="relative z-10 mx-auto w-full max-w-[1200px] px-4 py-20 text-center text-white md:py-24">
+        {/* 데스크톱에선 배너 이미지에 타이틀이 있어 텍스트는 스크린리더 전용 */}
+        <div className="relative z-10 mx-auto w-full max-w-[1200px] px-4 py-20 text-center text-white md:sr-only">
           <p className="mb-6 font-mono text-xs uppercase tracking-[0.4em] text-sunset md:text-sm">
             2026 · JUKDO BEACH, YANGYANG
           </p>
