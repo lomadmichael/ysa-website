@@ -330,10 +330,13 @@ export default function FestivalPage() {
       {/* 주최·주관·후원 */}
       <section className="border-t border-foam py-12 md:py-16">
         <div className="mx-auto max-w-[1200px] px-4">
-          <dl className="grid gap-6 sm:grid-cols-3">
+          <dl className="max-w-3xl divide-y divide-foam">
             {ORGANIZERS.map((org) => (
-              <div key={org.label}>
-                <dt className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-teal">
+              <div
+                key={org.label}
+                className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-6"
+              >
+                <dt className="shrink-0 text-sm font-semibold text-navy sm:w-16">
                   {org.label}
                 </dt>
                 <dd className="text-sm leading-relaxed text-navy/70">{org.value}</dd>
