@@ -7,7 +7,7 @@ import mainBannerMobile from '../../../public/images/festival/mainbanner_2026_mo
 export const metadata: Metadata = {
   title: '서핑페스티벌·대회',
   description:
-    '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너, SUP 레이스, 오픈부(롱보드·숏보드·SUP서핑) 일정과 접수 정보를 안내합니다.',
+    '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너 서핑대회와 코리아 오픈(SUP 레이싱 · 숏보드 · 롱보드 · SUP 서핑) 일정과 접수 정보를 안내합니다.',
   alternates: { canonical: 'https://ysakorea.com/festival' },
 };
 
@@ -32,7 +32,7 @@ const COMPETITIONS: Competition[] = [
   {
     id: 'beginner',
     icon: '🌊',
-    title: '비기너 대회',
+    title: '비기너 서핑대회',
     subtitle: '서핑에 막 입문한 서퍼들을 위한 무대',
     badge: '8/4 접수 시작',
     badgeClass: 'text-ocean bg-ocean/10',
@@ -42,9 +42,9 @@ const COMPETITIONS: Competition[] = [
       {
         label: '대회일',
         value: '8월 29일(토) ~ 30일(일)',
-        note: '※ 기상상황에 따라 변경 가능',
+        note: '※ 기상 상황에 따라 9월 첫째주로 변경 가능',
       },
-      { label: '종목', value: '비기너 남자부 · 여자부 (인원 제한 없음)' },
+      { label: '종목', value: '남자부 · 여자부 (인원 제한 없음)' },
       {
         label: '참가대상',
         value: '2023년 이후 입문자 (국내외 대회 입상자 제외)',
@@ -62,7 +62,7 @@ const COMPETITIONS: Competition[] = [
   {
     id: 'sup-race',
     icon: '🚣',
-    title: 'SUP 레이스 (오픈)',
+    title: '코리아 오픈 — SUP 레이싱',
     subtitle: '누구나 참가할 수 있는 기록 경기',
     badge: '8/4 접수 시작',
     badgeClass: 'text-teal bg-teal/10',
@@ -72,11 +72,11 @@ const COMPETITIONS: Competition[] = [
       {
         label: '대회일',
         value: '8월 29일(토) ~ 30일(일)',
-        note: '※ 기상상황에 따라 변경 가능',
+        note: '※ 기상 상황에 따라 9월 첫째주로 변경 가능',
       },
       {
         label: '종목',
-        value: '스프린터 남 · 녀, 테크니컬 남 · 녀, 롱 디스턴스 남 · 녀 (인원 제한 없음)',
+        value: '스프린터 · 테크니컬 · 롱 디스턴스 (각 남 / 여, 인원 제한 없음)',
       },
       { label: '참가대상', value: '제한 없음' },
       { label: '심사', value: '기록경기 (피니시라인 초 재기)' },
@@ -88,7 +88,7 @@ const COMPETITIONS: Competition[] = [
   {
     id: 'open',
     icon: '🏄',
-    title: '오픈부 — 롱보드 · 숏보드 · SUP서핑',
+    title: '코리아 오픈 — 숏보드 · 롱보드 · SUP 서핑',
     subtitle: '파도가 좋은 날 진행하는 웨이브 대회',
     badge: '8/13 접수 시작',
     badgeClass: 'text-sunset bg-sunset/10',
@@ -96,10 +96,11 @@ const COMPETITIONS: Competition[] = [
     rows: [
       {
         label: '운영 방식',
-        value: '파도가 좋은 날 진행하는 웨이브 대회입니다.',
+        value:
+          '좋은 파도를 기다려 진행하는 웨이브 대회입니다. 8월 29일부터 11월까지 파도가 좋은 평일에 순차 진행합니다.',
         note: '※ 기상 상황에 따라 일정을 유동적으로 조정합니다',
       },
-      { label: '종목', value: '롱보드 · 숏보드 · SUP서핑 (세부 종목 추후 공지)' },
+      { label: '종목', value: '숏보드 · 롱보드 · SUP 서핑 (각 남 / 여)' },
       { label: '장소', value: '추후 공지' },
       { label: '모집요강', value: '세부 모집요강 8월 5일 공지 예정' },
       { label: '접수', value: '8월 13일(목) ~ 8월 22일(토)' },
@@ -154,7 +155,7 @@ export default function FestivalPage() {
             </span>
             <h2 className="mb-2 text-lg font-bold text-navy md:text-xl">대회 참가하기</h2>
             <p className="mb-4 text-sm leading-relaxed text-navy/60">
-              비기너 대회, SUP 레이스, 오픈부 — 종목별 참가 자격과 접수 일정을 확인하세요.
+              비기너 서핑대회와 코리아 오픈 — 종목별 참가 자격과 접수 일정을 확인하세요.
             </p>
             <span className="inline-flex items-center gap-2 text-sm font-semibold text-ocean">
               대회 정보 보기
@@ -208,9 +209,10 @@ export default function FestivalPage() {
               대한서핑협회장배 서핑대회
             </h2>
             <p className="leading-relaxed text-navy/70">
-              2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너와 SUP
-              레이스는 8월 말 죽도해변에서, 오픈부 웨이브 대회는 파도 상황에 맞춰 진행합니다.
-              종목별 참가 자격과 접수 기간이 다르니 아래 내용을 확인해 주세요.
+              2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너 서핑대회와
+              코리아 오픈 SUP 레이싱은 8월 말 죽도해변에서, 코리아 오픈 웨이브 종목(숏보드 · 롱보드 ·
+              SUP 서핑)은 파도 상황에 맞춰 진행합니다. 종목별 참가 자격과 접수 기간이 다르니 아래
+              내용을 확인해 주세요.
             </p>
           </div>
 
