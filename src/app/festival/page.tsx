@@ -101,7 +101,10 @@ const COMPETITIONS: Competition[] = [
         note: '※ 기상 상황에 따라 일정을 유동적으로 조정합니다',
       },
       { label: '종목', value: '숏보드 · 롱보드 · SUP 서핑 (각 남 / 여)' },
-      { label: '장소', value: '추후 공지' },
+      {
+        label: '장소',
+        value: '숏보드 기사문해변 · 롱보드 설악해변 · SUP 서핑 물치해변',
+      },
       { label: '모집요강', value: '세부 모집요강 8월 5일 공지 예정' },
       { label: '접수', value: '8월 13일(목) ~ 8월 22일(토)' },
     ],
