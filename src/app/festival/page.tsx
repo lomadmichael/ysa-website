@@ -111,6 +111,15 @@ const COMPETITIONS: Competition[] = [
   },
 ];
 
+const ORGANIZERS = [
+  { label: '주관', value: '양양군' },
+  { label: '주최', value: '양양군서핑협회(YSA) · 대한서핑협회(KSA)' },
+  {
+    label: '후원',
+    value: '문화체육관광부 · 강원특별자치도 · 양양군체육회 · 강원특별자치도서핑협회',
+  },
+];
+
 export default function FestivalPage() {
   // 공식 배너 art direction — 데스크톱(16:9)·모바일(2:3) 각각 한 장만 다운로드
   const bannerAlt =
@@ -315,6 +324,22 @@ export default function FestivalPage() {
               </svg>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* 주최·주관·후원 */}
+      <section className="border-t border-foam py-12 md:py-16">
+        <div className="mx-auto max-w-[1200px] px-4">
+          <dl className="grid gap-6 sm:grid-cols-3">
+            {ORGANIZERS.map((org) => (
+              <div key={org.label}>
+                <dt className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-teal">
+                  {org.label}
+                </dt>
+                <dd className="text-sm leading-relaxed text-navy/70">{org.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
