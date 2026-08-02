@@ -5,6 +5,7 @@ import Link from "next/link";
 import BirthDatePicker from "./BirthDatePicker";
 import DepositNotice from "./DepositNotice";
 import { ENTRY_FEE_PER_DIVISION, formatKrw } from "@/lib/festival-2026";
+import { COUNTRIES, countryName } from "@/lib/countries";
 
 // ApplyForm 과 동일한 API base 정책 (golineup.kr fallback + env override)
 const CERT_API =
@@ -54,6 +55,8 @@ interface Form {
   athlete_phone: string;
   athlete_birth_date: string;
   athlete_gender: "" | "M" | "F";
+  /** 국적 — ISO 3166-1 alpha-2. 코리아 오픈은 국제 대회라 필수 (2026-08-01 추가) */
+  athlete_nationality: string;
   athlete_email: string;
   affiliation: string;
   /** 주소 — 기념품/공문 발송용 필수 */
@@ -195,6 +198,7 @@ export default function CompEntryForm({
     athlete_phone: "",
     athlete_birth_date: "",
     athlete_gender: "",
+    athlete_nationality: "KR",
     athlete_email: "",
     affiliation: "",
     address: "",
@@ -398,6 +402,10 @@ export default function CompEntryForm({
       setError("영문 이름을 입력해주세요. (필수)");
       return;
     }
+    if (!form.athlete_nationality) {
+      setError("국적을 선택해주세요. (필수)");
+      return;
+    }
     if (!form.address.trim()) {
       setError("주소를 입력해주세요. (필수)");
       return;
@@ -447,6 +455,7 @@ export default function CompEntryForm({
           athlete_phone: form.athlete_phone,
           athlete_birth_date: form.athlete_birth_date,
           athlete_gender: form.athlete_gender,
+          athlete_nationality: form.athlete_nationality,
           athlete_email: form.athlete_email || null,
           affiliation: form.affiliation || null,
           address: form.address.trim(),
@@ -591,6 +600,10 @@ export default function CompEntryForm({
             </p>
             <dl className="space-y-3 text-sm">
               <ReceiptRow label="선수" value={form.athlete_name} />
+              <ReceiptRow
+                label="국적"
+                value={countryName(form.athlete_nationality)}
+              />
             </dl>
 
             <ul className="mt-4 space-y-2">
@@ -715,7 +728,7 @@ export default function CompEntryForm({
             <p className="font-medium">수집 항목 및 목적</p>
             <ul className="list-disc pl-5 space-y-1 text-xs">
               <li>성명(국문·영문), 연락처: 대회 운영 안내 및 본인 확인</li>
-              <li>생년월일, 성별: 부문 편성 및 보험 가입</li>
+              <li>생년월일, 성별, 국적: 부문 편성 · 보험 가입 · 선수 등록</li>
               <li>소속: 대회 안내 방송 및 결과 표기</li>
               <li>주소: 기념품·공문 발송</li>
               <li>선수 사진: 대회 중계 화면·전광판 선수 이미지</li>
@@ -777,6 +790,22 @@ export default function CompEntryForm({
                 onChange={(e) => updateField("athlete_phone", e.target.value)}
                 className={inputCls}
               />
+            </Field>
+            <Field label="국적" required>
+              <select
+                required
+                value={form.athlete_nationality}
+                onChange={(e) =>
+                  updateField("athlete_nationality", e.target.value)
+                }
+                className={inputCls}
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="생년월일" required>
               <BirthDatePicker
