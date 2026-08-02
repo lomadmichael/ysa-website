@@ -3,42 +3,10 @@ import Link from "next/link";
 import applyTitle2026 from "../../../public/images/festival/apply_title_2026.jpg";
 
 /**
- * 대회 접수 페이지 상단 안내 — 포스터 + 종목별 일정·장소 + 접수 안내.
- * 신청자가 폼을 채우기 전에 "무슨 대회를, 언제, 어디서" 를 먼저 확인할 수 있게 한다.
- * (형님 요청 2026-08-02 — 작년 walla 폼 상단 구성 참고)
+ * 대회 접수 페이지 상단 — 타이틀 배너 + 접수 전 안내.
+ * 종목별 일정·장소는 폼의 부문 선택 목록과 /festival 안내 페이지에 이미 있어
+ * 중복 노출을 뺐다 (형님 확정 2026-08-02).
  */
-
-interface BriefGroup {
-  title: string;
-  venue: string;
-  schedule: string;
-  scheduleNote?: string;
-  divisions: string;
-}
-
-const GROUPS: BriefGroup[] = [
-  {
-    title: "비기너 서핑대회",
-    venue: "죽도해변",
-    schedule: "8월 29일(토) ~ 30일(일)",
-    scheduleNote: "기상 상황에 따라 9월 첫째주로 변경 가능",
-    divisions: "남자부 · 여자부",
-  },
-  {
-    title: "코리아 오픈 — SUP 레이싱",
-    venue: "죽도해변",
-    schedule: "8월 29일(토) ~ 30일(일)",
-    scheduleNote: "기상 상황에 따라 9월 첫째주로 변경 가능",
-    divisions: "스프린터 · 테크니컬 · 롱 디스턴스 (각 남 / 여)",
-  },
-  {
-    title: "코리아 오픈 — 숏보드 · 롱보드 · SUP 서핑",
-    venue: "숏보드 기사문해변 · 롱보드 설악해변 · SUP 서핑 물치해변",
-    schedule: "8월 29일 ~ 11월 중 파도가 좋은 날 순차 진행",
-    scheduleNote: "파도 상황에 따라 장소 및 일정이 유동적으로 조정될 수 있습니다",
-    divisions: "숏보드 · 롱보드 · SUP 서핑 (각 남 / 여)",
-  },
-];
 
 const NOTICES: { icon: string; text: React.ReactNode }[] = [
   {
@@ -92,27 +60,6 @@ export default function CompetitionBrief() {
         priority
       />
 
-      {/* 종목별 일정·장소 */}
-      <div className="rounded-2xl border border-foam bg-white p-5 sm:p-6">
-        <h2 className="mb-1 text-lg font-bold text-navy">대회 안내</h2>
-        <p className="mb-5 text-sm text-navy/60">
-          2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다.
-        </p>
-
-        <div className="divide-y divide-foam">
-          {GROUPS.map((g) => (
-            <div key={g.title} className="py-4 first:pt-0 last:pb-0">
-              <h3 className="mb-2 text-sm font-bold text-navy sm:text-base">{g.title}</h3>
-              <dl className="space-y-1.5 text-sm">
-                <BriefRow label="📍 장소" value={g.venue} />
-                <BriefRow label="🗓 일정" value={g.schedule} note={g.scheduleNote} />
-                <BriefRow label="🏆 종목" value={g.divisions} />
-              </dl>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* 접수 안내 */}
       <div className="rounded-2xl border border-ocean/15 bg-ocean/5 p-5 sm:p-6">
         <h2 className="mb-4 text-base font-bold text-navy">접수 전 확인해 주세요</h2>
@@ -138,25 +85,5 @@ export default function CompetitionBrief() {
         </p>
       </div>
     </section>
-  );
-}
-
-function BriefRow({
-  label,
-  value,
-  note,
-}: {
-  label: string;
-  value: string;
-  note?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-      <dt className="shrink-0 text-navy/50 sm:w-16">{label}</dt>
-      <dd className="text-navy/80">
-        {value}
-        {note && <span className="mt-0.5 block text-xs text-navy/45">※ {note}</span>}
-      </dd>
-    </div>
   );
 }
