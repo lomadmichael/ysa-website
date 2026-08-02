@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import poster2026 from "../../../public/images/festival/poster_2026.jpg";
+import applyTitle2026 from "../../../public/images/festival/apply_title_2026.jpg";
 
 /**
  * 대회 접수 페이지 상단 안내 — 포스터 + 종목별 일정·장소 + 접수 안내.
@@ -82,13 +82,13 @@ const NOTICES: { icon: string; text: React.ReactNode }[] = [
 export default function CompetitionBrief() {
   return (
     <section className="mb-10 space-y-6">
-      {/* 포스터 */}
+      {/* 타이틀 배너 (주최·주관·후원 포함) */}
       <Image
-        src={poster2026}
-        alt="2026 양양서핑페스티벌 & 대한서핑협회장배 서핑대회 포스터"
+        src={applyTitle2026}
+        alt="2026 양양 서핑 페스티벌 & 대한서핑협회장배 서핑대회 — 주최 양양군, 주관 양양군서핑협회·대한서핑협회"
         placeholder="blur"
         sizes="(min-width: 768px) 768px, 100vw"
-        className="w-full rounded-2xl border border-foam"
+        className="w-full rounded-2xl"
         priority
       />
 
