@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getImageProps } from 'next/image';
 import Link from 'next/link';
+import EntryCta from '@/components/festival/EntryCta';
+import type { EntryWindowKey } from '@/lib/festival-2026';
 import mainBannerPc from '../../../public/images/festival/mainbanner_2026_pc.jpg';
 import mainBannerMobile from '../../../public/images/festival/mainbanner_2026_mobile.jpg';
 
@@ -25,6 +27,8 @@ interface Competition {
   badge: string;
   badgeClass: string;
   accentClass: string;
+  /** 접수창 키 — 비기너·SUP 레이스는 beach, 오픈부는 open */
+  windowKey: EntryWindowKey;
   rows: InfoRow[];
 }
 
@@ -37,6 +41,7 @@ const COMPETITIONS: Competition[] = [
     badge: '8/4 접수 시작',
     badgeClass: 'text-ocean bg-ocean/10',
     accentClass: 'bg-ocean/10 text-ocean',
+    windowKey: 'beach',
     rows: [
       { label: '장소', value: '죽도해변' },
       {
@@ -67,6 +72,7 @@ const COMPETITIONS: Competition[] = [
     badge: '8/4 접수 시작',
     badgeClass: 'text-teal bg-teal/10',
     accentClass: 'bg-teal/10 text-teal',
+    windowKey: 'beach',
     rows: [
       { label: '장소', value: '죽도해변' },
       {
@@ -93,6 +99,7 @@ const COMPETITIONS: Competition[] = [
     badge: '8/13 접수 시작',
     badgeClass: 'text-sunset bg-sunset/10',
     accentClass: 'bg-sunset/10 text-sunset',
+    windowKey: 'open',
     rows: [
       {
         label: '운영 방식',
@@ -272,9 +279,11 @@ export default function FestivalPage() {
                   ))}
                 </dl>
 
-                <p className="mt-6 rounded-xl bg-sand px-4 py-3 text-xs leading-relaxed text-navy/60 md:text-sm">
-                  접수 시작과 함께 이 페이지에서 접수처를 안내합니다.
-                </p>
+                <EntryCta
+                  windowKey={comp.windowKey}
+                  badgeLabel={comp.badge}
+                  badgeClass={comp.badgeClass}
+                />
               </article>
             ))}
           </div>
