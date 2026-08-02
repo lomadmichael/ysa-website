@@ -11,6 +11,28 @@ import { COUNTRIES, countryName } from "@/lib/countries";
 const CERT_API =
   process.env.NEXT_PUBLIC_CERT_API_BASE ?? "https://golineup.kr";
 
+// ── 다음(카카오) 우편번호 서비스 — 주소 검색 (키 불필요, 무료) ──
+// 팝업 대신 페이지 내 embed 레이어 사용: 팝업 차단 이슈 없음 + 모바일 UX 안정.
+// window.daum 타입은 src/types/daum.d.ts (KakaoMap 의 roughmap 과 전역 공유)
+let daumPostcodePromise: Promise<void> | null = null;
+function loadDaumPostcode(): Promise<void> {
+  if (window.daum?.Postcode) return Promise.resolve();
+  if (!daumPostcodePromise) {
+    daumPostcodePromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src =
+        "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+      script.onload = () => resolve();
+      script.onerror = () => {
+        daumPostcodePromise = null; // 실패 시 재시도 가능하게
+        reject(new Error("postcode script load failed"));
+      };
+      document.head.appendChild(script);
+    });
+  }
+  return daumPostcodePromise;
+}
+
 export interface CompDivision {
   id: string;
   name: string;
@@ -189,6 +211,14 @@ export default function CompEntryForm({
   const [photoPath, setPhotoPath] = useState<string | null>(null);
   const [photoProcessing, setPhotoProcessing] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
+
+  // 주소 검색 (다음 우편번호) — 기본주소는 검색으로만, 상세주소는 직접 입력.
+  // form.address 에는 "(우편번호) 도로명주소 상세주소" 로 합쳐 저장 (API 계약 무변경)
+  const [addrBase, setAddrBase] = useState("");
+  const [addrDetail, setAddrDetail] = useState("");
+  const [postcodeOpen, setPostcodeOpen] = useState(false);
+  const [postcodeError, setPostcodeError] = useState<string | null>(null);
+  const postcodeRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<Form>({
@@ -294,6 +324,50 @@ export default function CompEntryForm({
         : [...f.division_ids, id],
     }));
   }
+
+  // 기본주소/상세주소 → form.address 합성 ("(우편번호) 도로명 상세").
+  // 조합 지점을 여기 하나로 — oncomplete 클로저의 stale detail 문제 회피
+  useEffect(() => {
+    setForm((f) => ({
+      ...f,
+      address: addrBase
+        ? `${addrBase}${addrDetail.trim() ? ` ${addrDetail.trim()}` : ""}`
+        : "",
+    }));
+  }, [addrBase, addrDetail]);
+
+  /** 주소 검색 레이어 열기 — 스크립트 로드 후 레이어만 연다 (embed 는 아래 effect) */
+  async function openPostcode() {
+    setPostcodeError(null);
+    try {
+      await loadDaumPostcode();
+    } catch {
+      setPostcodeError(
+        "주소 검색을 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+      );
+      return;
+    }
+    setPostcodeOpen(true);
+  }
+
+  // 레이어 div 가 실제로 마운트된 뒤에 embed — rAF 는 React 커밋 전에 돌아
+  // ref 가 null 이라 조용히 실패했다 (실검증에서 발견). effect 가 보장 지점.
+  useEffect(() => {
+    if (!postcodeOpen) return;
+    const el = postcodeRef.current;
+    const Postcode = window.daum?.Postcode;
+    if (!el || !Postcode) return;
+    el.innerHTML = "";
+    new Postcode({
+      oncomplete: (data) => {
+        const road = data.roadAddress || data.jibunAddress;
+        setAddrBase(`(${data.zonecode}) ${road}`);
+        setPostcodeOpen(false);
+      },
+      width: "100%",
+      height: "100%",
+    }).embed(el);
+  }, [postcodeOpen]);
 
   /** 성별 선택/변경 — 새 성별과 맞지 않는 부문 선택을 자동 해제
       (남자 부문 + 여자 부문 동시 선택 방지, 형님 확정 2026-07-29) */
@@ -407,7 +481,7 @@ export default function CompEntryForm({
       return;
     }
     if (!form.address.trim()) {
-      setError("주소를 입력해주세요. (필수)");
+      setError("주소 검색으로 주소를 입력해주세요. (필수)");
       return;
     }
 
@@ -850,14 +924,47 @@ export default function CompEntryForm({
             </Field>
             <div className="md:col-span-2">
               <Field label="주소" required>
-                <input
-                  type="text"
-                  required
-                  placeholder="예: 강원특별자치도 양양군 현남면 ○○길 12, 101호"
-                  value={form.address}
-                  onChange={(e) => updateField("address", e.target.value)}
-                  className={inputCls}
-                />
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      placeholder="주소 검색 버튼을 눌러주세요"
+                      value={addrBase}
+                      onClick={openPostcode}
+                      className={`${inputCls} cursor-pointer bg-gray-50`}
+                    />
+                    <button
+                      type="button"
+                      onClick={openPostcode}
+                      className="shrink-0 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+                    >
+                      주소 검색
+                    </button>
+                  </div>
+                  {postcodeOpen && (
+                    <div className="relative overflow-hidden rounded-lg border border-gray-300">
+                      <button
+                        type="button"
+                        onClick={() => setPostcodeOpen(false)}
+                        className="absolute right-2 top-2 z-10 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-gray-600 shadow hover:bg-white"
+                      >
+                        닫기 ✕
+                      </button>
+                      <div ref={postcodeRef} className="h-[420px] w-full" />
+                    </div>
+                  )}
+                  {postcodeError && (
+                    <p className="text-xs text-red-600">{postcodeError}</p>
+                  )}
+                  <input
+                    type="text"
+                    placeholder="상세주소 (동·호수 등)"
+                    value={addrDetail}
+                    onChange={(e) => setAddrDetail(e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
               </Field>
             </div>
           </div>

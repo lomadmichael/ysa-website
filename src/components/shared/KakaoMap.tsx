@@ -13,24 +13,8 @@ interface KakaoMapProps {
   height?: string;
 }
 
-interface DaumLanderCtor {
-  new (config: {
-    timestamp: string;
-    key: string;
-    mapWidth: string;
-    mapHeight: string;
-  }): { render: () => void };
-}
-
-declare global {
-  interface Window {
-    daum?: {
-      roughmap?: {
-        Lander?: DaumLanderCtor;
-      } & Record<string, unknown>;
-    };
-  }
-}
+// window.daum 전역 타입은 src/types/daum.d.ts 공용 선언 사용
+// (CompEntryForm 의 우편번호 검색과 같은 전역을 공유 — 파일별 선언은 TS2717 충돌)
 
 const LOADER_SRC = 'https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js';
 const LANDER_SRC =
