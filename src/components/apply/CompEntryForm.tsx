@@ -476,6 +476,10 @@ export default function CompEntryForm({
       setError("영문 이름을 입력해주세요. (필수)");
       return;
     }
+    if (!/^[A-Za-z][A-Za-z .'-]*$/.test(form.athlete_name_en.trim())) {
+      setError("영문 이름은 영문으로만 입력해주세요. (예: HONG GILDONG)");
+      return;
+    }
     if (!form.athlete_nationality) {
       setError("국적을 선택해주세요. (필수)");
       return;
@@ -846,22 +850,31 @@ export default function CompEntryForm({
               />
             </Field>
             <Field label="영문 이름" required>
+              {/* 자유 입력 방어: 타이핑 즉시 대문자 통일 (명부·ISA 관례) */}
               <input
                 type="text"
                 required
                 placeholder="예: HONG GILDONG"
                 value={form.athlete_name_en}
-                onChange={(e) => updateField("athlete_name_en", e.target.value)}
+                onChange={(e) =>
+                  updateField("athlete_name_en", e.target.value.toUpperCase())
+                }
                 className={inputCls}
               />
             </Field>
             <Field label="연락처" required>
+              {/* 하이픈·공백을 넣어도 숫자만 남긴다 (서버도 정규화하지만 폼에서 통일) */}
               <input
                 type="tel"
                 required
                 placeholder="01012345678"
                 value={form.athlete_phone}
-                onChange={(e) => updateField("athlete_phone", e.target.value)}
+                onChange={(e) =>
+                  updateField(
+                    "athlete_phone",
+                    e.target.value.replace(/[^0-9]/g, "")
+                  )
+                }
                 className={inputCls}
               />
             </Field>
@@ -921,6 +934,9 @@ export default function CompEntryForm({
                 placeholder="예: 죽도서프"
                 className={inputCls}
               />
+              <p className="mt-1 text-xs text-gray-500">
+                선택 사항이며, 없으시면 안 적으셔도 됩니다.
+              </p>
             </Field>
             <div className="md:col-span-2">
               <Field label="주소" required>
@@ -1128,6 +1144,9 @@ export default function CompEntryForm({
               onChange={(v) => updateField("eligibility_consent", v)}
               label="예, 2023년 1월 1일 이후 서핑에 입문했습니다. (필수)"
             />
+            <p className="mt-1 text-xs text-red-600">
+              (입상 후 2023년 이전 입문 제보 시 입상자격이 박탈됩니다.)
+            </p>
           </Section>
         )}
 
