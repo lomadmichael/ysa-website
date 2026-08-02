@@ -212,6 +212,18 @@ export default function CompEntryForm({
   const [photoProcessing, setPhotoProcessing] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
+  // 영문 이름 — 성/이름 분리 입력 (형님 확정 2026-08-02: "KIMSUNSOO" 처럼
+  // 붙여 쓰면 사후 분리 불가 → 국제 명부(ISA) 대비 분리 수집).
+  // 저장·전송은 "성 이름" 조합 단일 필드 (API 계약 무변경, 첫 토큰 = 성)
+  const [nameEnLast, setNameEnLast] = useState("");
+  const [nameEnFirst, setNameEnFirst] = useState("");
+  useEffect(() => {
+    const combined = [nameEnLast.trim(), nameEnFirst.trim()]
+      .filter(Boolean)
+      .join(" ");
+    setForm((f) => ({ ...f, athlete_name_en: combined }));
+  }, [nameEnLast, nameEnFirst]);
+
   // 주소 검색 (다음 우편번호) — 기본주소는 검색으로만, 상세주소는 직접 입력.
   // form.address 에는 "(우편번호) 도로명주소 상세주소" 로 합쳐 저장 (API 계약 무변경)
   const [addrBase, setAddrBase] = useState("");
@@ -472,12 +484,12 @@ export default function CompEntryForm({
       setError("필수 항목을 모두 입력해주세요. (생년월일·성별 포함)");
       return;
     }
-    if (!form.athlete_name_en.trim()) {
-      setError("영문 이름을 입력해주세요. (필수)");
+    if (!nameEnLast.trim() || !nameEnFirst.trim()) {
+      setError("영문 이름(성·이름)을 모두 입력해주세요. (필수)");
       return;
     }
     if (!/^[A-Za-z][A-Za-z .'-]*$/.test(form.athlete_name_en.trim())) {
-      setError("영문 이름은 영문으로만 입력해주세요. (예: HONG GILDONG)");
+      setError("영문 이름은 영문으로만 입력해주세요. (예: KIM SUNSOO)");
       return;
     }
     if (!form.athlete_nationality) {
@@ -849,18 +861,26 @@ export default function CompEntryForm({
                 className={inputCls}
               />
             </Field>
-            <Field label="영문 이름" required>
-              {/* 자유 입력 방어: 타이핑 즉시 대문자 통일 (명부·ISA 관례) */}
-              <input
-                type="text"
-                required
-                placeholder="예: HONG GILDONG"
-                value={form.athlete_name_en}
-                onChange={(e) =>
-                  updateField("athlete_name_en", e.target.value.toUpperCase())
-                }
-                className={inputCls}
-              />
+            <Field label="영문 이름 (여권 표기)" required>
+              {/* 성/이름 분리 — 붙여쓰기(KIMSUNSOO) 방지. 타이핑 즉시 대문자 */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  placeholder="성 (예: KIM)"
+                  value={nameEnLast}
+                  onChange={(e) => setNameEnLast(e.target.value.toUpperCase())}
+                  className={inputCls}
+                />
+                <input
+                  type="text"
+                  required
+                  placeholder="이름 (예: SUNSOO)"
+                  value={nameEnFirst}
+                  onChange={(e) => setNameEnFirst(e.target.value.toUpperCase())}
+                  className={inputCls}
+                />
+              </div>
             </Field>
             <Field label="연락처" required>
               {/* 하이픈·공백을 넣어도 숫자만 남긴다 (서버도 정규화하지만 폼에서 통일) */}
