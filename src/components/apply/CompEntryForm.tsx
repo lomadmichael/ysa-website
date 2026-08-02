@@ -843,6 +843,7 @@ export default function CompEntryForm({
             </p>
           </div>
           <CheckRow
+            emphasized
             checked={form.privacy_consent}
             onChange={(v) => updateField("privacy_consent", v)}
             label="개인정보 수집·이용, 초상권 사용 및 대회 기록 공개에 모두 동의합니다. (필수)"
@@ -1335,11 +1336,34 @@ function CheckRow({
   checked,
   onChange,
   label,
+  emphasized = false,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
+  /** 강조 박스 스타일 — 안내문 사이에 묻혀 지나치기 쉬운 필수 동의에 사용
+      (형님 피드백 2026-08-02: 개인정보 동의 체크를 자꾸 지나침) */
+  emphasized?: boolean;
 }) {
+  if (emphasized) {
+    return (
+      <label
+        className={`flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3.5 transition ${
+          checked
+            ? "border-purple bg-purple/10"
+            : "border-purple/60 bg-purple/5 hover:bg-purple/10"
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="size-5 shrink-0 accent-purple"
+        />
+        <span className="text-sm font-semibold text-navy">{label}</span>
+      </label>
+    );
+  }
   return (
     <label className="flex items-center gap-2 text-sm cursor-pointer">
       <input
