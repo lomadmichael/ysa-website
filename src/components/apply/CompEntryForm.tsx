@@ -184,9 +184,14 @@ function divisionFee(d: CompDivision, c: Competition): number {
 
 export default function CompEntryForm({
   initialCompetitions = [],
+  brief,
   children,
 }: {
   initialCompetitions?: Competition[];
+  /**
+   * 폼 위에 노출할 대회 안내(포스터·일정·장소). 접수 완료 화면에서는 숨긴다.
+   */
+  brief?: React.ReactNode;
   /**
    * 폼 위에 노출할 안내 영역(서버 컴포넌트 슬롯).
    * 접수 완료 화면에서는 합계가 포함된 안내를 따로 보여주므로 렌더하지 않는다.
@@ -583,6 +588,7 @@ export default function CompEntryForm({
   if (loading) {
     return (
       <>
+        {brief}
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />
@@ -595,23 +601,26 @@ export default function CompEntryForm({
 
   if (loadError) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center space-y-4">
-        <div className="text-5xl">⚠️</div>
-        <h2 className="text-xl font-bold text-red-900">
-          대회 정보를 불러올 수 없습니다
-        </h2>
-        <p className="text-sm text-red-700">
-          일시적인 네트워크 오류일 수 있습니다. 잠시 후 다시 시도해주세요.
-        </p>
-        <p className="text-xs text-red-600 font-mono">{loadError}</p>
-        <button
-          type="button"
-          onClick={() => setRetryCount((c) => c + 1)}
-          className="inline-flex items-center justify-center rounded-lg bg-red-600 px-6 py-3 text-white font-medium hover:bg-red-700"
-        >
-          다시 시도
-        </button>
-      </div>
+      <>
+        {brief}
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center space-y-4">
+          <div className="text-5xl">⚠️</div>
+          <h2 className="text-xl font-bold text-red-900">
+            대회 정보를 불러올 수 없습니다
+          </h2>
+          <p className="text-sm text-red-700">
+            일시적인 네트워크 오류일 수 있습니다. 잠시 후 다시 시도해주세요.
+          </p>
+          <p className="text-xs text-red-600 font-mono">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => setRetryCount((c) => c + 1)}
+            className="inline-flex items-center justify-center rounded-lg bg-red-600 px-6 py-3 text-white font-medium hover:bg-red-700"
+          >
+            다시 시도
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -806,7 +815,8 @@ export default function CompEntryForm({
 
   return (
     <>
-      {/* 참가비 입금 안내(children)는 폼 하단으로 이동 (형님 확정 2026-07-29) */}
+      {/* 대회 안내(포스터·일정·장소)는 폼 위, 참가비 입금 안내(children)는 폼 하단 */}
+      {brief}
       <form
         id="comp-entry-form"
         onSubmit={handleSubmit}
