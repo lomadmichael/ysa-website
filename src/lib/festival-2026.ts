@@ -18,7 +18,7 @@ export const ENTRY_WINDOWS = {
     opensAt: Date.UTC(2026, 7, 5, 0, 0, 0),
     closesAt: Date.UTC(2026, 7, 9, 14, 59, 59),
   },
-  /** 코리아 오픈 웨이브(숏보드·롱보드·SUP 서핑) — 8/13 09:00 ~ 8/22 23:59 (KST) */
+  /** 코리아 오픈 숏보드·롱보드·SUP 서핑 — 8/13 09:00 ~ 8/22 23:59 (KST) */
   open: {
     opensAt: Date.UTC(2026, 7, 13, 0, 0, 0),
     closesAt: Date.UTC(2026, 7, 22, 14, 59, 59),

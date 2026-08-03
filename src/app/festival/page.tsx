@@ -105,7 +105,7 @@ const COMPETITIONS: Competition[] = [
     id: 'open',
     icon: '🏄',
     title: '코리아 오픈 — 숏보드 · 롱보드 · SUP 서핑',
-    subtitle: '파도가 좋은 날 진행하는 웨이브 대회',
+    subtitle: '파도 상황에 맞춰 진행하는 대회',
     badge: '8/13 09시 접수 시작',
     badgeClass: 'text-sunset bg-sunset/10',
     accentClass: 'bg-sunset/10 text-sunset',
@@ -114,7 +114,7 @@ const COMPETITIONS: Competition[] = [
       {
         label: '운영 방식',
         value:
-          '좋은 파도를 기다려 진행하는 웨이브 대회입니다. 9월부터 11월까지 파도가 좋은 평일에 순차 진행합니다.',
+          '좋은 파도를 기다려 진행합니다. 9월부터 11월까지 파도가 좋은 평일에 순차 진행합니다.',
         note: '※ 파도 상황에 따라 장소 및 일정이 유동적으로 조정될 수 있습니다',
       },
       { label: '종목', value: '숏보드 · 롱보드 · SUP 서핑 (각 남 / 여)' },
@@ -240,9 +240,9 @@ export default function FestivalPage() {
             </h2>
             <p className="leading-relaxed text-navy/70">
               2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너 서핑대회와
-              코리아 오픈 SUP 레이싱은 8월 말 죽도해변에서, 코리아 오픈 웨이브 종목(숏보드 · 롱보드 ·
-              SUP 서핑)은 파도 상황에 맞춰 진행합니다. 종목별 참가 자격과 접수 기간이 다르니 아래
-              내용을 확인해 주세요.
+              코리아 오픈 SUP 레이싱은 8월 말 죽도해변에서, 코리아 오픈 숏보드 · 롱보드 · SUP 서핑
+              종목은 파도 상황에 맞춰 진행합니다. 종목별 참가 자격과 접수 기간이 다르니 아래 내용을
+              확인해 주세요.
             </p>
           </div>
 

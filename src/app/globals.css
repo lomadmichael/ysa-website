@@ -30,6 +30,11 @@ body {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   line-height: 1.7;
   letter-spacing: -0.01em;
+  /* 한글은 기본값(word-break: normal)에서 글자 단위로 끊겨 "8|월", "기|간이" 처럼
+     단어 중간에서 줄바꿈된다. keep-all 로 어절(띄어쓰기) 단위 줄바꿈 강제.
+     긴 URL·영문 토큰이 컨테이너를 넘치는 건 anywhere 로 보완. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 /* Pretendard font-face */
