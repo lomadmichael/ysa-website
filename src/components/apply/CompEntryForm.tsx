@@ -1176,7 +1176,7 @@ export default function CompEntryForm({
               label="예, 2023년 1월 1일 이후 서핑에 입문했습니다. (필수)"
             />
             <p className="mt-1 text-xs text-red-600">
-              (입상 후 2023년 이전 입문 제보 시 입상자격이 박탈됩니다.)
+              (입상 후 2023년 1월 1일 이전 입문 제보 시 입상자격이 박탈됩니다.)
             </p>
           </Section>
         )}
