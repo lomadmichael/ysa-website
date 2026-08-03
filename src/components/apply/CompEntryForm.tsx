@@ -1166,9 +1166,9 @@ export default function CompEntryForm({
         {/* 참가 자격 동의 — 비기너 부문 선택 시에만 (형님 확정: 2023년 1월 1일 기준) */}
         {beginnerSelected && (
           <Section title="참가 자격 동의 (비기너)" required>
+            {/* 박탈 경고는 체크박스 아래 빨간 문구로만 노출 (중복 제거, 형님 확정 2026-08-02) */}
             <p className="text-sm text-gray-600 mb-3">
-              2023년 1월 1일 이후 서핑 입문자가 맞나요? (입상 후 2023년 1월 1일
-              이전 입문 제보 시 입상 자격이 박탈됩니다.)
+              2023년 1월 1일 이후 서핑 입문자가 맞나요?
             </p>
             <CheckRow
               checked={form.eligibility_consent}
