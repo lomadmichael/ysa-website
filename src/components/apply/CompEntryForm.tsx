@@ -1168,12 +1168,13 @@ export default function CompEntryForm({
           <Section title="참가 자격 동의 (비기너)" required>
             {/* 박탈 경고는 체크박스 아래 빨간 문구로만 노출 (중복 제거, 형님 확정 2026-08-02) */}
             <p className="text-sm text-gray-600 mb-3">
-              2023년 1월 1일 이후 서핑 입문자가 맞나요?
+              비기너 부문은 <strong>2023년 1월 1일 이후 서핑에 입문한 분</strong>만
+              참가할 수 있으며, <strong>국내외 서핑대회 입상자는 참가할 수 없습니다.</strong>
             </p>
             <CheckRow
               checked={form.eligibility_consent}
               onChange={(v) => updateField("eligibility_consent", v)}
-              label="예, 2023년 1월 1일 이후 서핑에 입문했습니다. (필수)"
+              label="예, 2023년 1월 1일 이후 서핑에 입문했으며 국내외 서핑대회 입상 경력이 없습니다. (필수)"
             />
             <p className="mt-1 text-xs text-red-600">
               (입상 후 2023년 1월 1일 이전 입문 제보 시 입상자격이 박탈됩니다.)
@@ -1375,13 +1376,14 @@ function CheckRow({
     );
   }
   return (
-    <label className="flex items-center gap-2 text-sm cursor-pointer">
+    <label className="flex cursor-pointer items-start gap-2 text-sm">
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 shrink-0"
       />
-      {label}
+      <span>{label}</span>
     </label>
   );
 }
