@@ -7,16 +7,19 @@
  * - 입금 계좌 / 참가비는 협회 확정값이며 임의로 변경하지 않는다.
  */
 
+// 2026-08-03 홍보 일정표 확정으로 조정: 비기너·SUP 시작 8/4 → 8/5, 오픈부 마감 8/22 → 8/16.
+// cert-manager `scripts/setup-2026-yangyang.mjs` 의 접수창 상수와 반드시 동일해야 한다
+// (여기는 버튼 노출용 클라 시계, 실제 게이트는 서버 competitions.entry_opens_at/closes_at).
 export const ENTRY_WINDOWS = {
-  /** 비기너 대회 · SUP 레이스 — 8/4 00:00 ~ 8/9 23:59 (KST) */
+  /** 비기너 서핑대회 · 코리아 오픈 SUP 레이싱 — 8/5 00:00 ~ 8/9 23:59 (KST) */
   beach: {
-    opensAt: Date.UTC(2026, 7, 3, 15, 0, 0),
+    opensAt: Date.UTC(2026, 7, 4, 15, 0, 0),
     closesAt: Date.UTC(2026, 7, 9, 14, 59, 59),
   },
-  /** 오픈부(롱보드·숏보드·SUP서핑) — 8/13 00:00 ~ 8/22 23:59 (KST) */
+  /** 코리아 오픈 웨이브(숏보드·롱보드·SUP 서핑) — 8/13 00:00 ~ 8/16 23:59 (KST) */
   open: {
     opensAt: Date.UTC(2026, 7, 12, 15, 0, 0),
-    closesAt: Date.UTC(2026, 7, 22, 14, 59, 59),
+    closesAt: Date.UTC(2026, 7, 16, 14, 59, 59),
   },
 } as const;
 

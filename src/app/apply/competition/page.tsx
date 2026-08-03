@@ -7,7 +7,7 @@ import CompetitionBrief from "@/components/apply/CompetitionBrief";
 import DepositNotice from "@/components/apply/DepositNotice";
 import { ENTRY_WINDOWS } from "@/lib/festival-2026";
 
-// 접수 시작(8/4 00:00 KST) 전까지는 검색 비노출, 오픈 이후 자동으로 index 허용.
+// 접수 시작(8/5 00:00 KST) 전까지는 검색 비노출, 오픈 이후 자동으로 index 허용.
 // `revalidate = 30` 덕분에 오픈 직후 최대 30초 안에 메타데이터가 갱신된다.
 export async function generateMetadata(): Promise<Metadata> {
   const entryOpened = Date.now() >= ENTRY_WINDOWS.beach.opensAt;
