@@ -12,12 +12,13 @@ import { ENTRY_WINDOWS } from "@/lib/festival-2026";
 const OG_TITLE = "대한서핑협회장배 서핑대회 참가 신청";
 const OG_DESCRIPTION =
   "대한서핑협회장배 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.";
-/** 카톡·SNS 공유용 (1200x630). 루트 layout 의 기본 og.jpg 대신 페이지 전용 이미지 사용 */
+/** 카톡·SNS 공유용 (1200x630). 페스티벌 페이지와 동일한 메인 배너 이미지를 사용
+    (타이틀 배너는 3.2:1 이라 OG 규격에 맞추면 비율이 어색해 형님 지시로 통일) */
 const OG_IMAGE = {
-  url: "/images/og-apply-competition.jpg",
+  url: "/images/og-festival.jpg",
   width: 1200,
   height: 630,
-  alt: OG_TITLE,
+  alt: "2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
