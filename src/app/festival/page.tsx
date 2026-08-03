@@ -6,11 +6,34 @@ import type { EntryWindowKey } from '@/lib/festival-2026';
 import mainBannerPc from '../../../public/images/festival/mainbanner_2026_pc.jpg';
 import mainBannerMobile from '../../../public/images/festival/mainbanner_2026_mobile.jpg';
 
+const PAGE_TITLE = '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회';
+const PAGE_DESCRIPTION =
+  '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너 서핑대회와 코리아 오픈(SUP 레이싱 · 숏보드 · 롱보드 · SUP 서핑) 일정과 접수 정보를 안내합니다.';
+/** 카톡·SNS 공유용 (1200x630). 루트 layout 의 기본 og.jpg 대신 페이지 전용 이미지 사용 */
+const OG_IMAGE = {
+  url: '/images/og-festival.jpg',
+  width: 1200,
+  height: 630,
+  alt: PAGE_TITLE,
+};
+
 export const metadata: Metadata = {
   title: '서핑페스티벌·대회',
-  description:
-    '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너 서핑대회와 코리아 오픈(SUP 레이싱 · 숏보드 · 롱보드 · SUP 서핑) 일정과 접수 정보를 안내합니다.',
+  description: PAGE_DESCRIPTION,
   alternates: { canonical: 'https://ysakorea.com/festival' },
+  openGraph: {
+    type: 'website',
+    url: '/festival',
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    images: [OG_IMAGE.url],
+  },
 };
 
 interface InfoRow {

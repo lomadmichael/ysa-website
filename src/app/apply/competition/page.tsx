@@ -9,17 +9,40 @@ import { ENTRY_WINDOWS } from "@/lib/festival-2026";
 
 // 접수 시작(8/5 00:00 KST) 전까지는 검색 비노출, 오픈 이후 자동으로 index 허용.
 // `revalidate = 30` 덕분에 오픈 직후 최대 30초 안에 메타데이터가 갱신된다.
+const OG_TITLE = "대한서핑협회장배 서핑대회 참가 신청";
+const OG_DESCRIPTION =
+  "대한서핑협회장배 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.";
+/** 카톡·SNS 공유용 (1200x630). 루트 layout 의 기본 og.jpg 대신 페이지 전용 이미지 사용 */
+const OG_IMAGE = {
+  url: "/images/og-apply-competition.jpg",
+  width: 1200,
+  height: 630,
+  alt: OG_TITLE,
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const entryOpened = Date.now() >= ENTRY_WINDOWS.beach.opensAt;
 
   return {
     title: "대회 참가 신청",
-    description:
-      "대한서핑협회장배 서핑대회 온라인 참가 신청. 회원가입 없이 신청 가능합니다.",
+    description: OG_DESCRIPTION,
     alternates: { canonical: "https://ysakorea.com/apply/competition" },
     robots: entryOpened
       ? { index: true, follow: true }
       : { index: false, follow: false },
+    openGraph: {
+      type: "website",
+      url: "/apply/competition",
+      title: OG_TITLE,
+      description: OG_DESCRIPTION,
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: OG_TITLE,
+      description: OG_DESCRIPTION,
+      images: [OG_IMAGE.url],
+    },
   };
 }
 
