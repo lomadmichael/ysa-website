@@ -81,6 +81,10 @@ interface Form {
   athlete_nationality: string;
   athlete_email: string;
   affiliation: string;
+  /** 입문연도 — 선택. 현장 해설자 소개용 (2026-08-04 형님 요청) */
+  started_year: string;
+  /** 하고 싶은 말 — 선택, 200자. 현장 해설자가 소개하는 재미 요소 */
+  intro_message: string;
   /** 주소 — 기념품/공문 발송용 필수 */
   address: string;
   /** 개인정보 수집·이용 + 초상권 사용 + 대회 기록 공개 통합 동의 (형님 확정 —
@@ -248,6 +252,8 @@ export default function CompEntryForm({
     athlete_nationality: "KR",
     athlete_email: "",
     affiliation: "",
+    started_year: "",
+    intro_message: "",
     address: "",
     privacy_consent: false,
     refund_consent: false,
@@ -553,6 +559,13 @@ export default function CompEntryForm({
           athlete_nationality: form.athlete_nationality,
           athlete_email: form.athlete_email || null,
           affiliation: form.affiliation || null,
+          // 해설자 소개용 선택 항목 — 값이 있을 때만 전송 (계약: 보낸 경우만 기록)
+          ...(form.started_year.trim()
+            ? { started_year: form.started_year.trim() }
+            : {}),
+          ...(form.intro_message.trim()
+            ? { intro_message: form.intro_message.trim() }
+            : {}),
           address: form.address.trim(),
           // 통합 체크 1개가 개인정보·기록 공개·초상권 세 동의를 함께 의미한다
           privacy_consent: form.privacy_consent,
@@ -969,6 +982,43 @@ export default function CompEntryForm({
                 선택 사항이며, 없으시면 안 적으셔도 됩니다.
               </p>
             </Field>
+            <Field label="서핑 입문연도">
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                value={form.started_year}
+                onChange={(e) =>
+                  updateField(
+                    "started_year",
+                    e.target.value.replace(/[^0-9]/g, ""),
+                  )
+                }
+                placeholder="예: 2023"
+                className={inputCls}
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                선택 사항 — 현장 해설자가 선수 소개에 활용합니다.
+              </p>
+            </Field>
+            <div className="md:col-span-2">
+              <Field label="하고 싶은 말">
+                <textarea
+                  value={form.intro_message}
+                  onChange={(e) =>
+                    updateField("intro_message", e.target.value.slice(0, 200))
+                  }
+                  rows={3}
+                  maxLength={200}
+                  placeholder="예: 3년 만에 첫 대회 출전입니다! 응원해주세요 🙌"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  선택 사항, 최대 200자 — 경기 중 현장 해설자가 소개해 드릴 수
+                  있어요. ({form.intro_message.length}/200)
+                </p>
+              </Field>
+            </div>
             <div className="md:col-span-2">
               <Field label="주소" required>
                 <div className="space-y-2">
