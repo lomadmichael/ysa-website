@@ -243,7 +243,9 @@ export default async function SurfcampAdminPage({
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-foam pb-5">
           <div>
             <h1 className="text-xl font-bold text-navy">{EVENT.name} 접수 관리</h1>
-            <p className="text-[13px] text-navy/60">운영 담당자 전용 화면</p>
+            <p className="text-[13px] text-navy/60">
+              주최 {EVENT.host} · 주관 {EVENT.organizer}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <a
