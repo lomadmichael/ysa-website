@@ -5,10 +5,12 @@ import {
   EVENT,
   INQUIRY_TEL,
   LESSON_MIN_AGE,
-  LESSON_MIN_HEIGHT,
   LESSON_TIMES,
+  LESSON_YOUTH_AGE,
+  LESSON_YOUTH_HEIGHT,
   MAX_PARTICIPANTS,
   REGIONS,
+  SMS_SENDER_ORG,
   programLabel,
 } from '@/lib/surfcamp-config';
 import type { SurfcampAvailability } from '@/lib/surfcamp-db';
@@ -43,7 +45,7 @@ const lessonRows = (capacity: number): GuideRow[] => [
   },
   {
     label: '대상',
-    value: `만 ${LESSON_MIN_AGE}세 이상 · 신장 ${LESSON_MIN_HEIGHT}cm 이상 (안전상 기준)`,
+    value: `만 ${LESSON_MIN_AGE}세 이상 신청하실 수 있습니다. 만 ${LESSON_YOUTH_AGE}세 미만이거나 신장 ${LESSON_YOUTH_HEIGHT}cm 미만이신 분도 신청하실 수 있으며, 저연령 강습이 가능한 서핑스쿨로 배정해 드립니다.`,
   },
   { label: '정원', value: `${capacity}명 (선착순)` },
   {
@@ -99,7 +101,7 @@ export default function ProgramGuide({
             프로그램 안내
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-navy/70">
-            {EVENT.name}은 두 가지 프로그램으로 운영합니다. 아래 내용을 확인하신 뒤
+            {EVENT.name}는 두 가지 프로그램으로 운영합니다. 아래 내용을 확인하신 뒤
             신청해 주세요.
           </p>
         </div>
@@ -158,7 +160,9 @@ export default function ProgramGuide({
           <GuideStep step={1} title="접수 방법">
             온라인 선착순 접수입니다. 대표 신청자 한 분이 가족·동반 참가자까지 한 번에
             신청하며(최대 {MAX_PARTICIPANTS}명), 참가자별로 신청할 프로그램을
-            선택합니다.
+            선택합니다. 대표 신청자는 연락·접수를 담당하는 분으로{' '}
+            <strong className="text-navy">참가자로 자동 등록되지 않으니</strong>, 본인도
+            참가하신다면 참가자 정보에 본인을 반드시 추가해 주세요.
           </GuideStep>
 
           <GuideStep step={2} title="신청 대상">
@@ -185,7 +189,13 @@ export default function ProgramGuide({
             안내드립니다.
           </GuideStep>
 
-          <GuideStep step={6} title="수정 · 취소">
+          <GuideStep step={6} title="안내 문자">
+            접수·확정·대기 안내 문자는 {EVENT.host} 알림 운영 대행사인{' '}
+            <strong className="text-navy">{SMS_SENDER_ORG}</strong> 명의(발신번호
+            010-9542-3775)로 발송됩니다. 모르는 번호로 오해하지 마시고 확인해 주세요.
+          </GuideStep>
+
+          <GuideStep step={7} title="수정 · 취소">
             <Link
               href={MY_PAGE}
               className="font-semibold text-navy underline underline-offset-2"
@@ -198,12 +208,19 @@ export default function ProgramGuide({
             </strong>
           </GuideStep>
 
-          <GuideStep step={7} title="유의 사항">
+          <GuideStep step={8} title="개인정보 · 초상권 동의">
+            접수 시 개인정보 수집·이용과 제3자 제공(배정 서핑스쿨 · {EVENT.host} ·{' '}
+            {SMS_SENDER_ORG}), 행사 중 촬영된 사진·영상의 결과보고·홍보 활용에 대한{' '}
+            <strong className="text-navy">필수 동의</strong>가 포함됩니다. 자세한 내용은
+            신청서의 동의 항목에서 확인하실 수 있습니다.
+          </GuideStep>
+
+          <GuideStep step={9} title="유의 사항">
             신청 완료가 곧 참가 확정은 아닙니다. 기상·해상 상황에 따라 일정이 변경되거나
             중단될 수 있으며, 음주하신 경우 안전상 참여하실 수 없습니다.
           </GuideStep>
 
-          <GuideStep step={8} title="문의">
+          <GuideStep step={10} title="문의">
             {INQUIRY_TEL} ({EVENT.organizer})
           </GuideStep>
         </ol>

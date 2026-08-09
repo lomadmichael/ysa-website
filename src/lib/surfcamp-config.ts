@@ -11,7 +11,8 @@
 
 import {
   LESSON_MIN_AGE,
-  LESSON_MIN_HEIGHT,
+  LESSON_YOUTH_AGE,
+  LESSON_YOUTH_HEIGHT,
   MAX_PARTICIPANTS,
   type GenderKey,
   type LessonTimeKey,
@@ -22,7 +23,10 @@ import {
 } from '@/lib/surfcamp-validate';
 
 // 검증 규칙과 값이 갈라지지 않도록 surfcamp-validate 의 상수를 그대로 재수출한다.
-export { LESSON_MIN_AGE, LESSON_MIN_HEIGHT, MAX_PARTICIPANTS };
+export { LESSON_MIN_AGE, LESSON_YOUTH_AGE, LESSON_YOUTH_HEIGHT, MAX_PARTICIPANTS };
+
+/** 문자 발송 주체 — 양양군체육회는 사전등록 발신번호가 없어 대행사 명의로 나간다. */
+export const SMS_SENDER_ORG = '로마드협동조합';
 export type {
   GenderKey,
   LessonTimeKey,
@@ -81,7 +85,7 @@ export const PROGRAMS: Option<ProgramKey>[] = [
   {
     key: 'lesson',
     label: '서핑강습',
-    hint: `${EVENT.lessonDateLabel} · 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상`,
+    hint: `${EVENT.lessonDateLabel} · 만 ${LESSON_MIN_AGE}세 이상`,
   },
   {
     key: 'special',

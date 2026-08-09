@@ -9,6 +9,7 @@ import {
   statusLabel,
   surfExpLabel,
 } from '@/lib/surfcamp-config';
+import { needsYouthAssignment } from '@/lib/surfcamp-validate';
 import { ADMIN_COOKIE, verifyAdmin } from '../auth';
 
 export const dynamic = 'force-dynamic';
@@ -38,6 +39,8 @@ const HEADER = [
   '몸무게(kg)',
   '서핑경험',
   '서핑강습',
+  // 만 11세 미만 또는 신장 130cm 미만 → 저연령 강습이 가능한 스쿨로만 배정 가능
+  '저연령배정',
   '특화체험',
   '초상권동의',
   '비고',
@@ -119,6 +122,7 @@ export async function GET(request: NextRequest) {
           esc(p.weight_kg),
           esc(surfExpLabel(p.surf_exp)),
           esc(p.lesson ? statusLabel(p.lesson) : '미신청'),
+          esc(p.lesson && needsYouthAssignment(p.age, p.height_cm) ? '해당' : ''),
           esc(p.special ? statusLabel(p.special) : '미신청'),
           esc(r.consent_media ? '동의' : '미동의'),
           esc(r.note ?? ''),

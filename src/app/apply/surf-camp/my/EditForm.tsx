@@ -83,7 +83,6 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
   const [residentType, setResidentType] = useState<string>(registration.resident_type);
   const [region, setRegion] = useState<string>(registration.region);
   const [lessonTime, setLessonTime] = useState<string>(registration.lesson_time);
-  const [consentMedia, setConsentMedia] = useState(registration.consent_media);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   const savedCount = registration.participants.length;
@@ -148,6 +147,12 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
         <input type="hidden" name="address_detail" value={addressDetail} />
         {/* 비고는 이 화면에서 수정하지 않지만, 보내지 않으면 서버가 비워버린다. */}
         <input type="hidden" name="note" value={registration.note ?? ''} />
+        {/* 초상권 동의는 접수 시 개인정보 동의문에 통합돼 별도 체크박스가 없다.
+            서버는 이 필드의 존재 여부로 값을 판정하므로, 저장된 값을 그대로 실어
+            수정할 때 동의 상태가 뒤집히지 않게 한다. */}
+        {registration.consent_media && (
+          <input type="hidden" name="consent_media" value="1" />
+        )}
 
         <Section title="대표 신청자">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -243,26 +248,6 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
           )}
         </Section>
 
-        <Section title="선택 동의">
-          <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-gray-200 bg-white p-3.5 text-sm text-navy/70 transition hover:border-gray-300">
-            <input
-              type="checkbox"
-              name="consent_media"
-              checked={consentMedia}
-              onChange={(e) => setConsentMedia(e.target.checked)}
-              className="mt-1 shrink-0"
-            />
-            <span>
-              <span className="font-semibold text-navy">
-                [선택] 초상권 및 홍보 활용 동의
-              </span>
-              <span className="mt-0.5 block text-xs leading-relaxed">
-                행사 중 촬영된 사진·영상을 결과보고 및 홍보 목적으로 활용하는 데
-                동의합니다. 동의하지 않아도 참가할 수 있습니다.
-              </span>
-            </span>
-          </label>
-        </Section>
 
         {updateState.status === 'error' && updateState.message && (
           <p

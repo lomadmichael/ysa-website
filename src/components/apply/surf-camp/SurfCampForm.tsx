@@ -17,11 +17,10 @@ import {
   EVENT,
   INQUIRY_TEL,
   KILL_SWITCH,
-  LESSON_MIN_AGE,
-  LESSON_MIN_HEIGHT,
   LESSON_TIMES,
   REGIONS,
   RESIDENT_TYPES,
+  SMS_SENDER_ORG,
   lessonTimeLabel,
   programLabel,
   regionLabel,
@@ -218,9 +217,14 @@ export default function SurfCampForm({
 
       {/* 대표 신청자 */}
       <Section title="대표 신청자" required>
-        <p className="text-sm text-navy/60">
-          접수 안내 문자와 신청 조회는 아래 휴대폰 번호를 기준으로 진행됩니다. 한 번호당
-          한 건만 신청할 수 있습니다.
+        <p className="text-sm leading-relaxed text-navy/60">
+          대표 신청자는 <strong className="text-navy">연락과 접수를 담당하는 분</strong>
+          입니다. 접수 안내 문자와 신청 조회는 아래 휴대폰 번호를 기준으로 진행되며, 한
+          번호당 한 건만 신청할 수 있습니다.{' '}
+          <strong className="text-navy">
+            대표 신청자는 참가자로 자동 등록되지 않습니다.
+          </strong>{' '}
+          본인도 함께 참가하신다면 아래 「참가자 정보」에 본인을 반드시 추가해 주세요.
         </p>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Field label="성명" required>
@@ -243,6 +247,11 @@ export default function SurfCampForm({
               placeholder="010-1234-5678"
               className={inputCls}
             />
+            <p className="text-xs leading-relaxed text-navy/50">
+              접수·확정·대기 안내 문자는 {EVENT.host} 알림 운영 대행사인{' '}
+              <strong className="font-semibold text-navy/70">{SMS_SENDER_ORG}</strong>{' '}
+              명의(발신번호 010-9542-3775)로 발송됩니다.
+            </p>
           </Field>
           <div className="md:col-span-2">
             <Field label="주소" required>
@@ -295,7 +304,22 @@ export default function SurfCampForm({
 
       {/* 참가자 */}
       <Section title="참가자 정보" required>
-        <p className="text-sm text-navy/60">
+        <div
+          className="rounded-xl border px-4 py-3.5 text-sm leading-relaxed text-navy/75"
+          style={{
+            borderColor: 'color-mix(in srgb, var(--color-sunset) 40%, transparent)',
+            background: 'color-mix(in srgb, var(--color-sunset) 8%, transparent)',
+          }}
+        >
+          <p className="font-bold text-navy">
+            대표 신청자 본인이 참가하시는 경우에도 아래에 본인 정보를 입력해 주세요.
+          </p>
+          <p className="mt-1">
+            여기에 입력된 분만 참가자로 접수됩니다. 위 대표 신청자 정보는 연락·접수용이며,
+            참가자 명단에 자동으로 포함되지 않습니다.
+          </p>
+        </div>
+        <p className="text-sm leading-relaxed text-navy/60">
           함께 참가하는 분을 모두 등록해 주세요. 참가자별로 신청 프로그램을 1개 이상
           선택해야 합니다. 신장·몸무게는 수트와 보드 준비를 위해 사용됩니다.
         </p>
@@ -308,20 +332,41 @@ export default function SurfCampForm({
           <Consent
             name="consent_privacy"
             required
-            label="[필수] 개인정보 수집·이용 동의"
-            desc="수집 항목: 대표 신청자 성명·휴대폰 번호·주소, 참가자 성명·성별·나이·신장·몸무게·서핑 경험. 이용 목적: 접수 확인, 참가 안내, 강습 배정 및 안전관리, 장비 준비. 보유 기간: 행사 종료 후 1년 이내 파기. 동의하지 않으시면 접수가 제한됩니다."
-          />
-          <Consent
-            name="consent_eligibility"
-            required
-            label="[필수] 참가자격 확인"
-            desc={`본인은 서핑강습 참가일 기준 만 ${LESSON_MIN_AGE}세 이상이며 신장 ${LESSON_MIN_HEIGHT}cm 이상임을 확인합니다. 기준에 해당하지 않을 경우 안전상의 이유로 강습 참여가 제한될 수 있음에 동의합니다. 기재한 나이·신장·몸무게가 사실과 다를 경우에도 현장에서 참가가 제한될 수 있습니다.`}
-          />
-          <Consent
-            name="consent_alcohol"
-            required
-            label="[필수] 음주 관련 확인"
-            desc="강습 전 음주한 경우 안전상의 이유로 강습 참여가 불가하며, 본인의 음주로 참여가 제한되는 경우 별도의 보상 또는 대체 참여가 제공되지 않음을 확인합니다."
+            label="[필수] 개인정보 수집·이용 및 제3자 제공 · 초상권 활용 동의"
+            desc={
+              <>
+                <ConsentItem title="수집 항목">
+                  대표 신청자 성명·휴대폰 번호·주소, 참가자 성명·성별·나이·신장·몸무게·서핑
+                  경험
+                </ConsentItem>
+                <ConsentItem title="이용 목적">
+                  접수 확인, 참가 안내 문자 발송, 강습 배정 및 안전관리, 장비(보드·웨트수트)
+                  준비
+                </ConsentItem>
+                <ConsentItem title="보유 기간">행사 종료 후 1년 이내 파기</ConsentItem>
+                <ConsentItem title="제3자 제공">
+                  <span className="mt-0.5 block">
+                    · 배정된 서핑스쿨 — 강습 운영 및 현장 안전관리
+                  </span>
+                  <span className="block">· {EVENT.host} — 사업 결과보고</span>
+                  <span className="block">
+                    · {SMS_SENDER_ORG} — 접수·확정·대기 안내 문자 발송 대행
+                  </span>
+                  <span className="mt-0.5 block">
+                    제공 항목은 성명·휴대폰 번호 등 운영에 필요한 최소한이며, 행사 종료 후
+                    파기됩니다.
+                  </span>
+                </ConsentItem>
+                <ConsentItem title="초상권 활용">
+                  행사 중 촬영된 사진·영상을 사업 결과보고와 홍보(협회 홈페이지·SNS·보도자료
+                  등) 목적으로 활용합니다.
+                </ConsentItem>
+                <span className="mt-1.5 block">
+                  동의를 거부하실 수 있으나, 동의하지 않으시면 안전한 운영이 어려워 접수가
+                  제한됩니다.
+                </span>
+              </>
+            }
           />
           <Consent
             name="consent_weather"
@@ -334,11 +379,6 @@ export default function SurfCampForm({
             required
             label="[필수] 스쿨 배정 확인"
             desc="희망 강습권역과 시간을 기준으로 신청하되, 최종 서핑스쿨 및 시간은 신청현황과 현장 운영여건에 따라 조정·배정될 수 있음을 확인합니다."
-          />
-          <Consent
-            name="consent_media"
-            label="[선택] 초상권 및 홍보 활용 동의"
-            desc="행사 중 촬영된 사진·영상을 결과보고 및 홍보 목적으로 활용하는 데 동의합니다. 동의하지 않아도 참가할 수 있습니다."
           />
         </div>
       </Section>
@@ -467,7 +507,7 @@ function Consent({
 }: {
   name: string;
   label: string;
-  desc: string;
+  desc: React.ReactNode;
   required?: boolean;
 }) {
   return (
@@ -478,6 +518,25 @@ function Consent({
         <span className="mt-0.5 block text-xs leading-relaxed">{desc}</span>
       </span>
     </label>
+  );
+}
+
+/**
+ * 긴 동의문을 소항목으로 끊어 읽기 쉽게 만든다.
+ * label 안에 들어가므로 블록 요소 대신 span + block 으로만 구성한다.
+ */
+function ConsentItem({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="mt-1.5 block first:mt-0">
+      <span className="font-semibold text-navy/80">{title}</span>
+      <span className="block">{children}</span>
+    </span>
   );
 }
 

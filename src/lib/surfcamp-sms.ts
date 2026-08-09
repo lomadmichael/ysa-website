@@ -1,6 +1,12 @@
 import 'server-only';
 import { sendAlimtalk } from '@/lib/solapi';
-import { EVENT, INQUIRY_TEL, lessonTimeLabel, programLabel } from '@/lib/surfcamp-config';
+import {
+  EVENT,
+  INQUIRY_TEL,
+  SMS_SENDER_ORG,
+  lessonTimeLabel,
+  programLabel,
+} from '@/lib/surfcamp-config';
 import type { ProgramKey } from '@/lib/surfcamp-validate';
 import type { ProgramOutcome } from '@/lib/surfcamp-db';
 
@@ -17,7 +23,13 @@ import type { ProgramOutcome } from '@/lib/surfcamp-db';
 
 const HEAD = `[${EVENT.organizer}] ${EVENT.name}`;
 const MY_URL = 'https://ysakorea.com/apply/surf-camp/my';
-const FOOT = `신청 확인·수정·취소: ${MY_URL}\n문의: ${INQUIRY_TEL}`;
+/**
+ * 발송 주체 한 줄. 양양군체육회는 사전등록 발신번호가 없어 대행사 번호로 나가므로,
+ * 수신자가 모르는 번호로 오해하지 않도록 반드시 붙인다.
+ * 문자 요금이 글자 수에 직결되니 한 줄을 넘기지 말 것. (OTP 문자에는 넣지 않는다)
+ */
+const SENDER = `[${SMS_SENDER_ORG}] ${EVENT.host} 알림 운영 대행`;
+const FOOT = `신청 확인·수정·취소: ${MY_URL}\n문의: ${INQUIRY_TEL}\n${SENDER}`;
 
 /** 프로그램별 일정 한 줄. 강습은 신청한 시간대를 함께 노출한다. */
 function scheduleOf(program: ProgramKey, lessonTime?: string | null): string {
@@ -171,6 +183,7 @@ export async function sendCancelSms(params: {
     '',
     '재신청은 접수 기간 중 언제든 가능합니다.',
     `문의: ${INQUIRY_TEL}`,
+    SENDER,
   ]
     .filter(Boolean)
     .join('\n');

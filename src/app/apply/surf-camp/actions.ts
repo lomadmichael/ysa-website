@@ -3,7 +3,6 @@
 import { KILL_SWITCH } from '@/lib/surfcamp-config';
 import {
   LESSON_MIN_AGE,
-  LESSON_MIN_HEIGHT,
   MAX_PARTICIPANTS,
   validateRegistration,
   normalizePhone,
@@ -46,7 +45,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   closed: '접수가 마감되었습니다.',
   duplicate_phone:
     '이미 해당 번호로 접수된 신청이 있습니다. 수정·취소는 본인 인증 후 가능합니다.',
-  consent_required: '개인정보 수집·이용 동의가 필요합니다.',
+  consent_required:
+    '개인정보 수집·이용 및 제3자 제공, 초상권 활용 동의가 필요합니다.',
   invalid_participants: `참가자는 1명 이상 ${MAX_PARTICIPANTS}명 이하로 신청해 주세요.`,
   invalid_phone: '휴대폰 번호를 정확히 입력해 주세요. (예: 010-1234-5678)',
   invalid_rep_name: '대표 신청자 성명을 입력해 주세요.',
@@ -62,7 +62,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_surf_exp: '서핑 경험을 선택해 주세요.',
   no_program: '참가할 프로그램을 1개 이상 선택해 주세요.',
   invalid_program: '선택할 수 없는 프로그램입니다.',
-  ineligible_lesson: `서핑강습은 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 참가할 수 있습니다.`,
+  ineligible_lesson: `서핑강습은 만 ${LESSON_MIN_AGE}세 이상만 신청할 수 있습니다. 만 ${LESSON_MIN_AGE}세 미만은 특화체험에 참여해 주세요.`,
   conflict: '동시에 접수가 몰렸습니다. 잠시 후 다시 시도해 주세요.',
   not_found: '신청 정보를 찾을 수 없습니다.',
   forbidden: '해당 신청에 대한 권한이 없습니다.',
@@ -74,8 +74,9 @@ function messageFor(f: RpcFailure): string {
     '접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
 
   // 자격 미달은 어느 참가자인지 + 현재 값까지 보여줘야 스스로 고칠 수 있다.
-  if (f.error === 'ineligible_lesson' && f.age != null && f.height_cm != null) {
-    base = `${base} (현재 만 ${f.age}세 · ${f.height_cm}cm)`;
+  // 신장은 더 이상 자격 요소가 아니므로(장비 준비용) 나이만 보여준다.
+  if (f.error === 'ineligible_lesson' && f.age != null) {
+    base = `${base} (현재 만 ${f.age}세)`;
   }
   return f.name ? `${f.name} : ${base}` : base;
 }
@@ -106,10 +107,8 @@ export async function submitSurfCamp(
   const text = (key: string) => (formData.get(key) as string | null)?.trim() ?? '';
   const checked = (key: string) => formData.get(key) != null;
 
+  // 필수 동의 3종. 초상권은 별도 항목이 아니라 개인정보 동의문 안에 통합돼 있다.
   const consentPrivacy = checked('consent_privacy');
-  const consentMedia = checked('consent_media');
-  const consentEligibility = checked('consent_eligibility');
-  const consentAlcohol = checked('consent_alcohol');
   const consentWeather = checked('consent_weather');
   const consentAssignment = checked('consent_assignment');
 
@@ -133,12 +132,11 @@ export async function submitSurfCamp(
     region: text('region'),
     lesson_time: text('lesson_time'),
     consent_privacy: consentPrivacy,
-    // ③참가자격 ④음주 ⑤기상·안전수칙 ⑥스쿨 배정 은 DB 컬럼이 따로 없다.
-    // (운영계획서 붙임1 §3 "예약창 필수 확인·동의 문구" 4개 항목)
-    // 넷 다 true 일 때만 consent_notice=true 로 접어서 저장한다.
-    consent_notice:
-      consentEligibility && consentAlcohol && consentWeather && consentAssignment,
-    consent_media: consentMedia,
+    // 기상·안전수칙 / 스쿨 배정 은 DB 컬럼이 따로 없다.
+    // 둘 다 true 일 때만 consent_notice=true 로 접어서 저장한다.
+    consent_notice: consentWeather && consentAssignment,
+    // 초상권 동의는 개인정보 동의문에 통합됐다 → 개인정보 동의값을 그대로 쓴다.
+    consent_media: consentPrivacy,
     participants: parsed.map(toParticipant),
   };
 
@@ -146,10 +144,10 @@ export async function submitSurfCamp(
   const invalid = validateRegistration(input);
   if (invalid) return fail(invalid);
 
-  // ── 3) 필수 동의 5종 ───────────────────────────────────────────────────────
-  if (!consentPrivacy) return fail('개인정보 수집·이용에 동의해 주세요.');
-  if (!consentEligibility) return fail('참가자격 확인에 동의해 주세요.');
-  if (!consentAlcohol) return fail('음주 관련 확인에 동의해 주세요.');
+  // ── 3) 필수 동의 3종 ───────────────────────────────────────────────────────
+  if (!consentPrivacy) {
+    return fail('개인정보 수집·이용 및 제3자 제공, 초상권 활용에 동의해 주세요.');
+  }
   if (!consentWeather) {
     return fail('안전 및 기상상황 확인, 안전수칙 준수에 동의해 주세요.');
   }

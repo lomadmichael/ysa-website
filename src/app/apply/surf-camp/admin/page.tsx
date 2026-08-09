@@ -17,6 +17,7 @@ import {
   statusLabel,
   surfExpLabel,
 } from '@/lib/surfcamp-config';
+import { needsYouthAssignment } from '@/lib/surfcamp-validate';
 import { ADMIN_COOKIE, verifyAdmin } from './auth';
 import { adminForceCancel, adminLogout, setCapacityAction, setOpenAction } from './actions';
 import AdminLogin from './AdminLogin';
@@ -95,6 +96,24 @@ function ProgramCard({ title, data }: { title: string; data: ProgramAvailability
   );
 }
 
+/**
+ * 서핑강습 신청자 중 저연령 배정 대상 여부.
+ * 만 11세 미만 또는 신장 130cm 미만이면 저연령 강습이 가능한 스쿨로만 배정할 수 있다.
+ * (접수는 허용되며, 하드 게이트는 만 9세 하나뿐이다)
+ */
+function isYouthAssign(p: SurfcampAdminRegistration['participants'][number]): boolean {
+  return p.lesson != null && needsYouthAssignment(p.age, p.height_cm);
+}
+
+/** 저연령 배정 대상 뱃지. 배정 담당자가 명단을 훑으며 걸러낼 수 있어야 한다. */
+function YouthChip() {
+  return (
+    <span className="inline-block rounded bg-sunset/15 px-1.5 py-0.5 text-[11px] font-bold text-sunset">
+      저연령
+    </span>
+  );
+}
+
 /** 참가자별 프로그램 상태 뱃지. Tailwind v4 라 동적 클래스명은 쓰지 않는다. */
 function SignupChip({ label, status }: { label: string; status: SignupStatus | null }) {
   if (!status) return null;
@@ -137,6 +156,10 @@ export default async function SurfcampAdminPage({
 
   const activeCount = rows.filter((r) => r.status === 'active').length;
   const cancelledCount = rows.filter((r) => r.status === 'cancelled').length;
+  // 저연령 배정 대상은 "신청 건"이 아니라 "사람" 단위로 센다(배정 작업 단위와 같게).
+  const youthCount = rows
+    .filter((r) => r.status === 'active')
+    .reduce((sum, r) => sum + r.participants.filter(isYouthAssign).length, 0);
   const isOpen = availability?.open === true;
 
   return (
@@ -196,6 +219,9 @@ export default async function SurfcampAdminPage({
             <p className="mt-1 text-[13px] text-navy/70">
               신청 {activeCount}건
               {showCancelled ? ` · 취소 ${cancelledCount}건` : ''}
+            </p>
+            <p className="mt-1 text-[13px] font-bold text-sunset">
+              서핑강습 저연령 배정 대상 {youthCount}명
             </p>
           </div>
         </section>
@@ -322,6 +348,7 @@ export default async function SurfcampAdminPage({
                               </span>
                               <SignupChip label="강습" status={p.lesson} />
                               <SignupChip label="특화" status={p.special} />
+                              {isYouthAssign(p) && <YouthChip />}
                             </li>
                           ))}
                         </ul>
