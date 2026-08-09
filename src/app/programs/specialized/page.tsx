@@ -1,15 +1,34 @@
 import type { Metadata } from 'next';
 import { type ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
-import { IconRescue, IconSkate, IconYoga, IconAthlete, IconGym } from '@/components/icons';
+import { IconSurf, IconRescue, IconSkate, IconYoga, IconAthlete, IconGym } from '@/components/icons';
 
 export const metadata: Metadata = {
   title: '서핑특화 교육',
-  description: '양양군서핑협회 서핑특화 교육 - 서프레스큐, 랜드서핑, 서핑요가, 선수교육, 전문체육교실',
+  description: '양양군서핑협회 서핑특화 교육 - 2026 양양 서핑캠프(접수 중), 서프레스큐, 랜드서핑, 서핑요가, 선수교육, 전문체육교실',
 };
 
-const CATEGORIES: { title: string; description: string; color: string; icon: ReactNode }[] = [
+const CATEGORIES: {
+  title: string;
+  description: string;
+  color: string;
+  icon: ReactNode;
+  badge?: string;
+  href?: string;
+  ctaLabel?: string;
+}[] = [
+  {
+    title: '2026 양양 서핑캠프',
+    description:
+      '2026 지역자율형 생활체육활동지원 사업으로 진행하는 서핑캠프입니다. 9월 12일(토) 13:00·15:00 서핑강습 200명, 9월 12일(토)~13일(일) 안전교육 및 서핑 티셔츠 만들기 특화 체험프로그램 300명을 모집합니다. 양양군민 및 양양 생활인구라면 누구나 신청할 수 있으며, 서핑강습은 만 11세 이상·신장 130cm 이상만 참여할 수 있습니다.',
+    color: 'sunset',
+    icon: <IconSurf className="w-7 h-7" />,
+    badge: '접수 중',
+    href: '/apply/surf-camp',
+    ctaLabel: '서핑캠프 접수하기',
+  },
   {
     title: '서프레스큐',
     description: '서핑보드를 활용한 수상 인명구조 기법을 교육합니다. 해양 사고 발생 시 신속하고 효과적인 구조 활동을 수행할 수 있는 역량을 갖추게 됩니다.',
@@ -94,10 +113,37 @@ export default function SpecializedPage() {
                       {cat.icon}
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-navy mb-3">{cat.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <h3 className="text-lg font-bold text-navy">{cat.title}</h3>
+                        {cat.badge && (
+                          <span className={`text-xs font-semibold ${colors.bg} ${colors.text} px-3 py-1 rounded-full`}>
+                            {cat.badge}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-navy/60 text-sm leading-relaxed max-w-2xl">
                         {cat.description}
                       </p>
+                      {cat.href && (
+                        <Link
+                          href={cat.href}
+                          className={`mt-4 inline-flex items-center gap-1.5 text-sm font-semibold ${colors.text} hover:gap-2.5 transition-all`}
+                        >
+                          {cat.ctaLabel ?? '접수하기'}
+                          <svg
+                            className="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M5 12h14M13 6l6 6-6 6" />
+                          </svg>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -109,18 +155,25 @@ export default function SpecializedPage() {
           <div className="mt-16 bg-ocean/5 rounded-2xl p-8 md:p-12">
             <h3 className="text-lg font-bold text-navy mb-4">교육 신청 안내</h3>
             <p className="text-navy/70 text-sm leading-relaxed mb-6">
-              서핑특화 교육 프로그램은 시즌별로 일정이 다르게 운영됩니다.
+              「2026 양양 서핑캠프」는 현재 온라인 접수 중입니다.
+              그 외 서핑특화 교육 프로그램은 시즌별로 일정이 다르게 운영되며,
               각 프로그램의 상세 일정과 모집 정보는 공지사항을 통해 안내됩니다.
               교육 관련 문의는 협회로 연락해주세요.
             </p>
             <div className="flex flex-wrap gap-4">
+              <Link
+                href="/apply/surf-camp"
+                className="inline-flex items-center gap-2 bg-sunset text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-sunset/90 transition-colors"
+              >
+                2026 양양 서핑캠프 접수
+              </Link>
               <a
                 href="https://bpscomm.kr/yysports/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-sunset text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-sunset/90 transition-colors"
+                className="inline-flex items-center gap-2 bg-white text-navy border border-foam px-6 py-3 rounded-xl text-sm font-medium hover:border-teal/40 transition-colors"
               >
-                교육 신청
+                그 외 교육 신청
               </a>
             </div>
           </div>

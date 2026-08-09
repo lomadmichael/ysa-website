@@ -3,9 +3,9 @@ import Link from "next/link";
 import PageHeader from "@/components/shared/PageHeader";
 
 export const metadata: Metadata = {
-  title: "교육 접수",
+  title: "온라인 접수",
   description:
-    "양양군서핑협회 심판/강사 인증 교육 온라인 접수. 회원가입 없이 신청 가능합니다.",
+    "양양군서핑협회 온라인 접수 - 2026 양양 서핑캠프, 심판/강사 인증 교육. 회원가입 없이 신청 가능합니다.",
   alternates: { canonical: "https://ysakorea.com/apply" },
 };
 
@@ -47,15 +47,42 @@ export default async function ApplyPage() {
   return (
     <>
       <PageHeader
-        title="교육 접수"
-        description="양양군서핑협회 심판/강사 인증 교육 온라인 접수. 회원가입 없이 신청 가능합니다."
+        title="온라인 접수"
+        description="양양군서핑협회 서핑캠프·심판/강사 인증 교육 온라인 접수. 회원가입 없이 신청 가능합니다."
         breadcrumbs={[
           { label: "홈", href: "/" },
-          { label: "교육 접수" },
+          { label: "온라인 접수" },
         ]}
       />
       <section className="max-w-4xl mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <ProgramCard
+            href="/apply/surf-camp"
+            accent="ocean"
+            eyebrow="SURF CAMP"
+            title="2026 양양 서핑캠프"
+            description="9월 12일(토)~13일(일) · 양양군민 및 양양 생활인구 대상"
+            statusLabel="접수 중"
+            active
+            cta="접수하기"
+            className="md:col-span-2"
+            icon={
+              <svg
+                className="h-9 w-9 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="5" r="2" />
+                <path d="M2 13c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
+                <path d="M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
+              </svg>
+            }
+          />
           <ProgramCard
             href="/apply/referee"
             accent="teal"
@@ -110,7 +137,14 @@ export default async function ApplyPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-navy/50">
-          교육 안내 상세는{" "}
+          프로그램 안내 상세는{" "}
+          <Link
+            href="/programs/specialized"
+            className="underline underline-offset-2 hover:text-navy"
+          >
+            서핑캠프
+          </Link>
+          {" · "}
           <Link
             href="/programs/referee"
             className="underline underline-offset-2 hover:text-navy"
@@ -141,9 +175,10 @@ function ProgramCard({
   active,
   cta,
   icon,
+  className = "",
 }: {
   href: string;
-  accent: "teal" | "sunset";
+  accent: "teal" | "sunset" | "ocean";
   eyebrow: string;
   title: string;
   description: string;
@@ -151,11 +186,12 @@ function ProgramCard({
   active: boolean;
   cta: string;
   icon: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Link
       href={href}
-      className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className={`group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${className}`}
     >
       <div
         className="px-6 pt-8 pb-7"

@@ -6,7 +6,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/apply/surf-camp/my',
+          '/apply/surf-camp/admin',
+        ],
       },
     ],
     sitemap: 'https://ysakorea.com/sitemap.xml',
