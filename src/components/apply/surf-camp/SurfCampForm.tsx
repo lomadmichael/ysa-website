@@ -17,6 +17,8 @@ import {
   EVENT,
   INQUIRY_TEL,
   KILL_SWITCH,
+  LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   LESSON_TIMES,
   REGIONS,
   RESIDENT_TYPES,
@@ -321,7 +323,12 @@ export default function SurfCampForm({
         </div>
         <p className="text-sm leading-relaxed text-navy/60">
           함께 참가하는 분을 모두 등록해 주세요. 참가자별로 신청 프로그램을 1개 이상
-          선택해야 합니다. 신장·몸무게는 수트와 보드 준비를 위해 사용됩니다.
+          선택해야 합니다. 신장·몸무게는 수트와 보드 준비를 위해 사용됩니다.{' '}
+          <strong className="text-navy">
+            {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세 이상, 신장{' '}
+            {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다.
+          </strong>{' '}
+          기준에 미치지 않는 분은 {programLabel('special')}만 신청하실 수 있습니다.
         </p>
         <ParticipantEditor value={participants} onChange={setParticipants} />
       </Section>

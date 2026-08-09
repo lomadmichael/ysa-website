@@ -5,9 +5,9 @@ import {
   EVENT,
   INQUIRY_TEL,
   LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   LESSON_TIMES,
   LESSON_YOUTH_AGE,
-  LESSON_YOUTH_HEIGHT,
   MAX_PARTICIPANTS,
   REGIONS,
   SMS_SENDER_ORG,
@@ -45,7 +45,7 @@ const lessonRows = (capacity: number): GuideRow[] => [
   },
   {
     label: '대상',
-    value: `만 ${LESSON_MIN_AGE}세 이상 신청하실 수 있습니다. 만 ${LESSON_YOUTH_AGE}세 미만이거나 신장 ${LESSON_YOUTH_HEIGHT}cm 미만이신 분도 신청하실 수 있으며, 저연령 강습이 가능한 서핑스쿨로 배정해 드립니다.`,
+    value: `만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다. 만 ${LESSON_YOUTH_AGE}세 미만(만 ${LESSON_MIN_AGE}세)이신 분은 저연령 강습이 가능한 서핑스쿨로 배정해 드립니다. 기준에 미치지 않는 분은 ${programLabel('special')}에 신청해 주세요.`,
   },
   { label: '정원', value: `${capacity}명 (선착순)` },
   {
@@ -74,7 +74,7 @@ const specialRows = (capacity: number): GuideRow[] => [
   },
   {
     label: '회차',
-    value: '세부 회차와 장소는 확정 후 개별 안내드립니다.',
+    value: EVENT.specialScheduleNote,
   },
 ];
 
@@ -123,7 +123,7 @@ export default function ProgramGuide({
         />
         <ProgramCard
           accent="var(--color-teal)"
-          title="특화 체험프로그램"
+          title={programLabel('special')}
           capacity={`정원 ${capSpecial}명`}
           rows={specialRows(capSpecial)}
         />
@@ -140,8 +140,8 @@ export default function ProgramGuide({
         <p className="mb-1 font-bold text-navy">
           두 프로그램은 별개입니다 — 함께 신청해도 되고, 하나만 신청해도 됩니다
         </p>
-        서핑강습만 신청하셔도 되고, 특화 체험프로그램만 신청하셔도 됩니다. 두 가지를
-        모두 신청하실 수도 있습니다. 신청서에서{' '}
+        {programLabel('lesson')}만 신청하셔도 되고, {programLabel('special')}만
+        신청하셔도 됩니다. 두 가지를 모두 신청하실 수도 있습니다. 신청서에서{' '}
         <strong className="text-navy">참가자 한 분마다 프로그램을 선택</strong>하므로,
         같은 가족 안에서도 참가자별로 다르게 신청할 수 있습니다.
       </div>
@@ -166,7 +166,9 @@ export default function ProgramGuide({
           </GuideStep>
 
           <GuideStep step={2} title="신청 대상">
-            양양군민 및 양양 생활인구
+            양양군민 및 양양 생활인구. {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세
+            이상, 신장 {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있으며, 기준에 미치지
+            않는 분은 {programLabel('special')}에 신청해 주세요.
           </GuideStep>
 
           <GuideStep step={3} title="중복 신청 방지">
@@ -221,7 +223,7 @@ export default function ProgramGuide({
           </GuideStep>
 
           <GuideStep step={10} title="문의">
-            {INQUIRY_TEL} ({EVENT.organizer})
+            {INQUIRY_TEL} (운영 사무국)
           </GuideStep>
         </ol>
       </div>

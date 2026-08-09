@@ -3,6 +3,7 @@
 import { KILL_SWITCH } from '@/lib/surfcamp-config';
 import {
   LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   MAX_PARTICIPANTS,
   validateRegistration,
   normalizePhone,
@@ -62,7 +63,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_surf_exp: '서핑 경험을 선택해 주세요.',
   no_program: '참가할 프로그램을 1개 이상 선택해 주세요.',
   invalid_program: '선택할 수 없는 프로그램입니다.',
-  ineligible_lesson: `서핑강습은 만 ${LESSON_MIN_AGE}세 이상만 신청할 수 있습니다. 만 ${LESSON_MIN_AGE}세 미만은 특화체험에 참여해 주세요.`,
+  ineligible_lesson: `서핑강습은 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청할 수 있습니다. 기준에 미치지 않는 분은 서핑 특화 체험에 참여해 주세요.`,
   conflict: '동시에 접수가 몰렸습니다. 잠시 후 다시 시도해 주세요.',
   not_found: '신청 정보를 찾을 수 없습니다.',
   forbidden: '해당 신청에 대한 권한이 없습니다.',
@@ -74,9 +75,9 @@ function messageFor(f: RpcFailure): string {
     '접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
 
   // 자격 미달은 어느 참가자인지 + 현재 값까지 보여줘야 스스로 고칠 수 있다.
-  // 신장은 더 이상 자격 요소가 아니므로(장비 준비용) 나이만 보여준다.
-  if (f.error === 'ineligible_lesson' && f.age != null) {
-    base = `${base} (현재 만 ${f.age}세)`;
+  // 나이·신장 둘 다 자격 요소이므로 둘 다 보여준다.
+  if (f.error === 'ineligible_lesson' && f.age != null && f.height_cm != null) {
+    base = `${base} (현재 만 ${f.age}세 · ${f.height_cm}cm)`;
   }
   return f.name ? `${f.name} : ${base}` : base;
 }

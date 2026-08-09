@@ -12,17 +12,19 @@
 
 // ── 프로그램 자격 기준 (surfcamp-config 가 이 값을 재수출한다) ─────────────────
 /**
- * 서핑강습 최소 나이(만). 이 미만은 접수 자체를 막는다.
+ * 서핑강습 참가 하한. 둘 다 만족해야 접수된다.
  *
- * 운영계획서 원안은 만 11세·130cm 였으나, 서핑스쿨에 따라 저연령 강습이
- * 가능한 곳이 있어 "접수는 받고 가능한 스쿨로 배정한다"로 정책을 바꿨다.
- * 하드 게이트는 만 9세 하나만 남기고, 신장은 장비 준비용으로만 수집한다.
+ * 운영계획서 원안은 만 11세였는데, 서핑스쿨에 따라 저연령 강습이 가능한 곳이
+ * 있어 만 10세까지 연 것이다. 신장 130cm 는 보드·수트 안전 기준이라 유지한다.
  */
-export const LESSON_MIN_AGE = 9;
-/** 저연령 별도 배정 기준 나이(만). 미만이면 배정 가능한 스쿨이 제한된다. */
+export const LESSON_MIN_AGE = 10;
+export const LESSON_MIN_HEIGHT = 130;
+/**
+ * 저연령 별도 배정 기준 나이(만).
+ * 접수는 되지만 저연령 강습이 가능한 스쿨로만 배정할 수 있어,
+ * 관리자 명단에 표시해 배정 담당자가 걸러낼 수 있게 한다.
+ */
 export const LESSON_YOUTH_AGE = 11;
-/** 저연령 별도 배정 기준 신장(cm). 미만이면 배정 가능한 스쿨이 제한된다. */
-export const LESSON_YOUTH_HEIGHT = 130;
 /** 한 신청서에 담을 수 있는 최대 참가자 수 */
 export const MAX_PARTICIPANTS = 8;
 
@@ -88,22 +90,22 @@ export function isValidKrMobile(raw: string): boolean {
 }
 
 // ── 서핑강습 자격 ─────────────────────────────────────────────────────────────
-/**
- * 서핑강습 접수 가능 여부. 하드 게이트는 나이 하한 하나뿐이다.
- * 신장은 배정·장비 준비 참고용이며 접수를 막지 않는다.
- */
-export function isLessonEligible(age: number): boolean {
-  return Number.isFinite(age) && age >= LESSON_MIN_AGE;
+/** 서핑강습 참가 자격: 만 10세 이상 & 신장 130cm 이상 (둘 다 충족) */
+export function isLessonEligible(age: number, heightCm: number): boolean {
+  return (
+    Number.isFinite(age) &&
+    Number.isFinite(heightCm) &&
+    age >= LESSON_MIN_AGE &&
+    heightCm >= LESSON_MIN_HEIGHT
+  );
 }
 
 /**
- * 저연령 별도 배정 대상 여부.
- * 접수는 되지만 저연령 강습이 가능한 스쿨로만 배정할 수 있어,
- * 폼에서는 안내를 띄우고 관리자 명단에는 별도 표시한다.
+ * 저연령 별도 배정 대상 여부 (자격은 되지만 배정 가능한 스쿨이 제한되는 구간).
+ * 신장 미달은 애초에 접수가 막히므로 나이만 본다.
  */
-export function needsYouthAssignment(age: number, heightCm: number): boolean {
-  if (!Number.isFinite(age) || !Number.isFinite(heightCm)) return false;
-  return age < LESSON_YOUTH_AGE || heightCm < LESSON_YOUTH_HEIGHT;
+export function needsYouthAssignment(age: number): boolean {
+  return Number.isFinite(age) && age < LESSON_YOUTH_AGE;
 }
 
 // ── 검증 ──────────────────────────────────────────────────────────────────────
@@ -147,8 +149,8 @@ export function validateParticipant(p: ParticipantInput): string | null {
     if (!PROGRAM_KEYS.includes(prog)) return `${who} : 선택할 수 없는 프로그램입니다.`;
   }
 
-  if (programs.includes('lesson') && !isLessonEligible(age)) {
-    return `${who} : 서핑강습은 만 ${LESSON_MIN_AGE}세 이상만 신청할 수 있습니다. (현재 만 ${age}세) 만 ${LESSON_MIN_AGE}세 미만은 특화 체험프로그램에 참여해 주세요.`;
+  if (programs.includes('lesson') && !isLessonEligible(age, height)) {
+    return `${who} : 서핑강습은 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청할 수 있습니다. (현재 만 ${age}세 · ${height}cm) 기준에 미치지 않는 분은 서핑 특화 체험에 참여해 주세요.`;
   }
 
   return null;

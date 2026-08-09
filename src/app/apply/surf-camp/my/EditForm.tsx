@@ -15,6 +15,8 @@ import {
 import {
   EVENT,
   INQUIRY_TEL,
+  LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   LESSON_TIMES,
   REGIONS,
   RESIDENT_TYPES,
@@ -239,6 +241,11 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
             대기로 접수될 수 있습니다. 참가자를 삭제하거나 프로그램 선택을 해제하면 그
             자리는 즉시 반납되며 되돌릴 수 없습니다.
           </div>
+          <p className="text-sm leading-relaxed text-navy/60">
+            {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세 이상, 신장{' '}
+            {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다. 기준에 미치지 않는 분은{' '}
+            {programLabel('special')}만 신청하실 수 있습니다.
+          </p>
           <ParticipantEditor value={participants} onChange={setParticipants} />
           {grew && (
             <p className="text-xs text-sunset">
@@ -345,7 +352,9 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
         </form>
       </section>
 
-      <p className="text-center text-xs text-navy/50">문의 {INQUIRY_TEL}</p>
+      <p className="text-center text-xs text-navy/50">
+        문의 {INQUIRY_TEL} (운영 사무국)
+      </p>
     </div>
   );
 }

@@ -21,7 +21,8 @@ import type { ProgramOutcome } from '@/lib/surfcamp-db';
  * SOLAPI 장애가 이미 커밋된 접수를 되돌리는 일은 절대 없어야 한다.
  */
 
-const HEAD = `[${EVENT.organizer}] ${EVENT.name}`;
+/** 문자 머리말은 주최(양양군체육회) 명의로 나간다. 사업 주체가 체육회이기 때문. */
+const HEAD = `[${EVENT.host}] ${EVENT.name}`;
 const MY_URL = 'https://ysakorea.com/apply/surf-camp/my';
 /**
  * 발송 주체 한 줄. 양양군체육회는 사전등록 발신번호가 없어 대행사 번호로 나가므로,

@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import {
   GENDERS,
   LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   LESSON_YOUTH_AGE,
-  LESSON_YOUTH_HEIGHT,
   MAX_PARTICIPANTS,
   PROGRAMS,
   SURF_EXP,
@@ -62,14 +62,15 @@ export function serializeParticipants(rows: ParticipantRow[]): string {
   );
 }
 
-/** 하드 게이트(만 9세 미만) 안내. 신장은 접수를 막지 않는다. */
-const INELIGIBLE_REASON = `서핑강습은 만 ${LESSON_MIN_AGE}세 이상만 신청할 수 있습니다. 만 ${LESSON_MIN_AGE}세 미만은 특화체험을 이용해 주세요.`;
+/** 하드 게이트(만 10세 이상 & 신장 130cm 이상) 안내. 둘 중 하나라도 미달이면 접수가 막힌다. */
+const INELIGIBLE_REASON = `서핑강습은 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청할 수 있습니다. 기준에 미치지 않는 분은 서핑 특화 체험에 참여해 주세요.`;
 
 /**
  * 저연령 배정 안내. 접수를 막는 경고가 아니라 "배정 스쿨이 제한된다"는 정보다.
  * 문구가 경고처럼 읽히면 신청을 포기하므로 톤에 주의할 것.
+ * 신장 미달은 이제 접수 자체가 막히므로 나이만 본다.
  */
-const YOUTH_ASSIGN_NOTICE = `만 ${LESSON_YOUTH_AGE}세 미만 또는 신장 ${LESSON_YOUTH_HEIGHT}cm 미만은 저연령 강습이 가능한 서핑스쿨로 배정됩니다. 스쿨 사정에 따라 배정이 조정될 수 있습니다.`;
+const YOUTH_ASSIGN_NOTICE = `만 ${LESSON_YOUTH_AGE}세 미만은 저연령 강습이 가능한 서핑스쿨로 배정됩니다. 스쿨 사정에 따라 배정이 조정될 수 있습니다.`;
 
 const inputCls =
   'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple/40 focus:border-purple';
@@ -79,18 +80,18 @@ function digits(v: string): string {
   return v.replace(/\D/g, '');
 }
 
-/** 서핑강습 접수 가능 여부. 하드 게이트는 나이 하한 하나뿐이다. */
+/** 서핑강습 접수 가능 여부. 나이·신장 하한을 모두 만족해야 한다. */
 function rowEligible(r: ParticipantRow): boolean {
-  return isLessonEligible(Number(r.age));
+  return isLessonEligible(Number(r.age), Number(r.height_cm));
 }
 
 /**
  * 저연령 배정 대상 여부.
- * 나이·신장을 모두 입력한 뒤에만 판정한다 — 입력 도중 안내가 깜빡이는 것을 막기 위함.
+ * 나이를 입력한 뒤에만 판정한다 — 입력 도중 안내가 깜빡이는 것을 막기 위함.
  */
 function rowNeedsYouth(r: ParticipantRow): boolean {
-  if (r.age === '' || r.height_cm === '') return false;
-  return needsYouthAssignment(Number(r.age), Number(r.height_cm));
+  if (r.age === '') return false;
+  return needsYouthAssignment(Number(r.age));
 }
 
 export default function ParticipantEditor({
@@ -102,8 +103,7 @@ export default function ParticipantEditor({
   onChange: (rows: ParticipantRow[]) => void;
   max?: number;
 }): React.ReactElement {
-  // 나이를 만 9세 미만으로 낮춰 자격을 잃으면 '서핑강습' 선택을 자동으로 해제한다.
-  // (신장은 자격 요소가 아니므로 여기서 보지 않는다)
+  // 나이나 신장을 기준 미만으로 낮춰 자격을 잃으면 '서핑강습' 선택을 자동으로 해제한다.
   // 부모가 넘겨준 초기값(수정 화면의 DB 데이터)에도 동일하게 적용되도록 effect 로 정규화.
   useEffect(() => {
     const needsFix = value.some((r) => r.programs.includes('lesson') && !rowEligible(r));

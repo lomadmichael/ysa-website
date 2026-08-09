@@ -12,6 +12,7 @@ import {
   EVENT,
   genderLabel,
   lessonTimeLabel,
+  programLabel,
   regionLabel,
   residentTypeLabel,
   statusLabel,
@@ -98,11 +99,11 @@ function ProgramCard({ title, data }: { title: string; data: ProgramAvailability
 
 /**
  * 서핑강습 신청자 중 저연령 배정 대상 여부.
- * 만 11세 미만 또는 신장 130cm 미만이면 저연령 강습이 가능한 스쿨로만 배정할 수 있다.
- * (접수는 허용되며, 하드 게이트는 만 9세 하나뿐이다)
+ * 만 11세 미만이면 저연령 강습이 가능한 스쿨로만 배정할 수 있다.
+ * (접수 하드 게이트는 만 10세 이상 & 신장 130cm 이상이므로, 여기 걸리는 건 만 10세뿐이다)
  */
 function isYouthAssign(p: SurfcampAdminRegistration['participants'][number]): boolean {
-  return p.lesson != null && needsYouthAssignment(p.age, p.height_cm);
+  return p.lesson != null && needsYouthAssignment(p.age);
 }
 
 /** 저연령 배정 대상 뱃지. 배정 담당자가 명단을 훑으며 걸러낼 수 있어야 한다. */
@@ -208,7 +209,7 @@ export default async function SurfcampAdminPage({
             data={availability?.lesson ?? { capacity: 0, confirmed: 0, waitlist: 0 }}
           />
           <ProgramCard
-            title="특화체험"
+            title={programLabel('special')}
             data={availability?.special ?? { capacity: 0, confirmed: 0, waitlist: 0 }}
           />
           <div className="rounded-lg border border-foam bg-white p-4">
@@ -259,7 +260,7 @@ export default async function SurfcampAdminPage({
             </div>
             <div>
               <label htmlFor="cap-special" className="mb-1 block text-[13px] font-bold text-navy/60">
-                특화체험 정원
+                {programLabel('special')} 정원
               </label>
               <input
                 id="cap-special"

@@ -4,6 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 import { IconSurf, IconRescue, IconSkate, IconYoga, IconAthlete, IconGym } from '@/components/icons';
+import {
+  EVENT,
+  LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
+  programLabel,
+} from '@/lib/surfcamp-config';
 
 export const metadata: Metadata = {
   title: '서핑특화 교육',
@@ -22,7 +28,7 @@ const CATEGORIES: {
   {
     title: '2026 양양 서핑캠프',
     description:
-      '2026 지역자율형 생활체육활동지원 사업으로 진행하는 서핑캠프입니다. 9월 12일(토) 13:00·15:00 서핑강습 200명, 9월 12일(토)~13일(일) 안전교육 및 서핑 티셔츠 만들기 특화 체험프로그램 300명을 모집합니다. 양양군민 및 양양 생활인구라면 누구나 신청할 수 있으며, 서핑강습은 만 11세 이상·신장 130cm 이상만 참여할 수 있습니다.',
+      `2026 지역자율형 생활체육활동지원 사업으로 진행하는 서핑캠프입니다. ${EVENT.lessonDateLabel} 13:00·15:00 ${programLabel('lesson')} 200명, ${EVENT.specialDateLabel} ${programLabel('special')}(${EVENT.specialTitle}) 300명을 모집합니다. ${EVENT.specialScheduleNote} 양양군민 및 양양 생활인구라면 누구나 신청할 수 있으며, ${programLabel('lesson')}은 만 ${LESSON_MIN_AGE}세 이상·신장 ${LESSON_MIN_HEIGHT}cm 이상만 참여할 수 있습니다. 기준에 미치지 않는 분은 ${programLabel('special')}에 신청해 주세요.`,
     color: 'sunset',
     icon: <IconSurf className="w-7 h-7" />,
     badge: '접수 중',

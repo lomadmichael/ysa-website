@@ -11,8 +11,8 @@
 
 import {
   LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   LESSON_YOUTH_AGE,
-  LESSON_YOUTH_HEIGHT,
   MAX_PARTICIPANTS,
   type GenderKey,
   type LessonTimeKey,
@@ -23,7 +23,7 @@ import {
 } from '@/lib/surfcamp-validate';
 
 // 검증 규칙과 값이 갈라지지 않도록 surfcamp-validate 의 상수를 그대로 재수출한다.
-export { LESSON_MIN_AGE, LESSON_YOUTH_AGE, LESSON_YOUTH_HEIGHT, MAX_PARTICIPANTS };
+export { LESSON_MIN_AGE, LESSON_MIN_HEIGHT, LESSON_YOUTH_AGE, MAX_PARTICIPANTS };
 
 /** 문자 발송 주체 — 양양군체육회는 사전등록 발신번호가 없어 대행사 명의로 나간다. */
 export const SMS_SENDER_ORG = '로마드협동조합';
@@ -45,8 +45,11 @@ export const KILL_SWITCH = false;
 /** DB 시드용 기본 정원. 실제 판정 기준은 항상 DB 값이다. */
 export const DEFAULT_CAPACITY = { lesson: 200, special: 300 } as const;
 
-/** 문의 전화 (협회 대표번호) */
-export const INQUIRY_TEL = '033-671-6155';
+/**
+ * 접수 문의 전화 — 운영 사무국(로마드협동조합) 담당자 직통.
+ * ⚠️ 협회 대표번호(033-671-6155)는 접수 문의 대응이 안 되므로 쓰지 말 것.
+ */
+export const INQUIRY_TEL = '010-9542-3775';
 
 /**
  * 신규 접수 알림을 받을 운영 담당자 휴대폰 (숫자만).
@@ -64,9 +67,12 @@ export const EVENT = {
   /** 서핑강습: 2026년 9월 12일(토) 13:00 / 15:00 2회차 */
   lessonDate: '2026-09-12',
   lessonDateLabel: '9월 12일(토)',
-  /** 특화체험: 2026년 9월 12일(토) ~ 13일(일) */
+  /** 서핑 특화 체험: 2026년 9월 12일(토) ~ 13일(일) */
   specialDateLabel: '9월 12일(토)~13일(일)',
-  specialTitle: '안전교육 및 서핑 티셔츠 만들기',
+  /** 운영계획서 기준 체험 구성 */
+  specialTitle: '파도·안전 이해, 양양 서핑문화, 티셔츠 만들기 체험',
+  /** 회차·장소가 미확정이라 어디에 노출하든 함께 붙여야 하는 단서 */
+  specialScheduleNote: '세부 스케줄과 장소는 별도 안내드립니다.',
   /** 강습 장소는 신청 시 선택한 권역의 지정 해변에서 진행 */
   place: '양양군 일원 (권역별 지정 해변)',
   inquiryTel: INQUIRY_TEL,
@@ -85,11 +91,11 @@ export const PROGRAMS: Option<ProgramKey>[] = [
   {
     key: 'lesson',
     label: '서핑강습',
-    hint: `${EVENT.lessonDateLabel} · 만 ${LESSON_MIN_AGE}세 이상`,
+    hint: `${EVENT.lessonDateLabel} · 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상`,
   },
   {
     key: 'special',
-    label: '특화체험',
+    label: '서핑 특화 체험',
     hint: `${EVENT.specialDateLabel} · ${EVENT.specialTitle}`,
   },
 ];

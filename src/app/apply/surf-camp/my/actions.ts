@@ -26,6 +26,7 @@ import {
 import { INQUIRY_TEL } from '@/lib/surfcamp-config';
 import {
   LESSON_MIN_AGE,
+  LESSON_MIN_HEIGHT,
   MAX_PARTICIPANTS,
   isValidKrMobile,
   normalizePhone,
@@ -279,16 +280,16 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_surf_exp: '서핑 경험을 선택해 주세요.',
   no_program: '참가할 프로그램을 1개 이상 선택해 주세요.',
   invalid_program: '선택할 수 없는 프로그램입니다.',
-  ineligible_lesson: `서핑강습은 만 ${LESSON_MIN_AGE}세 이상만 신청할 수 있습니다. 만 ${LESSON_MIN_AGE}세 미만은 특화체험에 참여해 주세요.`,
+  ineligible_lesson: `서핑강습은 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청할 수 있습니다. 기준에 미치지 않는 분은 서핑 특화 체험에 참여해 주세요.`,
   conflict: '동시에 접수가 몰렸습니다. 잠시 후 다시 시도해 주세요.',
 };
 
 function messageFor(f: RpcFailure): string {
   let base =
     ERROR_MESSAGES[f.error] ?? '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
-  // 신장은 더 이상 자격 요소가 아니므로(장비 준비용) 나이만 보여준다.
-  if (f.error === 'ineligible_lesson' && f.age != null) {
-    base = `${base} (현재 만 ${f.age}세)`;
+  // 나이·신장 둘 다 자격 요소이므로 둘 다 보여준다.
+  if (f.error === 'ineligible_lesson' && f.age != null && f.height_cm != null) {
+    base = `${base} (현재 만 ${f.age}세 · ${f.height_cm}cm)`;
   }
   return f.name ? `${f.name} : ${base}` : base;
 }
