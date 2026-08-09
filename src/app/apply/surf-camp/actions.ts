@@ -16,7 +16,6 @@ import {
   type SubmitSuccess,
 } from '@/lib/surfcamp-db';
 import { sendApplicationSms, sendPromotionSms } from '@/lib/surfcamp-sms';
-import { notifyAdmin } from '@/lib/surfcamp-admin-notify';
 
 /**
  * 2026 양양 서핑캠프 공개 접수 서버 액션.
@@ -178,20 +177,8 @@ export async function submitSurfCamp(
     console.error('[surfcamp] application SMS failed:', e);
   }
 
-  try {
-    await notifyAdmin({
-      repName: result.rep_name,
-      phone: result.phone,
-      region: input.region,
-      lessonTime: input.lesson_time,
-      residentType: input.resident_type,
-      participantCount: input.participants.length,
-      lesson: result.programs.lesson,
-      special: result.programs.special,
-    });
-  } catch (e) {
-    console.error('[surfcamp] admin notify failed:', e);
-  }
+  // 신규 접수 관리자 알림 문자는 보내지 않는다.
+  // 운영진이 관리자 화면(/apply/surf-camp/admin)에서 직접 확인하기로 했다.
 
   // 이번 접수 때문에 대기열이 밀려 확정된 다른 신청들
   for (const p of result.promoted) {

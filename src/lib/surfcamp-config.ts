@@ -51,11 +51,8 @@ export const DEFAULT_CAPACITY = { lesson: 200, special: 300 } as const;
  */
 export const INQUIRY_TEL = '010-9542-3775';
 
-/**
- * 신규 접수 알림을 받을 운영 담당자 휴대폰 (숫자만).
- * ⚠️ 오픈 전에 실제 담당자 번호로 반드시 확인/교체할 것.
- */
-export const ADMIN_ALERT_PHONE = '01095423775';
+// 신규 접수 관리자 알림 문자는 쓰지 않는다(운영진이 관리자 화면에서 직접 확인).
+// 되살릴 일이 생기면 surfcamp-admin-notify.ts 를 git 히스토리에서 복구할 것.
 
 // ── 행사 정보 ─────────────────────────────────────────────────────────────────
 export const EVENT = {
