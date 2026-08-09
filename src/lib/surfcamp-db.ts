@@ -60,8 +60,17 @@ export interface ProgramAvailability {
 }
 
 export interface SurfcampAvailability {
-  /** DB 기준 접수 오픈 여부 (KILL_SWITCH 와 별개) */
+  /**
+   * 실질 오픈 여부 = 수동 스위치 ON 이면서 예약 오픈 시각이 지났을 때만 true.
+   * 폼·서버 액션·RPC 가 모두 이 값을 기준으로 판단한다. (KILL_SWITCH 와는 별개)
+   */
   open: boolean;
+  /** 관리자 수동 스위치 원값. 예약 시각 전이면 true 여도 open 은 false 다. */
+  submissions_open: boolean;
+  /** 예약 오픈 시각(ISO). null 이면 수동 스위치만으로 판단한다. */
+  open_at: string | null;
+  /** 예약 오픈까지 남은 초. 이미 지났거나 예약이 없으면 null. */
+  opens_in_seconds: number | null;
   lesson: ProgramAvailability;
   special: ProgramAvailability;
 }
@@ -216,6 +225,10 @@ export interface SetOpenResult {
   open: boolean;
 }
 
+export type SetOpenAtResult =
+  | { ok: true; open_at: string | null }
+  | RpcFailure;
+
 export type SetCapacityResult =
   | { ok: true; lesson: number; special: number; promoted: Promoted[] }
   | RpcFailure;
@@ -293,9 +306,17 @@ export async function adminCancel(
   });
 }
 
-/** 접수 오픈/마감 */
+/** 접수 오픈/마감 (수동 스위치) */
 export async function setOpen(open: boolean): Promise<SetOpenResult> {
   return callRpc<SetOpenResult>('surfcamp_set_open', { p_open: open });
+}
+
+/**
+ * 예약 오픈 시각 설정. null 이면 예약을 해제하고 수동 스위치만으로 판단한다.
+ * @param openAtIso ISO8601 문자열 (예: 2026-08-10T00:00:00Z = 9시 KST)
+ */
+export async function setOpenAt(openAtIso: string | null): Promise<SetOpenAtResult> {
+  return callRpc<SetOpenAtResult>('surfcamp_set_open_at', { p_open_at: openAtIso });
 }
 
 /** 정원 조절. 증설 시 대기열 승급까지 함께 수행된다. */

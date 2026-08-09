@@ -42,9 +42,16 @@ export const metadata: Metadata = {
   },
 };
 
-/** getAvailability 실패 시 안전 폴백 — open:false 로 두어 접수를 열지 않는다. */
+/**
+ * getAvailability 실패 시 안전 폴백 — open:false 로 두어 접수를 열지 않는다.
+ * 예약 오픈 정보도 비워 둔다(카운트다운 대신 마감 안내가 뜨는 쪽이 안전하다.
+ * DB 를 못 읽는 상황에서 "곧 열립니다"라고 약속하면 안 된다).
+ */
 const FALLBACK_AVAILABILITY: SurfcampAvailability = {
   open: false,
+  submissions_open: false,
+  open_at: null,
+  opens_in_seconds: null,
   lesson: { capacity: DEFAULT_CAPACITY.lesson, confirmed: 0, waitlist: 0 },
   special: { capacity: DEFAULT_CAPACITY.special, confirmed: 0, waitlist: 0 },
 };

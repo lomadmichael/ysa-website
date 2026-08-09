@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react';
 import Link from 'next/link';
 import AddressSearch from '@/components/apply/AddressSearch';
 import CapacityBadge from '@/components/apply/surf-camp/CapacityBadge';
+import OpenCountdown from '@/components/apply/surf-camp/OpenCountdown';
 import ParticipantEditor, {
   emptyParticipant,
   serializeParticipants,
@@ -23,6 +24,7 @@ import {
   REGIONS,
   RESIDENT_TYPES,
   SMS_SENDER_ORG,
+  formatKst,
   lessonTimeLabel,
   programLabel,
   regionLabel,
@@ -55,26 +57,75 @@ export default function SurfCampForm({
 
   const closed = KILL_SWITCH || !availability.open;
 
-  // ── 접수 마감 / 준비 중 ────────────────────────────────────────────────────
+  // ── 접수 전 / 마감 / 일시 중단 ─────────────────────────────────────────────
   if (closed) {
+    const openAt = availability.open_at;
+    const opensIn = availability.opens_in_seconds;
+
+    // 1) 비상 정지 — 재배포가 필요한 스위치라 가장 먼저 판단한다.
+    if (KILL_SWITCH) {
+      return (
+        <ClosedNotice title="접수가 일시 중단되었습니다">
+          <p className="mt-3 text-sm leading-relaxed text-navy/60">
+            {EVENT.name} 온라인 접수를 일시적으로 중단했습니다.
+            <br />
+            재개 일정은 협회 홈페이지 공지로 안내드립니다.
+          </p>
+        </ClosedNotice>
+      );
+    }
+
+    // 2) 예약 오픈 대기 — 오픈 시각이 정해져 있고 아직 도달하지 않은 경우.
+    if (openAt && typeof opensIn === 'number' && opensIn > 0) {
+      return (
+        <ClosedNotice title="접수 시작 전입니다">
+          <p className="mt-4 text-sm text-navy/50">{EVENT.name} 온라인 접수는</p>
+          <p
+            className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl"
+            style={{ color: 'var(--color-ocean)' }}
+          >
+            {formatKst(openAt)}
+          </p>
+          <p className="mt-1 text-sm text-navy/50">에 시작됩니다.</p>
+
+          <OpenCountdown openAtIso={openAt} initialSeconds={opensIn} />
+
+          <div
+            className="mt-8 rounded-xl border px-4 py-4 text-left text-sm leading-relaxed text-navy/75"
+            style={{
+              borderColor: 'color-mix(in srgb, var(--color-sunset) 40%, transparent)',
+              background: 'color-mix(in srgb, var(--color-sunset) 8%, transparent)',
+            }}
+          >
+            <p className="font-bold text-navy">
+              접수 시작과 동시에 선착순으로 마감될 수 있으니 미리 신청 정보를 준비해 주세요.
+            </p>
+            <ul className="mt-2 space-y-1 text-navy/70">
+              <li>· 대표 신청자 성명 · 휴대폰 번호 · 주소</li>
+              <li>· 참가자별 성명 · 성별 · 나이 · 신장 · 몸무게 · 서핑 경험</li>
+              <li>
+                · 참가자별 신청 프로그램 ({programLabel('lesson')} · {programLabel('special')})
+              </li>
+              <li>· 희망 강습권역 · 희망 강습시간</li>
+            </ul>
+            <p className="mt-2 text-xs text-navy/55">
+              정원이 찬 뒤에는 대기 접수로 전환되며, 취소가 발생하면 대기 순번대로 자동
+              확정됩니다.
+            </p>
+          </div>
+        </ClosedNotice>
+      );
+    }
+
+    // 3) 마감 — 수동 스위치가 닫혀 있고 예약도 없거나 이미 지난 경우.
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
-        <h2 className="text-xl font-bold text-navy">
-          {KILL_SWITCH ? '접수가 일시 중단되었습니다' : '접수 준비 중입니다'}
-        </h2>
+      <ClosedNotice title="접수가 마감되었습니다">
         <p className="mt-3 text-sm leading-relaxed text-navy/60">
-          {EVENT.name} 온라인 접수는 아직 열리지 않았거나 마감되었습니다.
+          {EVENT.name} 온라인 접수가 마감되었습니다.
           <br />
-          접수 일정은 협회 홈페이지 공지로 안내드립니다.
+          추가 접수나 다음 일정은 협회 홈페이지 공지로 안내드립니다.
         </p>
-        <p className="mt-4 text-sm text-navy/60">문의: {INQUIRY_TEL}</p>
-        <Link
-          href="/apply"
-          className="mt-6 inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-navy transition hover:bg-gray-50"
-        >
-          온라인 접수 목록으로
-        </Link>
-      </div>
+      </ClosedNotice>
     );
   }
 
@@ -419,6 +470,29 @@ export default function SurfCampForm({
 }
 
 // ── 로컬 서브컴포넌트 ────────────────────────────────────────────────────────
+
+/** 접수 전 / 마감 / 일시 중단 화면의 공통 껍데기 (문의처·목록 링크 포함). */
+function ClosedNotice({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+      <h2 className="text-xl font-bold text-navy">{title}</h2>
+      {children}
+      <p className="mt-6 text-sm text-navy/60">문의: {INQUIRY_TEL}</p>
+      <Link
+        href="/apply"
+        className="mt-4 inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-navy transition hover:bg-gray-50"
+      >
+        온라인 접수 목록으로
+      </Link>
+    </div>
+  );
+}
 
 function Section({
   title,

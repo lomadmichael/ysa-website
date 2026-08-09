@@ -155,6 +155,69 @@ export function genderLabel(key: string): string {
   return labelOf(GENDERS, key);
 }
 
+// ── KST 날짜 포맷 ─────────────────────────────────────────────────────────────
+/**
+ * 예약 오픈 시각을 화면에 찍을 때 쓰는 헬퍼.
+ *
+ * ★ `toLocaleString`/`Intl` 을 쓰지 않는다.
+ *   서버(UTC)와 브라우저(사용자 로캘·타임존)가 서로 다른 문자열을 만들어
+ *   hydration mismatch 가 나기 때문이다. (festival-2026.ts 의 formatKrw 와 같은 이유)
+ *   대신 KST 고정 오프셋(+9h)을 epoch 에 더한 뒤 `getUTC*` 로만 읽어
+ *   어느 환경에서든 동일한 결과가 나오도록 한다.
+ */
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+const KST_WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
+
+/** `2026-08-10T00:00:00+00:00` / `... Z` / `2026-08-10 00:00:00+00` 형태를 모두 받는다. */
+const TIMESTAMP_RE =
+  /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?\s*(Z|z|[+-]\d{2}:?\d{2}|[+-]\d{2})?$/;
+
+/**
+ * ISO8601(또는 Postgres timestamptz) 문자열 → epoch ms.
+ * 파싱 불가면 null.
+ *
+ * `new Date(str)` 대신 직접 파싱하는 이유: 오프셋이 없는 문자열을 엔진이
+ * "로컬 시간"으로 해석해 서버/클라이언트 값이 갈리기 때문. 여기서는 오프셋이
+ * 없으면 UTC 로 간주해 항상 같은 값을 만든다.
+ */
+export function parseIsoToEpochMs(value: string): number | null {
+  const m = TIMESTAMP_RE.exec(value.trim());
+  if (!m) {
+    const fallback = Date.parse(value);
+    return Number.isNaN(fallback) ? null : fallback;
+  }
+  const [, y, mo, d, h, mi, s, tz] = m;
+  let ms = Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s ?? 0));
+  if (tz && tz !== 'Z' && tz !== 'z') {
+    const sign = tz.startsWith('-') ? -1 : 1;
+    const body = tz.slice(1).replace(':', '');
+    const offsetMin = sign * (Number(body.slice(0, 2)) * 60 + Number(body.slice(2, 4) || 0));
+    ms -= offsetMin * 60_000;
+  }
+  return ms;
+}
+
+/**
+ * KST 기준 사람이 읽는 날짜/시각.
+ * 예: `2026-08-10T00:00:00Z` → `8월 10일(월) 오전 9시`
+ * (분이 0이 아니면 `오전 9시 30분` 형태)
+ */
+export function formatKst(iso: string): string {
+  const t = parseIsoToEpochMs(iso);
+  if (t === null) return '';
+  const k = new Date(t + KST_OFFSET_MS);
+  const month = k.getUTCMonth() + 1;
+  const day = k.getUTCDate();
+  const weekday = KST_WEEKDAYS[k.getUTCDay()];
+  const hour24 = k.getUTCHours();
+  const minute = k.getUTCMinutes();
+  const meridiem = hour24 < 12 ? '오전' : '오후';
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  const time = minute === 0 ? `${meridiem} ${hour12}시` : `${meridiem} ${hour12}시 ${minute}분`;
+  return `${month}월 ${day}일(${weekday}) ${time}`;
+}
+
 /** 'confirmed' | 'waitlist' | 'cancelled' → 한국어 */
 export function statusLabel(status: string | null | undefined): string {
   switch (status) {

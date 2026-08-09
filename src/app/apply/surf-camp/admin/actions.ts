@@ -11,7 +11,7 @@ import {
   makeToken,
   verifyAdmin,
 } from './auth';
-import { adminCancel, setCapacity, setOpen, type Promoted } from '@/lib/surfcamp-db';
+import { adminCancel, setCapacity, setOpen, setOpenAt, type Promoted } from '@/lib/surfcamp-db';
 import { sendCancelSms, sendPromotionSms } from '@/lib/surfcamp-sms';
 import type { ProgramKey } from '@/lib/surfcamp-validate';
 
@@ -174,17 +174,111 @@ export async function setOpenAction(
   if (!(await isAdmin())) return { error: SESSION_EXPIRED };
 
   const open = ((formData.get('open') as string | null) ?? '') === 'true';
-  const ok = await setOpen(open).then(
-    () => true,
-    (e: unknown) => {
-      console.error('[surfcamp] 접수 오픈/마감 실패:', e);
-      return false;
-    },
-  );
-  if (!ok) {
+  const result = await setOpen(open).catch((e: unknown) => {
+    console.error('[surfcamp] 접수 오픈/마감 실패:', e);
+    return null;
+  });
+
+  if (!result) {
     backWithMessage('접수 상태를 바꾸지 못했습니다. 잠시 후 다시 시도해 주세요.');
   }
-  backWithMessage(open ? '접수를 열었습니다.' : '접수를 마감했습니다.');
+  if (!open) {
+    backWithMessage('접수를 마감했습니다.');
+  }
+  // RPC 의 open 은 "실질 오픈"이다. 스위치를 켰는데 false 라면 예약 시각이 아직 안 지난 것.
+  // 여기서 분명히 알려주지 않으면 운영자가 열렸다고 착각한다.
+  if (!result.open) {
+    backWithMessage(
+      '접수 스위치를 켰지만 예약 오픈 시각이 아직 지나지 않아 접수는 닫혀 있습니다. 예약 시각이 되면 자동으로 열립니다.',
+    );
+  }
+  backWithMessage('접수를 열었습니다.');
+}
+
+// ── 예약 오픈 시각 ────────────────────────────────────────────────────────────
+
+/** ISO(UTC) → '8월 10일(월) 09:00' (안내 문구용) */
+const WEEKDAY_KO: Record<string, string> = {
+  Sun: '일',
+  Mon: '월',
+  Tue: '화',
+  Wed: '수',
+  Thu: '목',
+  Fri: '금',
+  Sat: '토',
+};
+
+function kstLabel(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'short',
+    hourCycle: 'h23',
+  }).formatToParts(d);
+  const at = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  const wd = WEEKDAY_KO[at('weekday')] ?? at('weekday');
+  return `${Number(at('month'))}월 ${Number(at('day'))}일(${wd}) ${at('hour')}:${at('minute')}`;
+}
+
+/**
+ * datetime-local 입력값(한국시간)을 UTC ISO 로 바꾼다.
+ * 브라우저는 'YYYY-MM-DDTHH:mm'(초가 붙기도 한다)을 타임존 없이 보내므로,
+ * 서버 타임존(Vercel = UTC)에 좌우되지 않도록 +09:00 을 명시해 해석한다.
+ */
+function kstLocalToUtcIso(raw: string): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(raw.trim());
+  if (!m) return null;
+  const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6] ?? '00'}+09:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+/**
+ * 예약 오픈 시각 설정 / 해제.
+ * intent=clear 이면 예약을 지우고 수동 스위치만으로 판단하게 되돌린다.
+ */
+export async function setOpenAtAction(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  if (!(await isAdmin())) return { error: SESSION_EXPIRED };
+
+  const clear = ((formData.get('intent') as string | null) ?? '') === 'clear';
+  let openAtIso: string | null = null;
+
+  if (!clear) {
+    const raw = ((formData.get('open_at') as string | null) ?? '').trim();
+    if (!raw) {
+      backWithMessage('예약 오픈 시각을 입력해 주세요.');
+    }
+    openAtIso = kstLocalToUtcIso(raw);
+    if (!openAtIso) {
+      backWithMessage('예약 오픈 시각 형식이 올바르지 않습니다. 날짜와 시간을 다시 확인해 주세요.');
+    }
+  }
+
+  const result = await setOpenAt(openAtIso).catch((e: unknown) => {
+    console.error('[surfcamp] 예약 오픈 시각 설정 실패:', e);
+    return null;
+  });
+
+  if (!result) {
+    backWithMessage('예약 오픈 시각을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+  if (!result.ok) {
+    backWithMessage(`예약 오픈 시각을 저장하지 못했습니다. (${result.error})`);
+  }
+  if (!result.open_at) {
+    backWithMessage('예약 오픈을 해제했습니다. 이제 오픈/마감 스위치대로만 동작합니다.');
+  }
+  backWithMessage(
+    `${kstLabel(result.open_at)}에 접수가 자동으로 열리도록 예약했습니다. (접수 스위치가 켜져 있어야 합니다)`,
+  );
 }
 
 // ── 정원 변경 ─────────────────────────────────────────────────────────────────

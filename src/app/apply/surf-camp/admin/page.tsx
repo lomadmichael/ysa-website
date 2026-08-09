@@ -20,7 +20,13 @@ import {
 } from '@/lib/surfcamp-config';
 import { needsYouthAssignment } from '@/lib/surfcamp-validate';
 import { ADMIN_COOKIE, verifyAdmin } from './auth';
-import { adminForceCancel, adminLogout, setCapacityAction, setOpenAction } from './actions';
+import {
+  adminForceCancel,
+  adminLogout,
+  setCapacityAction,
+  setOpenAction,
+  setOpenAtAction,
+} from './actions';
 import AdminLogin from './AdminLogin';
 
 export const dynamic = 'force-dynamic';
@@ -52,10 +58,30 @@ async function saveCapacity(formData: FormData): Promise<void> {
   await setCapacityAction({}, formData);
 }
 
-/** ISO(UTC) → 한국시간 'YYYY-MM-DD HH:mm' */
-function kstDateTime(iso: string): string {
+async function saveOpenAt(formData: FormData): Promise<void> {
+  'use server';
+  await setOpenAtAction({}, formData);
+}
+
+/**
+ * ★ 시각 표기는 전부 서버에서 문자열로 만들어 내려보낸다.
+ *   클라이언트에서 toLocaleString 을 부르면 브라우저 타임존에 따라 값이 달라져
+ *   하이드레이션이 깨진다. 이 페이지는 force-dynamic 이라 매 요청 서버 렌더된다.
+ */
+const WEEKDAY_KO: Record<string, string> = {
+  Sun: '일',
+  Mon: '월',
+  Tue: '화',
+  Wed: '수',
+  Thu: '목',
+  Fri: '금',
+  Sat: '토',
+};
+
+/** ISO(UTC) → 한국시간 구성요소. 파싱 실패 시 null. */
+function kstParts(iso: string): Record<string, string> | null {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso ?? '';
+  if (Number.isNaN(d.getTime())) return null;
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
@@ -63,10 +89,45 @@ function kstDateTime(iso: string): string {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    weekday: 'short',
     hourCycle: 'h23',
   }).formatToParts(d);
-  const at = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
-  return `${at('year')}-${at('month')}-${at('day')} ${at('hour')}:${at('minute')}`;
+  const out: Record<string, string> = {};
+  for (const p of parts) out[p.type] = p.value;
+  return out;
+}
+
+/** ISO(UTC) → 한국시간 'YYYY-MM-DD HH:mm' */
+function kstDateTime(iso: string): string {
+  const p = kstParts(iso);
+  if (!p) return iso ?? '';
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
+}
+
+/** ISO(UTC) → '8월 10일(월) 09:00' */
+function kstFriendly(iso: string): string {
+  const p = kstParts(iso);
+  if (!p) return iso ?? '';
+  const wd = WEEKDAY_KO[p.weekday ?? ''] ?? (p.weekday ?? '');
+  return `${Number(p.month)}월 ${Number(p.day)}일(${wd}) ${p.hour}:${p.minute}`;
+}
+
+/** ISO(UTC) → datetime-local 입력값 'YYYY-MM-DDTHH:mm' (한국시간 기준) */
+function kstInputValue(iso: string): string {
+  const p = kstParts(iso);
+  if (!p) return '';
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+
+/** 남은 초 → '11시간 3분 후' */
+function remainLabel(seconds: number): string {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (days > 0) return `약 ${days}일 ${hours}시간 후`;
+  if (hours > 0) return `약 ${hours}시간 ${minutes}분 후`;
+  if (minutes > 0) return `약 ${minutes}분 후`;
+  return '곧';
 }
 
 /** 숫자만 저장된 번호를 보기 좋게. 형식이 다르면 원본을 그대로 둔다. */
@@ -161,7 +222,20 @@ export default async function SurfcampAdminPage({
   const youthCount = rows
     .filter((r) => r.status === 'active')
     .reduce((sum, r) => sum + r.participants.filter(isYouthAssign).length, 0);
+  // 실질 오픈(open)과 수동 스위치(submissions_open)는 다르다.
+  // 예약 시각이 아직 안 지났으면 스위치가 켜져 있어도 접수는 닫혀 있다.
   const isOpen = availability?.open === true;
+  const switchOn = availability?.submissions_open === true;
+  const openAtIso = availability?.open_at ?? null;
+  const opensInSeconds = availability?.opens_in_seconds ?? null;
+  /** 예약 시각이 잡혀 있고 아직 오지 않은 상태 */
+  const scheduledPending = openAtIso !== null && opensInSeconds !== null;
+  const openAtLabel = openAtIso ? kstFriendly(openAtIso) : '';
+  const openAtInput = openAtIso ? kstInputValue(openAtIso) : '';
+  const remainText = opensInSeconds !== null ? remainLabel(opensInSeconds) : '';
+
+  const statusText = isOpen ? '접수중' : scheduledPending && switchOn ? '오픈 대기' : '마감';
+  const statusColor = isOpen ? '#1B9AAA' : '#F27830';
 
   return (
     <div className="bg-sand min-h-screen">
@@ -214,9 +288,16 @@ export default async function SurfcampAdminPage({
           />
           <div className="rounded-lg border border-foam bg-white p-4">
             <p className="text-[13px] font-bold text-navy/60">접수 상태</p>
-            <p className="mt-1 text-2xl font-bold" style={{ color: isOpen ? '#1B9AAA' : '#F27830' }}>
-              {isOpen ? '접수중' : '마감'}
+            <p className="mt-1 text-2xl font-bold" style={{ color: statusColor }}>
+              {statusText}
             </p>
+            {openAtIso && (
+              <p className="mt-1 text-[13px] font-bold text-ocean">
+                {scheduledPending
+                  ? `${openAtLabel} 접수 시작 예정 (${remainText})`
+                  : `${openAtLabel} 예약 오픈 시각 경과`}
+              </p>
+            )}
             <p className="mt-1 text-[13px] text-navy/70">
               신청 {activeCount}건
               {showCancelled ? ` · 취소 ${cancelledCount}건` : ''}
@@ -229,15 +310,19 @@ export default async function SurfcampAdminPage({
 
         {/* ── 운영 조작 ────────────────────────────────────────────────────── */}
         <section className="mt-4 flex flex-wrap items-end gap-6 rounded-lg border border-foam bg-white p-4">
+          {/* 스위치 자체의 on/off 는 실질 오픈이 아니라 submissions_open 을 따라간다.
+              (예약 대기 중에 "접수 다시 열기"가 뜨면 이미 켜진 스위치를 또 켜게 된다) */}
           <form action={toggleOpen} className="flex items-end gap-2">
-            <input type="hidden" name="open" value={isOpen ? 'false' : 'true'} />
+            <input type="hidden" name="open" value={switchOn ? 'false' : 'true'} />
             <div>
-              <p className="mb-1 text-[13px] font-bold text-navy/60">접수 오픈/마감</p>
+              <p className="mb-1 text-[13px] font-bold text-navy/60">
+                접수 오픈/마감 <span className="font-normal">(수동 스위치)</span>
+              </p>
               <button
                 type="submit"
                 className="h-10 rounded-md border border-ocean px-4 text-[14px] font-bold text-ocean hover:bg-ocean hover:text-white transition-colors"
               >
-                {isOpen ? '접수 마감하기' : '접수 다시 열기'}
+                {switchOn ? '접수 마감하기' : '접수 다시 열기'}
               </button>
             </div>
           </form>
@@ -284,6 +369,68 @@ export default async function SurfcampAdminPage({
           <p className="text-[12px] text-navy/50">
             정원을 늘리면 대기자가 순서대로 자동 확정되고 안내 문자가 발송됩니다.
           </p>
+        </section>
+
+        {/* ── 예약 오픈 ────────────────────────────────────────────────────── */}
+        <section className="mt-4 rounded-lg border border-foam bg-white p-4">
+          <div className="flex flex-wrap items-end gap-6">
+            <form action={saveOpenAt} className="flex items-end gap-2">
+              <div>
+                <label htmlFor="open-at" className="mb-1 block text-[13px] font-bold text-navy/60">
+                  예약 오픈 시각 <span className="font-normal">(한국시간)</span>
+                </label>
+                <input
+                  id="open-at"
+                  type="datetime-local"
+                  name="open_at"
+                  required
+                  defaultValue={openAtInput}
+                  className="h-10 rounded-md border border-foam bg-white px-3 text-[14px] outline-none focus:border-teal"
+                />
+              </div>
+              <button
+                type="submit"
+                className="h-10 rounded-md border border-ocean px-4 text-[14px] font-bold text-ocean hover:bg-ocean hover:text-white transition-colors"
+              >
+                예약 저장
+              </button>
+            </form>
+
+            {/* 해제는 입력값이 필요 없으므로 별도 폼으로 둔다(필수 입력 검증에 걸리지 않게) */}
+            <form action={saveOpenAt}>
+              <input type="hidden" name="intent" value="clear" />
+              <button
+                type="submit"
+                disabled={!openAtIso}
+                className="h-10 rounded-md border border-foam px-4 text-[14px] font-bold text-navy/60 transition-colors hover:border-sunset hover:text-sunset disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                예약 해제
+              </button>
+            </form>
+          </div>
+
+          {switchOn && scheduledPending ? (
+            <p
+              role="status"
+              className="mt-3 rounded-md border border-sunset/40 bg-sunset/10 px-3 py-2 text-[13px] font-bold text-sunset"
+            >
+              접수 스위치는 켜져 있지만 예약 시각까지는 닫혀 있습니다. {openAtLabel}(
+              {remainText})에 자동으로 열립니다.
+            </p>
+          ) : !switchOn && openAtIso ? (
+            <p
+              role="status"
+              className="mt-3 rounded-md border border-sunset/40 bg-sunset/10 px-3 py-2 text-[13px] font-bold text-sunset"
+            >
+              예약 시각이 잡혀 있지만 접수 스위치가 꺼져 있어 자동으로 열리지 않습니다. 스위치를 켜
+              주세요.
+            </p>
+          ) : (
+            <p className="mt-3 text-[12px] text-navy/50">
+              예약 시각을 지정하고 접수 스위치를 켜 두면 그 시각부터 접수가 자동으로 열립니다. 예약을
+              해제하면 스위치만으로 판단합니다. 마감은 예약과 무관하게 스위치로 즉시 적용됩니다.
+            </p>
+          )}
         </section>
 
         {/* ── 명단 ─────────────────────────────────────────────────────────── */}
