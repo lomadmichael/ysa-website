@@ -7,7 +7,6 @@ import {
   LESSON_MIN_AGE,
   LESSON_MIN_HEIGHT,
   LESSON_TIMES,
-  LESSON_YOUTH_AGE,
   MAX_PARTICIPANTS,
   REGIONS,
   SMS_SENDER_ORG,
@@ -45,7 +44,7 @@ const lessonRows = (capacity: number): GuideRow[] => [
   },
   {
     label: '대상',
-    value: `만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다. 만 ${LESSON_YOUTH_AGE}세 미만(만 ${LESSON_MIN_AGE}세)이신 분은 저연령 강습이 가능한 서핑스쿨로 배정해 드립니다. 기준에 미치지 않는 분은 ${programLabel('special')}에 신청해 주세요.`,
+    value: `만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다. 기준에 미치지 않는 분은 안전상의 이유로 서핑강습에 참여하실 수 없으며, ${programLabel('special')}에 신청해 주세요.`,
   },
   { label: '정원', value: `${capacity}명 (선착순)` },
   {
