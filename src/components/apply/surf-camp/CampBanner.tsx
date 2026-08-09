@@ -73,10 +73,16 @@ export default function CampBanner() {
         />
 
         <div className="relative mx-auto flex h-full max-w-[1200px] flex-col justify-center px-4 py-5">
+          {/*
+            ★ self-start 필수.
+            부모가 flex-col 이라 align-items 기본값 stretch 가 이미지 가로폭을
+            컨테이너 전체로 늘려버린다(w-auto 로는 못 막는다). 원본 비율
+            800x371 을 지키려면 교차축 stretch 를 꺼야 한다. 왼쪽 정렬도 겸한다.
+          */}
           <Image
             src={yysLogoWhite}
             alt="양양군체육회"
-            className="h-8 w-auto drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)] md:h-10"
+            className="h-8 w-auto self-start drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)] md:h-10"
             priority
           />
           <p className="mt-3 text-[11px] font-medium tracking-wide text-white/70 md:text-xs">
