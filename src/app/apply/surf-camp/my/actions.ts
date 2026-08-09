@@ -506,11 +506,11 @@ export async function cancelMyRegistration(
   if (!auth.ok) return fail(auth.message);
   const { phone, target } = auth;
 
-  const reason = text('reason').slice(0, 200);
-
+  // 본인 취소는 사유를 받지 않는다(마찰만 늘고 운영에 쓰이지 않음).
+  // 관리자 강제취소는 통보 문자에 사유가 필요하므로 그대로 받는다.
   let result;
   try {
-    result = await cancelRegistration(registrationId, phone, reason || null);
+    result = await cancelRegistration(registrationId, phone, null);
   } catch (e) {
     console.error('[surfcamp] cancelRegistration failed:', e);
     return fail('취소 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
@@ -528,7 +528,7 @@ export async function cancelMyRegistration(
       phone: result.phone ?? phone,
       repName: result.rep_name ?? target.rep_name,
       byAdmin: false,
-      reason: reason || null,
+      reason: null,
     });
   } catch (e) {
     console.error('[surfcamp] cancel SMS failed:', e);

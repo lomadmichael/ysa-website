@@ -301,15 +301,7 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
 
         <form action={cancelAction} className="mt-4 space-y-3">
           <input type="hidden" name="registration_id" value={registration.id} />
-          <Field label="취소 사유 (선택)">
-            <input
-              type="text"
-              name="reason"
-              maxLength={200}
-              placeholder="예) 일정이 겹쳐 참석이 어렵습니다"
-              className={inputCls}
-            />
-          </Field>
+          {/* 취소 사유는 받지 않는다. 취소를 망설이게 만드는 마찰만 늘고 운영에 쓰이지 않는다. */}
           <label className="flex cursor-pointer items-start gap-2.5 text-sm text-navy/70">
             <input
               type="checkbox"
