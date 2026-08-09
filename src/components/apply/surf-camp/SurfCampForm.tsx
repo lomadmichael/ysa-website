@@ -200,68 +200,19 @@ export default function SurfCampForm({
       <input type="hidden" name="address" value={address} />
       <input type="hidden" name="address_detail" value={addressDetail} />
 
-      {/* 행사 안내 */}
-      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div
-          className="px-6 pt-6 pb-5"
-          style={{
-            background:
-              'linear-gradient(to bottom, color-mix(in srgb, var(--color-ocean) 8%, transparent), transparent)',
-          }}
-        >
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+      {/* 잔여 현황 — 상세 안내는 폼 위 ProgramGuide 에서 제공한다 */}
+      <section className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
             <p
               className="text-xs font-semibold uppercase tracking-wider"
               style={{ color: 'var(--color-ocean)' }}
             >
               Surf Camp 2026
             </p>
-            <CapacityBadge availability={availability} />
+            <h2 className="mt-1 text-lg font-bold text-navy">참가 신청</h2>
           </div>
-          <h2 className="text-xl font-bold text-navy">{EVENT.name}</h2>
-          <p className="mt-1.5 text-sm text-navy/60">
-            주최 {EVENT.host} · 주관 {EVENT.organizer}
-          </p>
-        </div>
-
-        <div className="space-y-4 border-t border-gray-100 px-6 py-5 text-sm leading-relaxed">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <InfoCard
-              title={`${programLabel('lesson')} · 200명`}
-              lines={[
-                `${EVENT.lessonDateLabel} 13:00 / 15:00 (2회차)`,
-                `만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상`,
-              ]}
-            />
-            <InfoCard
-              title={`${programLabel('special')} · 300명`}
-              lines={[EVENT.specialDateLabel, EVENT.specialTitle]}
-            />
-          </div>
-          <ul className="space-y-1.5 text-xs text-navy/70 sm:text-sm">
-            <li>· 신청 대상: 양양군민 및 양양 생활인구</li>
-            <li>
-              · 최종 서핑스쿨은 신청 현황과 안전 운영을 고려해 운영본부가 배정하며,
-              장소·시간은 참가 확정 후 개별 안내드립니다.
-            </li>
-            <li>· 기상·해상 상황에 따라 일정이 변경되거나 중단될 수 있습니다.</li>
-            <li>
-              · <strong className="text-navy">신청 완료가 곧 참가 확정은 아닙니다.</strong>{' '}
-              정원 내 접수 시 확정, 정원 초과 시 대기로 접수됩니다.
-            </li>
-          </ul>
-        </div>
-
-        <div
-          className="border-t border-gray-100 px-6 py-4 text-xs leading-relaxed text-navy/70 sm:text-sm"
-          style={{ background: 'color-mix(in srgb, var(--color-sunset) 6%, transparent)' }}
-        >
-          <p className="mb-1 font-semibold text-navy">대기 접수 안내</p>
-          정원을 초과하면 자동으로 대기 접수되며, 취소가 발생하면 대기 순번대로 자동
-          확정되고 문자로 안내드립니다. 신청은 프로그램별로 가족 전원이 함께 확정되므로,{' '}
-          <strong className="text-navy">
-            남은 자리보다 인원이 많은 가족은 건너뛰고 다음 순번이 먼저 확정될 수 있습니다.
-          </strong>
+          <CapacityBadge availability={availability} />
         </div>
       </section>
 
@@ -458,19 +409,6 @@ function Field({
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
       {children}
-    </div>
-  );
-}
-
-function InfoCard({ title, lines }: { title: string; lines: string[] }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3">
-      <p className="text-sm font-bold text-navy">{title}</p>
-      {lines.map((l, i) => (
-        <p key={i} className="mt-0.5 text-xs text-navy/60">
-          {l}
-        </p>
-      ))}
     </div>
   );
 }

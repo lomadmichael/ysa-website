@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import PageHeader from '@/components/shared/PageHeader';
+import CampBanner from '@/components/apply/surf-camp/CampBanner';
+import ProgramGuide from '@/components/apply/surf-camp/ProgramGuide';
 import SurfCampForm from '@/components/apply/surf-camp/SurfCampForm';
 import { DEFAULT_CAPACITY, EVENT } from '@/lib/surfcamp-config';
 import { getAvailability, type SurfcampAvailability } from '@/lib/surfcamp-db';
@@ -12,6 +13,17 @@ import { getAvailability, type SurfcampAvailability } from '@/lib/surfcamp-db';
  */
 export const dynamic = 'force-dynamic';
 
+const OG_DESCRIPTION =
+  '9월 12일(토)~13일(일) · 양양군민 및 양양 생활인구 대상 · 서핑강습 200명 / 특화체험 300명';
+
+/** 카톡·SNS 공유 썸네일 — 페이지 상단 배너와 동일한 이미지 (1908x503) */
+const OG_IMAGE = {
+  url: '/images/surf-camp/banner.jpg',
+  width: 1908,
+  height: 503,
+  alt: `${EVENT.name} 배너`,
+};
+
 export const metadata: Metadata = {
   title: '2026 양양 서핑캠프 접수',
   description:
@@ -19,10 +31,16 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://ysakorea.com/apply/surf-camp' },
   openGraph: {
     title: `${EVENT.name} 접수`,
-    description:
-      '9월 12일(토)~13일(일) · 양양군민 및 양양 생활인구 대상 · 서핑강습 200명 / 특화체험 300명',
+    description: OG_DESCRIPTION,
     url: 'https://ysakorea.com/apply/surf-camp',
     type: 'website',
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${EVENT.name} 접수`,
+    description: OG_DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
 };
 
@@ -43,15 +61,8 @@ export default async function SurfCampApplyPage() {
 
   return (
     <>
-      <PageHeader
-        title={EVENT.name}
-        description={`${EVENT.specialDateLabel} · 양양군민 및 양양 생활인구 대상 · 주최 ${EVENT.host} / 주관 ${EVENT.organizer}`}
-        breadcrumbs={[
-          { label: '홈', href: '/' },
-          { label: '온라인 접수', href: '/apply' },
-          { label: '2026 양양 서핑캠프' },
-        ]}
-      />
+      <CampBanner />
+      <ProgramGuide availability={availability} />
       <section className="mx-auto max-w-3xl px-4 py-12 md:py-16">
         <SurfCampForm availability={availability} />
       </section>
