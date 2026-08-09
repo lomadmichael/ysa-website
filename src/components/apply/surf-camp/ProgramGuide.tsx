@@ -47,6 +47,7 @@ const lessonRows = (capacity: number): GuideRow[] => [
     value: `만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다. 기준에 미치지 않는 분은 안전상의 이유로 서핑강습에 참여하실 수 없으며, ${programLabel('special')}에 신청해 주세요.`,
   },
   { label: '정원', value: `${capacity}명 (선착순)` },
+  { label: '참가비', value: '무료' },
   {
     label: '진행',
     value: '5~7명 소그룹 강습으로 진행하며, 강습 전 안전교육을 실시합니다.',
@@ -66,6 +67,7 @@ const specialRows = (capacity: number): GuideRow[] => [
   { label: '내용', value: EVENT.specialTitle },
   { label: '대상', value: '나이·신장 제한이 없어 누구나 참여할 수 있습니다.' },
   { label: '정원', value: `${capacity}명 (선착순)` },
+  { label: '참가비', value: '무료' },
   {
     label: '신청',
     value:

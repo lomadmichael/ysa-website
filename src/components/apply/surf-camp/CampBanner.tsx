@@ -92,7 +92,8 @@ export default function CampBanner() {
             {EVENT.name}
           </h1>
           <p className="mt-1.5 text-xs leading-relaxed text-white/85 md:mt-2 md:text-sm">
-            {EVENT.specialDateLabel} · 양양군민 및 양양 생활인구 대상
+            {EVENT.specialDateLabel} · 양양군민 및 양양 생활인구 대상 ·{' '}
+            <span className="font-bold text-white">참가비 무료</span>
           </p>
           <p className="mt-0.5 text-[11px] text-white/60 md:text-xs">
             주최 {EVENT.host} · 주관 {EVENT.organizer}
