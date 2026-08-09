@@ -26,7 +26,7 @@ export const LESSON_MIN_HEIGHT = 130;
  */
 export const LESSON_YOUTH_AGE = 11;
 /** 한 신청서에 담을 수 있는 최대 참가자 수 */
-export const MAX_PARTICIPANTS = 8;
+export const MAX_PARTICIPANTS = 5;
 
 // ── 코드값 ────────────────────────────────────────────────────────────────────
 export type ProgramKey = 'lesson' | 'special';
