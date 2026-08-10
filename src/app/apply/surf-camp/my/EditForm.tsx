@@ -92,6 +92,31 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
 
   return (
     <div className="space-y-8">
+      {/* ── 운영 사무국 안내 ───────────────────────────────────────────────────
+          관리자가 이 신청 건에 남긴 안내(applicant_notice)만 표시한다.
+          내부 운영 메모(staff_note)는 조회 RPC 가 아예 돌려주지 않으므로
+          이 화면으로 흘러들 여지가 없다. 값이 없으면 아무것도 그리지 않는다. */}
+      {registration.applicant_notice && (
+        <section
+          className="rounded-2xl border p-6 shadow-sm"
+          style={{
+            borderColor: 'var(--color-teal)',
+            background: 'color-mix(in srgb, var(--color-teal) 8%, white)',
+          }}
+        >
+          <h2 className="text-sm font-bold" style={{ color: 'var(--color-ocean)' }}>
+            운영 사무국 안내
+          </h2>
+          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-navy">
+            {registration.applicant_notice}
+          </p>
+          <p className="mt-3 text-xs text-navy/50">
+            운영 사무국에서 이 신청 건에 남긴 안내입니다. 추가 문의는 {INQUIRY_TEL} 으로 연락해
+            주세요.
+          </p>
+        </section>
+      )}
+
       {/* ── 현재 신청 상태 ─────────────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div

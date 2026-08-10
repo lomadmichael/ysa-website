@@ -45,6 +45,10 @@ const HEADER = [
   programLabel('special'),
   '초상권동의',
   '비고',
+  // ★ 운영메모는 내부 전용이다. 이 CSV 는 관리자만 내려받을 수 있고 신청자에게
+  //   전달되는 파일이 아니다. 명단을 외부에 공유할 때는 이 열을 지우고 보낼 것.
+  '운영메모',
+  '신청자안내',
 ];
 
 /** 엑셀이 CSV 를 UTF-8 로 인식하게 하는 선두 바이트 순서 표식(U+FEFF). */
@@ -127,6 +131,8 @@ export async function GET(request: NextRequest) {
           esc(p.special ? statusLabel(p.special) : '미신청'),
           esc(r.consent_media ? '동의' : '미동의'),
           esc(r.note ?? ''),
+          esc(r.staff_note ?? ''),
+          esc(r.applicant_notice ?? ''),
         ].join(','),
       );
     }

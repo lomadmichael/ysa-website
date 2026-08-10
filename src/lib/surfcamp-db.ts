@@ -122,6 +122,12 @@ export interface SurfcampRegistration {
   lesson_time: LessonTimeKey;
   consent_media: boolean;
   note: string | null;
+  /**
+   * 운영 사무국이 신청자에게 보여주려고 쓴 안내. 신청 조회 화면에 그대로 노출된다.
+   * ★ 내부 운영 메모(staff_note)는 이 타입에 절대 넣지 않는다 —
+   *   RPC(surfcamp_lookup_by_phone)도 돌려주지 않는다.
+   */
+  applicant_notice: string | null;
   status: RegistrationStatus;
   participants: SurfcampParticipant[];
 }
@@ -154,6 +160,10 @@ export interface SurfcampAdminRegistration {
   cancelled_by: 'self' | 'admin' | null;
   consent_media: boolean;
   note: string | null;
+  /** 내부 운영 메모. 관리자 화면·CSV 에서만 쓴다. 신청자에게 노출되는 경로로 흘리지 말 것. */
+  staff_note: string | null;
+  /** 신청자에게 보이는 안내. 신청 조회 화면에 그대로 표시된다. */
+  applicant_notice: string | null;
   participants: SurfcampAdminParticipant[];
 }
 
@@ -227,6 +237,10 @@ export interface SetOpenResult {
 
 export type SetOpenAtResult =
   | { ok: true; open_at: string | null }
+  | RpcFailure;
+
+export type SetNotesResult =
+  | { ok: true; staff_note: string | null; applicant_notice: string | null }
   | RpcFailure;
 
 export type SetCapacityResult =
@@ -303,6 +317,28 @@ export async function adminCancel(
   return callRpc<CancelResult>('surfcamp_admin_cancel', {
     p_registration_id: registrationId,
     p_reason: reason ?? null,
+  });
+}
+
+/**
+ * 신청 건별 메모 저장 (관리자 전용).
+ *
+ * 두 값을 항상 함께 덮어쓴다 — 한쪽만 보내면 나머지가 지워지므로
+ * 호출부는 두 입력을 같은 폼에서 함께 제출해야 한다.
+ * 빈 문자열·공백만 있는 값은 RPC 가 NULL 로 정규화한다.
+ *
+ * @param staffNote       내부 운영 메모. ★ 신청자에게 노출되는 어떤 경로로도 흘리지 말 것.
+ * @param applicantNotice 신청자에게 그대로 보이는 안내.
+ */
+export async function setNotes(
+  registrationId: string,
+  staffNote: string | null,
+  applicantNotice: string | null,
+): Promise<SetNotesResult> {
+  return callRpc<SetNotesResult>('surfcamp_set_notes', {
+    p_registration_id: registrationId,
+    p_staff_note: staffNote,
+    p_applicant_notice: applicantNotice,
   });
 }
 

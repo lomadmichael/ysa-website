@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import {
@@ -24,6 +25,7 @@ import {
   adminForceCancel,
   adminLogout,
   setCapacityAction,
+  setNotesAction,
   setOpenAction,
   setOpenAtAction,
 } from './actions';
@@ -61,6 +63,11 @@ async function saveCapacity(formData: FormData): Promise<void> {
 async function saveOpenAt(formData: FormData): Promise<void> {
   'use server';
   await setOpenAtAction({}, formData);
+}
+
+async function saveNotes(formData: FormData): Promise<void> {
+  'use server';
+  await setNotesAction({}, formData);
 }
 
 /**
@@ -172,6 +179,25 @@ function YouthChip() {
   return (
     <span className="inline-block rounded bg-sunset/15 px-1.5 py-0.5 text-[11px] font-bold text-sunset">
       저연령
+    </span>
+  );
+}
+
+/** 메모 입력 상한. actions.ts 의 NOTE_MAX 와 같은 값이어야 한다. */
+const NOTE_MAX = 500;
+
+/**
+ * 메모 보유 뱃지. 「내부」와 「신청자」를 색으로 갈라 놓아, 명단을 훑을 때
+ * 신청자에게 무언가 안내가 나가 있는 건인지 한눈에 보이게 한다.
+ */
+function NoteChip({ kind }: { kind: 'staff' | 'applicant' }) {
+  return kind === 'staff' ? (
+    <span className="inline-block rounded bg-navy/10 px-1.5 py-0.5 text-[11px] font-bold text-navy/70">
+      내부
+    </span>
+  ) : (
+    <span className="inline-block rounded bg-teal/15 px-1.5 py-0.5 text-[11px] font-bold text-ocean">
+      신청자 안내
     </span>
   );
 }
@@ -463,6 +489,7 @@ export default async function SurfcampAdminPage({
                   <th className="px-3 py-2 font-bold">권역</th>
                   <th className="px-3 py-2 font-bold">강습시간</th>
                   <th className="px-3 py-2 font-bold">참가자</th>
+                  <th className="px-3 py-2 font-bold">메모</th>
                   <th className="px-3 py-2 font-bold">상태</th>
                   <th className="px-3 py-2 font-bold">강제취소</th>
                 </tr>
@@ -470,10 +497,11 @@ export default async function SurfcampAdminPage({
               <tbody>
                 {rows.map((r) => {
                   const cancelled = r.status === 'cancelled';
+                  const hasNote = Boolean(r.staff_note || r.applicant_notice);
                   return (
+                    <Fragment key={r.id}>
                     <tr
-                      key={r.id}
-                      className={`border-b border-foam align-top ${cancelled ? 'text-navy/40' : 'text-navy'}`}
+                      className={`align-top ${cancelled ? 'text-navy/40' : 'text-navy'}`}
                     >
                       <td className="whitespace-nowrap px-3 py-3">{kstDateTime(r.created_at)}</td>
                       <td className="px-3 py-3 font-bold">{r.rep_name}</td>
@@ -501,6 +529,16 @@ export default async function SurfcampAdminPage({
                           ))}
                         </ul>
                         {r.note && <p className="mt-1.5 text-[12px] text-navy/50">비고: {r.note}</p>}
+                      </td>
+                      <td className="px-3 py-3">
+                        {hasNote ? (
+                          <div className="flex flex-wrap gap-1">
+                            {r.staff_note && <NoteChip kind="staff" />}
+                            {r.applicant_notice && <NoteChip kind="applicant" />}
+                          </div>
+                        ) : (
+                          <span className="text-[12px] text-navy/40">-</span>
+                        )}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
                         {cancelled ? (
@@ -538,6 +576,84 @@ export default async function SurfcampAdminPage({
                         )}
                       </td>
                     </tr>
+
+                    {/* 메모 편집 — 표 행을 무겁게 만들지 않도록 접어 둔다.
+                        (details 는 네이티브라 서버 컴포넌트에서도 그대로 동작한다) */}
+                    <tr className="border-b border-foam">
+                      <td colSpan={10} className="px-3 pb-3">
+                        <details className="rounded-md border border-foam bg-sand/60 px-3 py-2">
+                          <summary className="cursor-pointer text-[12px] font-bold text-navy/70">
+                            메모 {hasNote ? '보기 · 수정' : '작성'} — {r.rep_name}
+                          </summary>
+
+                          <form action={saveNotes} className="mt-3 space-y-3">
+                            <input type="hidden" name="registration_id" value={r.id} />
+
+                            <div className="grid gap-3 lg:grid-cols-2">
+                              {/* 내부 전용 */}
+                              <div className="rounded-md border border-navy/20 bg-white p-3">
+                                <label
+                                  htmlFor={`staff-note-${r.id}`}
+                                  className="block text-[12px] font-bold text-navy"
+                                >
+                                  🔒 운영 메모 <span className="text-navy/60">(내부 전용)</span>
+                                </label>
+                                <p className="mt-0.5 text-[11px] text-navy/50">
+                                  신청자에게 보이지 않습니다. 배정 참고·연락 이력 등을 적어 주세요.
+                                </p>
+                                <textarea
+                                  id={`staff-note-${r.id}`}
+                                  name="staff_note"
+                                  rows={4}
+                                  maxLength={NOTE_MAX}
+                                  defaultValue={r.staff_note ?? ''}
+                                  placeholder="예) 8/9 통화 — 김준우만 15:00 희망. 배정 시 참고."
+                                  className="mt-2 w-full rounded border border-foam bg-white px-2 py-1.5 text-[12px] leading-relaxed outline-none focus:border-teal"
+                                />
+                              </div>
+
+                              {/* 신청자에게 그대로 보이는 값 */}
+                              <div className="rounded-md border border-teal bg-teal/5 p-3">
+                                <label
+                                  htmlFor={`applicant-notice-${r.id}`}
+                                  className="block text-[12px] font-bold text-ocean"
+                                >
+                                  👁 신청자 안내{' '}
+                                  <span className="text-ocean/70">(신청자에게 그대로 보임)</span>
+                                </label>
+                                <p className="mt-0.5 text-[11px] font-bold text-sunset">
+                                  여기에 적은 내용은 신청 조회 화면에 그대로 표시됩니다. 내부용
+                                  메모를 적지 마세요.
+                                </p>
+                                <textarea
+                                  id={`applicant-notice-${r.id}`}
+                                  name="applicant_notice"
+                                  rows={4}
+                                  maxLength={NOTE_MAX}
+                                  defaultValue={r.applicant_notice ?? ''}
+                                  placeholder="예) 요청하신 15:00 반 배정은 확정되었습니다."
+                                  className="mt-2 w-full rounded border border-teal/50 bg-white px-2 py-1.5 text-[12px] leading-relaxed outline-none focus:border-teal"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                              <button
+                                type="submit"
+                                className="h-8 rounded border border-ocean px-3 text-[12px] font-bold text-ocean transition-colors hover:bg-ocean hover:text-white"
+                              >
+                                메모 저장
+                              </button>
+                              <span className="text-[11px] text-navy/50">
+                                두 칸을 함께 저장합니다. 비워 두면 해당 메모가 지워집니다. (각 최대{' '}
+                                {NOTE_MAX}자)
+                              </span>
+                            </div>
+                          </form>
+                        </details>
+                      </td>
+                    </tr>
+                    </Fragment>
                   );
                 })}
               </tbody>

@@ -11,7 +11,14 @@ import {
   makeToken,
   verifyAdmin,
 } from './auth';
-import { adminCancel, setCapacity, setOpen, setOpenAt, type Promoted } from '@/lib/surfcamp-db';
+import {
+  adminCancel,
+  setCapacity,
+  setNotes,
+  setOpen,
+  setOpenAt,
+  type Promoted,
+} from '@/lib/surfcamp-db';
 import { sendCancelSms, sendPromotionSms } from '@/lib/surfcamp-sms';
 import type { ProgramKey } from '@/lib/surfcamp-validate';
 
@@ -162,6 +169,55 @@ export async function adminForceCancel(
     promotedCount > 0
       ? `취소 처리했습니다. 대기 ${promotedCount}건이 확정으로 승급되어 안내 문자를 보냈습니다.`
       : '취소 처리했습니다.',
+  );
+}
+
+// ── 신청 건별 메모 ────────────────────────────────────────────────────────────
+
+/** 메모 입력 상한. 운영 메모·신청자 안내 모두 같은 값을 쓴다(폼 maxLength 와 일치). */
+const NOTE_MAX = 500;
+
+/**
+ * 운영 메모 · 신청자 안내 저장.
+ *
+ * ★ 두 값을 항상 함께 덮어쓴다. 폼이 두 textarea 를 함께 제출하므로
+ *   한쪽만 고쳐도 나머지는 화면에 있던 값이 그대로 다시 저장된다.
+ * ★ staff_note 는 내부 전용이다. 결과 안내 문구에도 내용을 되풀이하지 않는다.
+ */
+export async function setNotesAction(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  if (!(await isAdmin())) return { error: SESSION_EXPIRED };
+
+  const id = ((formData.get('registration_id') as string | null) ?? '').trim();
+  if (!id) return { error: '메모를 저장할 신청을 찾지 못했습니다.' };
+
+  const staffNote = ((formData.get('staff_note') as string | null) ?? '').trim();
+  const applicantNotice = ((formData.get('applicant_notice') as string | null) ?? '').trim();
+
+  if (staffNote.length > NOTE_MAX || applicantNotice.length > NOTE_MAX) {
+    backWithMessage(`메모는 각각 ${NOTE_MAX}자까지 입력할 수 있습니다.`);
+  }
+
+  const result = await setNotes(id, staffNote || null, applicantNotice || null).catch(
+    (e: unknown) => {
+      console.error('[surfcamp] 메모 저장 실패:', e);
+      return null;
+    },
+  );
+
+  if (!result) {
+    backWithMessage('메모를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+  if (!result.ok) {
+    backWithMessage(`메모를 저장하지 못했습니다. (${result.error})`);
+  }
+
+  backWithMessage(
+    result.applicant_notice
+      ? '메모를 저장했습니다. 신청자 안내는 신청 조회 화면에 바로 표시됩니다.'
+      : '메모를 저장했습니다. (신청자 안내는 비어 있어 신청자에게 표시되지 않습니다)',
   );
 }
 
