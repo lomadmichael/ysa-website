@@ -381,6 +381,19 @@ export default function SurfCampForm({
           </strong>{' '}
           기준에 미치지 않는 분은 {programLabel('special')}만 신청하실 수 있습니다.
         </p>
+        {/*
+          프로그램마다 신청서를 따로 쓰는 분들이 실제로 있었다(번호를 바꿔 두 번 접수).
+          체크박스 바로 위에서 한 번 더 짚어 준다.
+        */}
+        <p
+          className="rounded-lg px-4 py-3 text-sm leading-relaxed text-navy/75"
+          style={{ background: 'color-mix(in srgb, var(--color-teal) 9%, transparent)' }}
+        >
+          <strong className="text-navy">
+            두 프로그램을 모두 참여하시려면 아래에서 둘 다 체크해 주세요.
+          </strong>{' '}
+          프로그램별로 신청서를 따로 작성하실 필요는 없습니다.
+        </p>
         <ParticipantEditor value={participants} onChange={setParticipants} />
       </Section>
 

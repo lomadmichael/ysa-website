@@ -144,12 +144,13 @@ export default function ProgramGuide({
         }}
       >
         <p className="mb-1 font-bold text-navy">
-          두 프로그램은 별개입니다 — 함께 신청해도 되고, 하나만 신청해도 됩니다
+          한 번의 신청으로 두 프로그램을 함께 신청하실 수 있습니다
         </p>
-        {programLabel('lesson')}만 신청하셔도 되고, {programLabel('special')}만
-        신청하셔도 됩니다. 두 가지를 모두 신청하실 수도 있습니다. 신청서에서{' '}
-        <strong className="text-navy">참가자 한 분마다 프로그램을 선택</strong>하므로,
-        같은 가족 안에서도 참가자별로 다르게 신청할 수 있습니다.
+        {programLabel('lesson')}과 {programLabel('special')}을 각각 따로 신청하실
+        필요가 없습니다. 신청서에서{' '}
+        <strong className="text-navy">참가자 한 분마다 참여할 프로그램을 선택</strong>
+        하시면 되고, 같은 가족 안에서도 참가자별로 다르게 고르실 수 있습니다. 물론 둘 중
+        하나만 신청하셔도 됩니다.
       </div>
 
       {/* 접수 안내 */}
@@ -169,6 +170,12 @@ export default function ProgramGuide({
             선택합니다. 대표 신청자는 연락·접수를 담당하는 분으로{' '}
             <strong className="text-navy">참가자로 자동 등록되지 않으니</strong>, 본인도
             참가하신다면 참가자 정보에 본인을 반드시 추가해 주세요.
+            <br />
+            <strong className="text-navy">
+              두 프로그램을 모두 신청하실 때도 신청서는 한 번만 작성하시면 됩니다.
+            </strong>{' '}
+            프로그램마다 따로 신청하지 마시고, 참가자별로 참여할 프로그램을 함께
+            선택해 주세요.
           </GuideStep>
 
           <GuideStep step={2} title="신청 대상">
