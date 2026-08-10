@@ -13,7 +13,7 @@ import { getAvailability, type SurfcampAvailability } from '@/lib/surfcamp-db';
  */
 export const dynamic = 'force-dynamic';
 
-const OG_DESCRIPTION = `9월 12일(토)~13일(일) · 양양군민 및 양양 생활인구 대상 · ${programLabel('lesson')} ${DEFAULT_CAPACITY.lesson}명 / ${programLabel('special')} ${DEFAULT_CAPACITY.special}명`;
+const OG_DESCRIPTION = `${EVENT.specialDateLabel} · 양양군민 및 양양 생활인구 대상 · 참가비 무료 · ${programLabel('lesson')} ${DEFAULT_CAPACITY.lesson}명 / ${programLabel('special')} ${DEFAULT_CAPACITY.special}명`;
 
 /** 카톡·SNS 공유 썸네일 — 페이지 상단 배너와 동일한 이미지 (1908x503) */
 const OG_IMAGE = {
@@ -25,7 +25,7 @@ const OG_IMAGE = {
 
 export const metadata: Metadata = {
   title: '2026 양양 서핑캠프 접수',
-  description: `2026 양양 서핑캠프 온라인 접수 — 9월 12일(토)~13일(일) 양양군 일원. 양양군민 및 양양 생활인구 대상, ${programLabel('lesson')}·${programLabel('special')} 가족 단위 신청. 회원가입 없이 신청할 수 있습니다.`,
+  description: `${EVENT.name} 온라인 접수 — ${EVENT.specialDateLabel} 양양군 일원. 양양군민 및 양양 생활인구 대상, ${programLabel('lesson')}·${programLabel('special')} 가족 단위 신청. 참가비 무료, 회원가입 없이 신청할 수 있습니다.`,
   alternates: { canonical: 'https://ysakorea.com/apply/surf-camp' },
   openGraph: {
     title: `${EVENT.name} 접수`,

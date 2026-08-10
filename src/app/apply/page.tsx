@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/shared/PageHeader";
+// 일정·명칭은 서핑캠프 설정을 단일 소스로 쓴다. 여기 하드코딩하면 날짜 변경 때 빠진다.
+import { EVENT } from "@/lib/surfcamp-config";
 
 export const metadata: Metadata = {
   title: "온라인 접수",
@@ -60,8 +62,8 @@ export default async function ApplyPage() {
             href="/apply/surf-camp"
             accent="ocean"
             eyebrow="SURF CAMP"
-            title="2026 양양 서핑캠프"
-            description="9월 12일(토)~13일(일) · 양양군민 및 양양 생활인구 대상"
+            title={EVENT.name}
+            description={`${EVENT.specialDateLabel} · 양양군민 및 양양 생활인구 대상 · 참가비 무료`}
             statusLabel="접수 중"
             active
             cta="접수하기"
