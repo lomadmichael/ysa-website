@@ -68,8 +68,11 @@ export const EVENT = {
   specialDateLabel: '9월 19일(토)~20일(일)',
   /** 운영계획서 기준 체험 구성 */
   specialTitle: '파도·안전 이해, 양양 서핑문화, 티셔츠 만들기 체험',
-  /** 회차·장소가 미확정이라 어디에 노출하든 함께 붙여야 하는 단서 */
-  specialScheduleNote: '세부 스케줄과 장소는 별도 안내드립니다.',
+  /** 서핑 특화 체험 장소 (확정) */
+  specialPlace: '웨이브웍스',
+  specialAddress: '강원 양양군 현남면 인구중앙길 110',
+  /** 장소는 확정됐지만 회차별 시간은 아직 미정이다. */
+  specialScheduleNote: '세부 스케줄은 별도 안내드립니다.',
   /** 강습 장소는 신청 시 선택한 권역의 지정 해변에서 진행 */
   place: '양양군 일원 (권역별 지정 해변)',
   inquiryTel: INQUIRY_TEL,

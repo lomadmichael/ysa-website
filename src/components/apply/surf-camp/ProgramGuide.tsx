@@ -70,12 +70,16 @@ const specialRows = (capacity: number): GuideRow[] => [
   { label: '정원', value: `${capacity}명 (선착순)` },
   { label: '참가비', value: '무료' },
   {
+    label: '장소',
+    value: `${EVENT.specialPlace} (${EVENT.specialAddress})`,
+  },
+  {
     label: '신청',
     value:
       '서핑강습과 별개로 신청하는 선택형 프로그램입니다. 서핑강습을 신청하지 않아도 참여할 수 있으며, 서핑강습 신청자에게 우선 안내드립니다.',
   },
   {
-    label: '회차',
+    label: '세부 일정',
     value: EVENT.specialScheduleNote,
   },
 ];
