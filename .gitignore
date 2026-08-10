@@ -48,3 +48,6 @@ next-env.d.ts
 *.ai
 *.sketch
 *.fig
+
+# 발송 로그 — 신청자 성명·휴대폰이 들어간다. 절대 커밋 금지.
+scripts/.surfcamp-*-sent.log
