@@ -6,6 +6,8 @@ import BirthDatePicker from "./BirthDatePicker";
 import DepositNotice from "./DepositNotice";
 import { ENTRY_FEE_PER_DIVISION, formatKrw } from "@/lib/festival-2026";
 import { COUNTRIES, countryName } from "@/lib/countries";
+import { ACCEPTED_IMAGE_TYPES, resizeToJpeg } from "@/lib/athlete-photo";
+import { CUSTOM_COMP_SLUG } from "@/lib/custom-comp-2026";
 
 // ApplyForm 과 동일한 API base 정책 (golineup.kr fallback + env override)
 const CERT_API =
@@ -102,80 +104,15 @@ const formatDate = (d: string) =>
     weekday: "short",
   });
 
-/* ── 선수 사진 처리 ───────────────────────────────────────────── */
+/* ── 선수 사진 처리는 `@/lib/athlete-photo` 공용 모듈 (맞춤형 대회 폼과 공유) ── */
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-/** 리사이즈 후 최대 변 길이 (px) */
-const MAX_IMAGE_SIDE = 1600;
-const JPEG_QUALITY = 0.85;
-
-async function loadImageSource(file: File): Promise<{
-  source: CanvasImageSource;
-  width: number;
-  height: number;
-  cleanup: () => void;
-}> {
-  if (typeof createImageBitmap === "function") {
-    try {
-      // EXIF 회전 정보를 반영해 디코딩 (모바일 세로 사진 대응)
-      const bitmap = await createImageBitmap(file, {
-        imageOrientation: "from-image",
-      });
-      return {
-        source: bitmap,
-        width: bitmap.width,
-        height: bitmap.height,
-        cleanup: () => bitmap.close(),
-      };
-    } catch {
-      // 폴백으로 진행
-    }
-  }
-
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error("이미지를 읽을 수 없습니다."));
-      el.src = url;
-    });
-    return {
-      source: img,
-      width: img.naturalWidth,
-      height: img.naturalHeight,
-      cleanup: () => URL.revokeObjectURL(url),
-    };
-  } catch (err) {
-    URL.revokeObjectURL(url);
-    throw err;
-  }
-}
-
-/** 최대 변 1600px / JPEG q0.85 로 축소해 업로드 용량(4MB 제한)을 맞춘다. */
-async function resizeToJpeg(file: File): Promise<Blob> {
-  const { source, width, height, cleanup } = await loadImageSource(file);
-  try {
-    if (!width || !height) throw new Error("이미지 크기를 확인할 수 없습니다.");
-    const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(width, height));
-    const w = Math.max(1, Math.round(width * scale));
-    const h = Math.max(1, Math.round(height * scale));
-
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("이 브라우저에서는 사진 처리를 지원하지 않습니다.");
-    ctx.drawImage(source, 0, 0, w, h);
-
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY)
-    );
-    if (!blob) throw new Error("사진 변환에 실패했습니다.");
-    return blob;
-  } finally {
-    cleanup();
-  }
+/**
+ * 이 폼이 다루는 대회 목록.
+ * 맞춤형 서핑대회는 참가비·수집 항목이 완전히 달라 전용 폼(/apply/custom-competition)
+ * 에서만 접수한다 — 여기 섞이면 무료 대회에 참가비 5만원이 합산돼 표시된다.
+ */
+function visibleCompetitions(list: Competition[]): Competition[] {
+  return list.filter((c) => c.slug !== CUSTOM_COMP_SLUG);
 }
 
 /** 부문 참가비: entry_fee_override → competition.entry_fee → 기본값 순 */
@@ -202,8 +139,8 @@ export default function CompEntryForm({
    */
   children?: React.ReactNode;
 }) {
-  const [competitions, setCompetitions] = useState<Competition[]>(
-    initialCompetitions
+  const [competitions, setCompetitions] = useState<Competition[]>(() =>
+    visibleCompetitions(initialCompetitions)
   );
   const [loading, setLoading] = useState(initialCompetitions.length === 0);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -276,7 +213,7 @@ export default function CompEntryForm({
       })
       .then((data: { competitions: Competition[] }) => {
         if (cancelled) return;
-        setCompetitions(data.competitions ?? []);
+        setCompetitions(visibleCompetitions(data.competitions ?? []));
       })
       .catch((err: Error) => {
         if (cancelled) return;

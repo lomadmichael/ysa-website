@@ -86,6 +86,33 @@ export default async function ApplyPage() {
             }
           />
           <ProgramCard
+            href="/apply/custom-competition"
+            accent="purple"
+            eyebrow="COMPETITION"
+            title="2026 맞춤형 서핑대회"
+            description="8월 23일(일) 죽도해변 · 맞춤형 서핑교실 1~4기 참가자 대상 · 참가비 무료"
+            statusLabel="접수 중"
+            active
+            cta="접수하기"
+            className="md:col-span-2"
+            icon={
+              <svg
+                className="h-9 w-9 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M8 21h8M12 17v4" />
+                <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+                <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
+              </svg>
+            }
+          />
+          <ProgramCard
             href="/apply/referee"
             accent="teal"
             eyebrow="REFEREE"
@@ -180,7 +207,7 @@ function ProgramCard({
   className = "",
 }: {
   href: string;
-  accent: "teal" | "sunset" | "ocean";
+  accent: "teal" | "sunset" | "ocean" | "purple";
   eyebrow: string;
   title: string;
   description: string;
