@@ -8,7 +8,7 @@ import mainBannerMobile from '../../../public/images/festival/mainbanner_2026_mo
 
 const PAGE_TITLE = '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회';
 const PAGE_DESCRIPTION =
-  '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너 서핑대회와 코리아 오픈(SUP 레이싱 · 숏보드 · 롱보드 · SUP 서핑) 일정과 접수 정보를 안내합니다.';
+  '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너 서핑대회와 코리아 오픈(숏보드 · 롱보드 · SUP 서핑) 일정과 접수 정보를 안내합니다.';
 /** 카톡·SNS 공유용 (1200x630). 루트 layout 의 기본 og.jpg 대신 페이지 전용 이미지 사용 */
 const OG_IMAGE = {
   url: '/images/og-festival.jpg',
@@ -50,56 +50,28 @@ interface Competition {
   badge: string;
   badgeClass: string;
   accentClass: string;
-  /** 접수창 키 — 비기너·SUP 레이스는 beach, 오픈부는 open */
+  /** 접수창 키 — 비기너는 beach, 오픈부는 open (SUP 레이싱 취소로 beach = 비기너 전용) */
   windowKey: EntryWindowKey;
   rows: InfoRow[];
 }
 
-const COMPETITIONS: Competition[] = [
-  {
-    id: 'beginner',
-    icon: '🌊',
-    title: '비기너 서핑대회',
-    subtitle: '서핑에 막 입문한 서퍼들을 위한 무대',
-    badge: '8/5 09시 접수 시작',
-    badgeClass: 'text-ocean bg-ocean/10',
-    accentClass: 'bg-ocean/10 text-ocean',
-    windowKey: 'beach',
-    rows: [
-      { label: '장소', value: '죽도해변' },
-      {
-        label: '대회일',
-        value: '8월 29일(토) ~ 30일(일)',
-        note: '※ 기상 상황에 따라 9월 첫째주로 변경 가능',
-      },
-      { label: '종목', value: '남자부 · 여자부 (인원 제한 없음)' },
-      {
-        label: '참가대상',
-        value: '2023년 이후 입문자 (국내외 대회 입상자 제외)',
-      },
-      {
-        label: '심사',
-        value: '롱라이딩 초 재기 — 매뉴버 제한 없이 라이딩 초 수로 채점합니다.',
-        note: '전원 동일 스펀지보드 사용 예정',
-      },
-      { label: '접수', value: '8월 5일(수) 09:00 ~ 8월 9일(일) 23:59' },
-      { label: '참가비', value: '5만원' },
-      {
-        label: '시상',
-        value: '1위 30만원 · 2위 20만원 · 3위 10만원',
-        note: '남자부 · 여자부 각각 시상',
-      },
-      { label: '참가 굿즈', value: '모자 · 티셔츠 등' },
-    ],
-  },
+/**
+ * 취소된 대회 — 화면에 렌더하지 않는다 (2026-08-11 형님 확정).
+ *
+ * 「코리아 오픈 — SUP 레이싱」은 **참가자 부족으로 대회 취소**.
+ * 접수분(확정 35건 · 실인원 13명, 전원 입금 완료)은 운영 DB 에 그대로 보존되고,
+ * 여기 정의도 지우지 않고 남겨 둔다 — 취소 안내·환불 정산·결과보고에 필요한 원본이다.
+ * 되살릴 때는 아래 객체를 COMPETITIONS 배열에 다시 넣고 접수창(windowKey)만 확인하면 된다.
+ */
+const CANCELLED_COMPETITIONS: Competition[] = [
   {
     id: 'sup-race',
     icon: '🚣',
     title: '코리아 오픈 — SUP 레이싱',
     subtitle: '누구나 참가할 수 있는 기록 경기',
-    badge: '8/5 09시 접수 시작',
-    badgeClass: 'text-teal bg-teal/10',
-    accentClass: 'bg-teal/10 text-teal',
+    badge: '대회 취소',
+    badgeClass: 'text-navy/50 bg-navy/10',
+    accentClass: 'bg-navy/10 text-navy/50',
     windowKey: 'beach',
     rows: [
       { label: '장소', value: '죽도해변' },
@@ -122,6 +94,50 @@ const COMPETITIONS: Competition[] = [
         note: '6개 부문 각각 시상',
       },
       { label: '참가 굿즈', value: '모자 · 티셔츠' },
+    ],
+  },
+];
+void CANCELLED_COMPETITIONS; // 보존용 — 렌더하지 않음
+
+const COMPETITIONS: Competition[] = [
+  {
+    id: 'beginner',
+    icon: '🌊',
+    title: '비기너 서핑대회',
+    subtitle: '서핑에 막 입문한 서퍼들을 위한 무대',
+    badge: '추가 접수 ~ 8/14',
+    badgeClass: 'text-ocean bg-ocean/10',
+    accentClass: 'bg-ocean/10 text-ocean',
+    windowKey: 'beach',
+    rows: [
+      { label: '장소', value: '죽도해변' },
+      {
+        label: '대회일',
+        value: '8월 29일(토) ~ 30일(일)',
+        note: '※ 기상 상황에 따라 9월 첫째주로 변경 가능',
+      },
+      { label: '종목', value: '남자부 · 여자부 (인원 제한 없음)' },
+      {
+        label: '참가대상',
+        value: '2023년 이후 입문자 (국내외 대회 입상자 제외)',
+      },
+      {
+        label: '심사',
+        value: '롱라이딩 초 재기 — 매뉴버 제한 없이 라이딩 초 수로 채점합니다.',
+        note: '전원 동일 스펀지보드 사용 예정',
+      },
+      {
+        label: '접수',
+        value: '8월 5일(수) 09:00 ~ 8월 14일(금) 23:59',
+        note: '※ 추가 접수로 마감이 연장되었습니다',
+      },
+      { label: '참가비', value: '5만원' },
+      {
+        label: '시상',
+        value: '1위 30만원 · 2위 20만원 · 3위 10만원',
+        note: '남자부 · 여자부 각각 시상',
+      },
+      { label: '참가 굿즈', value: '모자 · 티셔츠 등' },
     ],
   },
   {
@@ -262,10 +278,9 @@ export default function FestivalPage() {
               대한서핑협회장배 서핑대회
             </h2>
             <p className="leading-relaxed text-navy/70">
-              2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너 서핑대회와
-              코리아 오픈 SUP 레이싱은 8월 말 죽도해변에서, 코리아 오픈 숏보드 · 롱보드 · SUP 서핑
-              종목은 파도 상황에 맞춰 진행합니다. 종목별 참가 자격과 접수 기간이 다르니 아래 내용을
-              확인해 주세요.
+              2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너 서핑대회는
+              8월 말 죽도해변에서, 코리아 오픈 숏보드 · 롱보드 · SUP 서핑 종목은 파도 상황에 맞춰
+              진행합니다. 종목별 참가 자격과 접수 기간이 다르니 아래 내용을 확인해 주세요.
             </p>
           </div>
 
