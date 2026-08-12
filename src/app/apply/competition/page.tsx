@@ -5,7 +5,16 @@ import CompEntryForm, {
 } from "@/components/apply/CompEntryForm";
 import CompetitionBrief from "@/components/apply/CompetitionBrief";
 import DepositNotice from "@/components/apply/DepositNotice";
-import { ENTRY_WINDOWS } from "@/lib/festival-2026";
+import {
+  ENTRY_WINDOWS,
+  ENTRY_GROUP_LABEL,
+  isInEntryGroup,
+  parseEntryGroup,
+  type EntryGroup,
+} from "@/lib/festival-2026";
+
+/** `?type=` 쿼리 (Next 16: searchParams 는 Promise) */
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 // 접수 시작(8/5 00:00 KST) 전까지는 검색 비노출, 오픈 이후 자동으로 index 허용.
 // `revalidate = 30` 덕분에 오픈 직후 최대 30초 안에 메타데이터가 갱신된다.
@@ -21,12 +30,18 @@ const OG_IMAGE = {
   alt: "2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
   const entryOpened = Date.now() >= ENTRY_WINDOWS.beach.opensAt;
+  const group = parseEntryGroup((await searchParams).type);
+  const label = group ? ENTRY_GROUP_LABEL[group] : null;
 
   return {
-    title: "대회 참가 신청",
-    description: OG_DESCRIPTION,
+    title: label?.title ?? "대회 참가 신청",
+    description: label?.description ?? OG_DESCRIPTION,
     alternates: { canonical: "https://ysakorea.com/apply/competition" },
     robots: entryOpened
       ? { index: true, follow: true }
@@ -65,17 +80,36 @@ async function fetchCompetitions(): Promise<Competition[]> {
   }
 }
 
-export default async function ApplyCompetitionPage() {
-  const initialCompetitions = await fetchCompetitions();
+export default async function ApplyCompetitionPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  // `?type=beginner|open` — 비기너와 코리아 오픈 접수창이 겹치는 8/13~8/14 에
+  // 한 폼에 네 대회가 함께 떠 신청자가 혼동하는 것을 막는다(형님 지적 2026-08-12).
+  // 파라미터가 없으면 종전대로 전부 노출 → 기존 배포 링크 무영향.
+  const group: EntryGroup | null = parseEntryGroup((await searchParams).type);
+  const label = group ? ENTRY_GROUP_LABEL[group] : null;
+  const all = await fetchCompetitions();
+  const initialCompetitions = all.filter((c) => isInEntryGroup(c.slug, group));
+  const headerTitle = label?.title ?? "대회 참가 신청";
 
   return (
     <>
       <PageHeader
-        title="대회 참가 신청"
-        description="대한서핑협회장배 서핑대회 온라인 참가 신청 (주관: 양양군서핑협회)"
+        title={headerTitle}
+        description={
+          label?.description ??
+          "대한서핑협회장배 서핑대회 온라인 참가 신청 (주관: 양양군서핑협회)"
+        }
         breadcrumbs={[
           { label: "홈", href: "/" },
-          { label: "대회 참가 신청", href: "/apply/competition" },
+          {
+            label: headerTitle,
+            href: group
+              ? `/apply/competition?type=${group}`
+              : "/apply/competition",
+          },
         ]}
       />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
@@ -83,7 +117,8 @@ export default async function ApplyCompetitionPage() {
             폼이 이 슬롯을 제일 하단에 배치한다 (형님 확정 2026-07-29) */}
         <CompEntryForm
           initialCompetitions={initialCompetitions}
-          brief={<CompetitionBrief />}
+          group={group}
+          brief={<CompetitionBrief group={group} />}
         >
           <DepositNotice />
         </CompEntryForm>

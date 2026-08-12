@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import applyTitle2026 from "../../../public/images/festival/apply_title_2026.jpg";
+import type { EntryGroup } from "@/lib/festival-2026";
 
 /**
  * 대회 접수 페이지 상단 — 타이틀 배너 + 접수 전 안내.
@@ -8,46 +9,78 @@ import applyTitle2026 from "../../../public/images/festival/apply_title_2026.jpg
  * 중복 노출을 뺐다 (형님 확정 2026-08-02).
  */
 
-const NOTICES: { icon: string; text: React.ReactNode }[] = [
-  {
-    icon: "📌",
-    text: (
-      <>
-        올해는 <strong className="text-navy">선착순 접수가 아니며, 접수 인원 제한이 없습니다.</strong>{" "}
-        접수 기간 내에 신청해 주세요.
-      </>
-    ),
-  },
-  {
-    icon: "📌",
-    text: (
-      <>
-        여러 종목에 함께 신청할 수 있으며,{" "}
-        <strong className="text-navy">참가비는 선택한 종목 수만큼 합산</strong>됩니다.
-      </>
-    ),
-  },
-  {
-    icon: "📌",
-    text: (
-      <>
-        비기너 부문은 <strong className="text-navy">2023년 1월 1일 이후 서핑 입문자</strong>만 참가할
-        수 있습니다. (입상 후 그 이전 입문이 확인되면 입상 자격이 박탈됩니다)
-      </>
-    ),
-  },
-  {
-    icon: "📌",
-    text: (
-      <>
-        참가비 입금까지 확인되면 최종 확정됩니다. 자세한 입금 안내는{" "}
-        <strong className="text-navy">이 페이지 맨 아래</strong>를 확인해 주세요.
-      </>
-    ),
-  },
-];
+type Notice = { icon: string; text: React.ReactNode };
 
-export default function CompetitionBrief() {
+/** 대회 접수 조건은 그룹마다 다르다 — 정원·참가자격을 섞어 안내하면 분쟁 소지가 된다.
+ *  비기너: 남/여 각 80명 정원 선착순 + 2023-01-01 이후 입문자.
+ *  코리아 오픈: 인원 제한 없음. (형님 확정 2026-08-10 ~ 08-12) */
+function noticesFor(group: EntryGroup | null): Notice[] {
+  const beginnerNotices: Notice[] = [
+    {
+      icon: "📌",
+      text: (
+        <>
+          비기너 서핑대회는 <strong className="text-navy">남자부 · 여자부 각 80명 정원</strong>이며,{" "}
+          <strong className="text-navy">정원이 차면 접수가 조기 마감</strong>됩니다.
+        </>
+      ),
+    },
+    {
+      icon: "📌",
+      text: (
+        <>
+          비기너 부문은 <strong className="text-navy">2023년 1월 1일 이후 서핑 입문자</strong>만 참가할
+          수 있습니다. (입상 후 그 이전 입문이 확인되면 입상 자격이 박탈됩니다)
+        </>
+      ),
+    },
+  ];
+
+  const openNotices: Notice[] = [
+    {
+      icon: "📌",
+      text: (
+        <>
+          코리아 오픈은 <strong className="text-navy">접수 인원 제한이 없습니다.</strong> 접수 기간
+          내에 신청해 주세요.
+        </>
+      ),
+    },
+  ];
+
+  const common: Notice[] = [
+    {
+      icon: "📌",
+      text: (
+        <>
+          여러 종목에 함께 신청할 수 있으며,{" "}
+          <strong className="text-navy">참가비는 선택한 종목 수만큼 합산</strong>됩니다.
+        </>
+      ),
+    },
+    {
+      icon: "📌",
+      text: (
+        <>
+          참가비 입금까지 확인되면 최종 확정됩니다. 자세한 입금 안내는{" "}
+          <strong className="text-navy">이 페이지 맨 아래</strong>를 확인해 주세요.
+        </>
+      ),
+    },
+  ];
+
+  if (group === "beginner") return [...beginnerNotices, ...common];
+  if (group === "open") return [...openNotices, ...common];
+  return [...beginnerNotices, ...openNotices, ...common];
+}
+
+export default function CompetitionBrief({
+  group = null,
+}: {
+  group?: EntryGroup | null;
+}) {
+  const notices = noticesFor(group);
+
   return (
     <section className="mb-10 space-y-6">
       {/* 타이틀 배너 (주최·주관·후원 포함) */}
@@ -64,7 +97,7 @@ export default function CompetitionBrief() {
       <div className="rounded-2xl border border-ocean/15 bg-ocean/5 p-5 sm:p-6">
         <h2 className="mb-4 text-base font-bold text-navy">접수 전 확인해 주세요</h2>
         <ul className="space-y-2.5">
-          {NOTICES.map((n, i) => (
+          {notices.map((n, i) => (
             <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-navy/70">
               <span className="shrink-0" aria-hidden="true">
                 {n.icon}

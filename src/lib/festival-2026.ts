@@ -64,3 +64,41 @@ export function formatKrw(value: number): string {
   const sign = n < 0 ? "-" : "";
   return sign + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+/**
+ * 접수 폼 그룹 — `/apply/competition?type=` 로 대회를 나눠 보여준다.
+ *
+ * 8/13~8/14 는 비기너(마감 8/14)와 코리아 오픈(8/13~8/22) 접수창이 겹쳐,
+ * 한 폼에 네 대회가 함께 뜨면 신청자가 혼동한다(형님 지적 2026-08-12).
+ * 파라미터가 없으면 종전대로 전부 노출하므로 기존에 배포한 링크는 그대로 동작한다.
+ */
+export type EntryGroup = "beginner" | "open";
+
+const ENTRY_GROUP_PREFIX: Record<EntryGroup, string> = {
+  beginner: "ksa-cup-2026-beginner",
+  open: "ksa-cup-2026-open", // -shortboard / -longboard / -sup-surfing
+};
+
+/** 쿼리스트링 값 → 그룹. 알 수 없는 값은 null(전체 노출) */
+export function parseEntryGroup(value: unknown): EntryGroup | null {
+  return value === "beginner" || value === "open" ? value : null;
+}
+
+/** 그룹에 속한 대회인지 (slug prefix 매칭) */
+export function isInEntryGroup(slug: string, group: EntryGroup | null): boolean {
+  if (!group) return true;
+  return slug.startsWith(ENTRY_GROUP_PREFIX[group]);
+}
+
+/** 그룹별 페이지 문구 — 어떤 대회 접수인지 제목에서 바로 드러나게 한다 */
+export const ENTRY_GROUP_LABEL: Record<EntryGroup, { title: string; description: string }> = {
+  beginner: {
+    title: "비기너 서핑대회 참가 신청",
+    description: "대한서핑협회장배 비기너 서핑대회 온라인 참가 신청 (주관: 양양군서핑협회)",
+  },
+  open: {
+    title: "코리아 오픈 참가 신청",
+    description:
+      "대한서핑협회장배 코리아 오픈 — 숏보드 · 롱보드 · SUP 서핑 온라인 참가 신청 (주관: 양양군서핑협회)",
+  },
+};

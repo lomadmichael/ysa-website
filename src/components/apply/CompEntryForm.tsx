@@ -4,7 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import BirthDatePicker from "./BirthDatePicker";
 import DepositNotice from "./DepositNotice";
-import { ENTRY_FEE_PER_DIVISION, formatKrw } from "@/lib/festival-2026";
+import {
+  ENTRY_FEE_PER_DIVISION,
+  formatKrw,
+  isInEntryGroup,
+  type EntryGroup,
+} from "@/lib/festival-2026";
 import { COUNTRIES, countryName } from "@/lib/countries";
 import { ACCEPTED_IMAGE_TYPES, resizeToJpeg } from "@/lib/athlete-photo";
 import { CUSTOM_COMP_SLUG } from "@/lib/custom-comp-2026";
@@ -111,8 +116,13 @@ const formatDate = (d: string) =>
  * 맞춤형 서핑대회는 참가비·수집 항목이 완전히 달라 전용 폼(/apply/custom-competition)
  * 에서만 접수한다 — 여기 섞이면 무료 대회에 참가비 5만원이 합산돼 표시된다.
  */
-function visibleCompetitions(list: Competition[]): Competition[] {
-  return list.filter((c) => c.slug !== CUSTOM_COMP_SLUG);
+function visibleCompetitions(
+  list: Competition[],
+  group: EntryGroup | null = null
+): Competition[] {
+  return list.filter(
+    (c) => c.slug !== CUSTOM_COMP_SLUG && isInEntryGroup(c.slug, group)
+  );
 }
 
 /** 부문 참가비: entry_fee_override → competition.entry_fee → 기본값 순 */
@@ -125,10 +135,13 @@ function divisionFee(d: CompDivision, c: Competition): number {
 
 export default function CompEntryForm({
   initialCompetitions = [],
+  group = null,
   brief,
   children,
 }: {
   initialCompetitions?: Competition[];
+  /** `?type=` 로 지정된 대회 그룹. null 이면 전체 노출(종전 동작) */
+  group?: EntryGroup | null;
   /**
    * 폼 위에 노출할 대회 안내(포스터·일정·장소). 접수 완료 화면에서는 숨긴다.
    */
@@ -140,7 +153,7 @@ export default function CompEntryForm({
   children?: React.ReactNode;
 }) {
   const [competitions, setCompetitions] = useState<Competition[]>(() =>
-    visibleCompetitions(initialCompetitions)
+    visibleCompetitions(initialCompetitions, group)
   );
   const [loading, setLoading] = useState(initialCompetitions.length === 0);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -213,7 +226,7 @@ export default function CompEntryForm({
       })
       .then((data: { competitions: Competition[] }) => {
         if (cancelled) return;
-        setCompetitions(visibleCompetitions(data.competitions ?? []));
+        setCompetitions(visibleCompetitions(data.competitions ?? [], group));
       })
       .catch((err: Error) => {
         if (cancelled) return;
@@ -227,7 +240,7 @@ export default function CompEntryForm({
     return () => {
       cancelled = true;
     };
-  }, [retryCount, initialCompetitions.length]);
+  }, [retryCount, initialCompetitions.length, group]);
 
   // 미리보기 objectURL 정리
   useEffect(() => {
