@@ -32,10 +32,18 @@ export const CUSTOM_COMP = {
   organizer: "양양군서핑협회",
 } as const;
 
-/** 맞춤형 서핑교실 기수 — 접수 시 택1 (lineup 에는 소속(affiliation) 값으로 저장된다) */
-export const COHORT_OPTIONS = ["1기", "2기", "3기", "4기"] as const;
+/**
+ * 맞춤형 서핑교실 기수 — 접수 시 택1 (lineup 에는 소속(affiliation) 값으로 저장된다).
+ * 수강생이 자기 기수를 기억 못 해도 요일반·시간으로 찾을 수 있게 함께 표기한다.
+ */
+export const COHORT_OPTIONS = [
+  { value: "1기", note: "주말반 12시 30분" },
+  { value: "2기", note: "주말반 15시" },
+  { value: "3기", note: "방학반 12시 30분" },
+  { value: "4기", note: "방학반 15시" },
+] as const;
 
-export type CohortOption = (typeof COHORT_OPTIONS)[number];
+export type CohortOption = (typeof COHORT_OPTIONS)[number]["value"];
 
 /** 소속 필드에 저장할 표기 — 콘솔·CSV 에서 바로 읽히도록 대회명을 붙인다 */
 export function cohortAffiliation(cohort: string): string {

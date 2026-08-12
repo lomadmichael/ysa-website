@@ -477,8 +477,7 @@ export default function CustomCompEntryForm({
         {/* 참가 부문 */}
         <Section title="참가 부문 선택" required>
           <p className="text-sm text-gray-600">
-            성인부·아동부 중 하나를 선택해주세요. 각 부문 정원은 48명이며 선착순
-            마감됩니다.
+            성인부·아동부 중 하나를 선택해주세요.
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {competition.divisions.map((d) => {
@@ -588,8 +587,8 @@ export default function CustomCompEntryForm({
               >
                 <option value="">선택해주세요</option>
                 {COHORT_OPTIONS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+                  <option key={c.value} value={c.value}>
+                    {c.value} ({c.note})
                   </option>
                 ))}
               </select>

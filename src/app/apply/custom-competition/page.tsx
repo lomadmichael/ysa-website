@@ -7,6 +7,13 @@ import { CUSTOM_COMP, CUSTOM_COMP_SLUG } from "@/lib/custom-comp-2026";
 const OG_TITLE = "2026 맞춤형 서핑대회 참가 신청";
 const OG_DESCRIPTION =
   "2026 맞춤형 서핑교실 1~4기 참가자 대상 서핑대회. 8월 23일(일) 죽도해변, 참가비 무료. 회원가입 없이 신청 가능합니다.";
+/** 카톡·SNS 공유 썸네일 — 대회 포스터 아트워크 기반 (1200x630) */
+const OG_IMAGE = {
+  url: "/images/custom-comp/og.jpg",
+  width: 1200,
+  height: 630,
+  alt: "2026 맞춤형 서핑대회 · 8월 23일(일) 죽도해변",
+};
 
 export const metadata: Metadata = {
   title: "맞춤형 서핑대회 참가 신청",
@@ -19,11 +26,13 @@ export const metadata: Metadata = {
     url: "/apply/custom-competition",
     title: OG_TITLE,
     description: OG_DESCRIPTION,
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: OG_TITLE,
     description: OG_DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
 };
 
@@ -117,9 +126,8 @@ function CustomCompBrief() {
             </span>
             <span>
               성인부·아동부 중{" "}
-              <strong className="text-navy">한 부문만 신청</strong>할 수 있으며,
-              각 부문 <strong className="text-navy">48명 선착순 마감</strong>
-              됩니다.
+              <strong className="text-navy">한 부문만 신청</strong>할 수
+              있습니다.
             </span>
           </li>
           <li className="flex gap-2.5 text-sm leading-relaxed text-navy/70">
