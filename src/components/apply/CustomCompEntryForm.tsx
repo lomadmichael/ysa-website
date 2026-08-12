@@ -575,7 +575,8 @@ export default function CustomCompEntryForm({
                 className={inputCls}
               />
               <p className="mt-1 text-xs text-gray-500">
-                아동부는 보호자 연락처를 입력해주세요.
+                아동부는 보호자 연락처를 입력해주세요. 자녀가 여러 명이면 같은
+                연락처로 각각 신청하시면 됩니다.
               </p>
             </Field>
             <Field label="맞춤형 서핑교실 기수" required>
