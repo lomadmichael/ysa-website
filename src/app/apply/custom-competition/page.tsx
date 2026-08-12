@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PageHeader from "@/components/shared/PageHeader";
+import CustomCompBanner from "@/components/apply/CustomCompBanner";
 import CustomCompEntryForm from "@/components/apply/CustomCompEntryForm";
 import type { Competition } from "@/components/apply/CompEntryForm";
 import { CUSTOM_COMP, CUSTOM_COMP_SLUG } from "@/lib/custom-comp-2026";
@@ -53,15 +53,7 @@ export default async function ApplyCustomCompetitionPage() {
 
   return (
     <>
-      <PageHeader
-        title="맞춤형 서핑대회 참가 신청"
-        description={`${CUSTOM_COMP.target} 대상 · 참가비 무료 (주관: 양양군서핑협회)`}
-        breadcrumbs={[
-          { label: "홈", href: "/" },
-          { label: "온라인 접수", href: "/apply" },
-          { label: "맞춤형 서핑대회" },
-        ]}
-      />
+      <CustomCompBanner />
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <CustomCompEntryForm
           initialCompetition={competition}
@@ -85,8 +77,9 @@ function CustomCompBrief() {
 
   return (
     <section className="mb-10 space-y-6">
+      {/* 대회명·일시·장소는 상단 배너가 이미 말했다. 여기는 접수 직전 확인용 요약 */}
       <div className="rounded-2xl border border-ocean/15 bg-ocean/5 p-5 sm:p-6">
-        <h2 className="text-xl font-bold text-navy">{CUSTOM_COMP.title}</h2>
+        <h2 className="text-xl font-bold text-navy">대회 안내</h2>
         <p className="mt-1.5 text-sm text-navy/60">
           한 해 동안 맞춤형 서핑교실에서 함께 배운 실력을 겨루는 대회입니다.
         </p>
