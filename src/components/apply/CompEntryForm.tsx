@@ -510,7 +510,7 @@ export default function CompEntryForm({
           athlete_email: form.athlete_email || null,
           affiliation: form.affiliation || null,
           // 해설자 소개용 선택 항목 — 값이 있을 때만 전송 (계약: 보낸 경우만 기록)
-          ...(form.started_year.trim()
+          ...(beginnerSelected && form.started_year.trim()
             ? { started_year: form.started_year.trim() }
             : {}),
           ...(form.intro_message.trim()
@@ -932,25 +932,29 @@ export default function CompEntryForm({
                 선택 사항이며, 없으시면 안 적으셔도 됩니다.
               </p>
             </Field>
-            <Field label="서핑 입문연도">
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={4}
-                value={form.started_year}
-                onChange={(e) =>
-                  updateField(
-                    "started_year",
-                    e.target.value.replace(/[^0-9]/g, ""),
-                  )
-                }
-                placeholder="예: 2023"
-                className={inputCls}
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                선택 사항 — 현장 해설자가 선수 소개에 활용합니다.
-              </p>
-            </Field>
+            {/* 입문연도는 비기너 대회 소개용 항목 — 코리아 오픈에는 불필요
+                (형님 지적 2026-08-12). 비기너 부문을 선택했을 때만 노출한다. */}
+            {beginnerSelected && (
+              <Field label="서핑 입문연도">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={form.started_year}
+                  onChange={(e) =>
+                    updateField(
+                      "started_year",
+                      e.target.value.replace(/[^0-9]/g, ""),
+                    )
+                  }
+                  placeholder="예: 2023"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  선택 사항 — 현장 해설자가 선수 소개에 활용합니다.
+                </p>
+              </Field>
+            )}
             <div className="md:col-span-2">
               <Field label="하고 싶은 말">
                 <textarea
