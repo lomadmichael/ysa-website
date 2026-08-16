@@ -10,6 +10,13 @@ import {
 
 const OG_DESCRIPTION =
   "2026 랜드서핑 성과공유회 참가 신청. 8월 23일(일) 죽도해변, 랜드서핑교실 1·2기 참가자와 학부모 대상, 참가비 무료.";
+/** 카톡·SNS 공유 썸네일 — 접수 페이지 배너와 같은 수업 사진 기반 (1200x630) */
+const OG_IMAGE = {
+  url: "/images/landsurf/og.jpg",
+  width: 1200,
+  height: 630,
+  alt: "2026 랜드서핑 성과공유회 · 8월 23일(일) 죽도해변",
+};
 
 export const metadata: Metadata = {
   title: "랜드서핑 성과공유회 참가 신청",
@@ -20,6 +27,13 @@ export const metadata: Metadata = {
     url: "/apply/landsurfing",
     title: "2026 랜드서핑 성과공유회 참가 신청",
     description: OG_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "2026 랜드서핑 성과공유회 참가 신청",
+    description: OG_DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
 };
 
