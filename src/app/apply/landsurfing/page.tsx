@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PageHeader from "@/components/shared/PageHeader";
+import LandSurfBanner from "./LandSurfBanner";
 import LandSurfForm from "./LandSurfForm";
 import {
   LANDSURF,
@@ -31,15 +31,7 @@ export default function LandSurfingPage() {
 
   return (
     <>
-      <PageHeader
-        title="랜드서핑 성과공유회 참가 신청"
-        description={`${LANDSURF.dateLabel} · ${LANDSURF.venue} · 참가비 무료`}
-        breadcrumbs={[
-          { label: "홈", href: "/" },
-          { label: "온라인 접수", href: "/apply" },
-          { label: "랜드서핑 성과공유회" },
-        ]}
-      />
+      <LandSurfBanner />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <section className="mb-10 space-y-6">
