@@ -54,7 +54,7 @@ export default async function LandSurfAdminPage() {
         <Stat label="동반 가족" value={`${companions}명`} />
       </div>
       <p className="mb-6 text-sm text-navy/60">
-        점심 준비 인원은 신청자 {rows.length}명 + 동반 가족 {companions}명 ={" "}
+        당일 예상 인원은 신청자 {rows.length}명 + 동반 가족 {companions}명 ={" "}
         <strong className="text-navy">{rows.length + companions}명</strong> 입니다.
       </p>
 

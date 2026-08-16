@@ -52,7 +52,7 @@ export default function LandSurfingPage() {
             <dl className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
               {[
                 { label: "일시", value: `${LANDSURF.dateLabel} ${LANDSURF.timeLabel}` },
-                { label: "장소", value: LANDSURF.venue },
+                { label: "집결", value: LANDSURF.assemblePlace },
                 { label: "대상", value: LANDSURF.target },
                 { label: "참가비", value: LANDSURF.feeLabel },
                 { label: "접수 마감", value: LANDSURF_CLOSE_LABEL },

@@ -2,6 +2,7 @@
 
 import { LANDSURF_COHORTS, MAX_COMPANIONS } from "@/lib/landsurf-2026";
 import { normalizePhone, submitLandSurf } from "@/lib/landsurf";
+import { sendLandSurfApplicationSms } from "@/lib/landsurf-sms";
 
 /**
  * 랜드서핑 성과공유회 접수 서버 액션.
@@ -53,6 +54,23 @@ export async function submitLandSurfAction(
       status: "error",
       message: ERROR_MESSAGES[result.error] ?? ERROR_MESSAGES.server,
     };
+  }
+
+  // 접수 확인 문자 (형님 승인 2026-08-16).
+  // 발송 실패가 이미 저장된 접수를 되돌리면 안 되므로 삼켜서 로그만 남긴다.
+  // ⚠️ Vercel serverless 는 응답 후 백그라운드가 소실되므로 반드시 await.
+  try {
+    const sms = await sendLandSurfApplicationSms({
+      phone,
+      name,
+      cohort,
+      companions,
+    });
+    if (!sms.success) {
+      console.error(`[landsurf] 접수 확인 문자 실패 (${phone}): ${sms.reason}`);
+    }
+  } catch (e) {
+    console.error(`[landsurf] 접수 확인 문자 예외 (${phone}):`, e);
   }
 
   return { status: "success", cohort: result.cohort, name };

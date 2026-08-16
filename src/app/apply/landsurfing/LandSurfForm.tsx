@@ -69,12 +69,15 @@ export default function LandSurfForm({ closed }: { closed: boolean }) {
 
         <div className="border-t border-dashed border-gray-200 px-6 sm:px-10 py-6">
           <dl className="space-y-3 text-sm">
-            <Row label="일시" value={`${LANDSURF.dateLabel} ${LANDSURF.timeLabel}`} />
-            <Row label="장소" value={LANDSURF.venue} />
+            <Row
+              label="일시"
+              value={`${LANDSURF.dateLabel} ${LANDSURF.assembleLabel}`}
+            />
+            <Row label="장소" value={LANDSURF.assemblePlace} />
             <Row label="참가비" value="무료" />
           </dl>
           <p className="mt-5 rounded-lg bg-gray-50 px-4 py-3 text-sm leading-relaxed text-navy/70">
-            준비물과 세부 진행 순서는 접수 마감 후 입력하신 연락처로 안내드립니다.
+            접수 확인 문자를 보내드렸습니다. 우천 시 진행 방식이 달라질 수 있으며,
             변경이나 취소가 필요하시면 양양군서핑협회로 연락해주세요.
           </p>
         </div>
@@ -170,8 +173,8 @@ export default function LandSurfForm({ closed }: { closed: boolean }) {
             className={inputCls}
           />
           <p className="mt-1 text-xs text-gray-500">
-            선택 사항입니다. 함께 오시는 가족이 있으면 인원수를 적어주세요. (본인 제외,
-            점심 준비에 참고합니다)
+            선택 사항입니다. 함께 오시는 가족이 있으면 본인을 제외한 인원수를
+            적어주세요.
           </p>
         </Field>
       </section>
