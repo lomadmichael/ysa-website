@@ -30,7 +30,8 @@ export async function sendLandSurfApplicationSms(params: {
     HEAD,
     `${params.name}님, 신청이 정상 접수되었습니다.`,
     "",
-    `▶ 일시: 8월 23일(일) ${LANDSURF.assembleLabel}`,
+    // 집결 시각은 확정 전이라 날짜만 안내한다 (형님 지시 2026-08-16)
+    `▶ 일시: 8월 23일(일)`,
     `▶ 장소: ${LANDSURF.assemblePlace}`,
     `▶ 참가 기수: ${params.cohort}`,
     // 동반 가족을 적지 않았으면 줄 자체를 넣지 않는다 (문자 길이 절약)

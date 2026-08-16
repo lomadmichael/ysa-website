@@ -69,10 +69,7 @@ export default function LandSurfForm({ closed }: { closed: boolean }) {
 
         <div className="border-t border-dashed border-gray-200 px-6 sm:px-10 py-6">
           <dl className="space-y-3 text-sm">
-            <Row
-              label="일시"
-              value={`${LANDSURF.dateLabel} ${LANDSURF.assembleLabel}`}
-            />
+            <Row label="일시" value={LANDSURF.dateLabel} />
             <Row label="장소" value={LANDSURF.assemblePlace} />
             <Row label="참가비" value="무료" />
           </dl>
