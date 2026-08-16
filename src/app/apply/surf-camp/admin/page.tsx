@@ -28,6 +28,7 @@ import {
   setNotesAction,
   setOpenAction,
   setOpenAtAction,
+  setProgramGatesAction,
 } from './actions';
 import AdminLogin from './AdminLogin';
 
@@ -63,6 +64,11 @@ async function saveCapacity(formData: FormData): Promise<void> {
 async function saveOpenAt(formData: FormData): Promise<void> {
   'use server';
   await setOpenAtAction({}, formData);
+}
+
+async function saveProgramGates(formData: FormData): Promise<void> {
+  'use server';
+  await setProgramGatesAction({}, formData);
 }
 
 async function saveNotes(formData: FormData): Promise<void> {
@@ -151,6 +157,10 @@ function first(value: string | string[] | undefined): string {
 
 function ProgramCard({ title, data }: { title: string; data: ProgramAvailability }) {
   const remain = Math.max(0, data.capacity - data.confirmed);
+  // 확정+대기 합계. 게이트(총 상한)의 판정 좌변이며 정원과는 다른 숫자다.
+  const total = data.total_taken ?? data.confirmed + data.waitlist;
+  const gateOff = data.open === false;
+  const capReached = data.total_cap != null && total >= data.total_cap;
   return (
     <div className="rounded-lg border border-foam bg-white p-4">
       <p className="text-[13px] font-bold text-navy/60">{title}</p>
@@ -160,6 +170,16 @@ function ProgramCard({ title, data }: { title: string; data: ProgramAvailability
       </p>
       <p className="mt-1 text-[13px] text-navy/70">
         대기 {data.waitlist}명 · 잔여 {remain}명
+      </p>
+      <p
+        className={`mt-1 text-[13px] font-bold ${gateOff || capReached ? 'text-sunset' : 'text-ocean'}`}
+      >
+        신규접수 {gateOff ? '마감' : capReached ? '상한 도달' : '접수중'}
+        <span className="font-normal text-navy/60">
+          {' '}
+          · 확정+대기 {total}
+          {data.total_cap != null ? ` / 총 상한 ${data.total_cap}` : ' (총 상한 없음)'}
+        </span>
       </p>
     </div>
   );
@@ -395,6 +415,105 @@ export default async function SurfcampAdminPage({
           <p className="text-[12px] text-navy/50">
             정원을 늘리면 대기자가 순서대로 자동 확정되고 안내 문자가 발송됩니다.
           </p>
+        </section>
+
+        {/* ── 프로그램별 신규접수 ──────────────────────────────────────────── */}
+        <section className="mt-4 rounded-lg border border-foam bg-white p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-[15px] font-bold text-navy">프로그램별 신규접수</h2>
+            <p className="text-[12px] font-bold text-ocean">
+              위의 「정원」과 다릅니다 — 정원을 바꾸면 대기자가 승급되고 확정 문자가
+              나가지만, 여기 설정은 승급도 문자도 일으키지 않고 새 신청만 막습니다.
+            </p>
+          </div>
+
+          <form action={saveProgramGates} className="mt-3 flex flex-wrap items-end gap-6">
+            <div>
+              <p className="mb-1 text-[13px] font-bold text-navy/60">서핑강습</p>
+              <label className="flex h-10 items-center gap-2 text-[14px] text-navy">
+                <input
+                  type="checkbox"
+                  name="lesson_open"
+                  defaultChecked={availability?.lesson.open !== false}
+                />
+                신규 접수 받기
+              </label>
+            </div>
+            <div>
+              <label
+                htmlFor="gate-lesson-cap"
+                className="mb-1 block text-[13px] font-bold text-navy/60"
+              >
+                서핑강습 총 상한 <span className="font-normal">(확정+대기)</span>
+              </label>
+              <input
+                id="gate-lesson-cap"
+                type="number"
+                name="lesson_total_cap"
+                min={0}
+                max={9999}
+                placeholder="무제한"
+                defaultValue={availability?.lesson.total_cap ?? ''}
+                className="h-10 w-28 rounded-md border border-foam bg-white px-3 text-[14px] outline-none focus:border-teal"
+              />
+            </div>
+
+            <div>
+              <p className="mb-1 text-[13px] font-bold text-navy/60">
+                {programLabel('special')}
+              </p>
+              <label className="flex h-10 items-center gap-2 text-[14px] text-navy">
+                <input
+                  type="checkbox"
+                  name="special_open"
+                  defaultChecked={availability?.special.open !== false}
+                />
+                신규 접수 받기
+              </label>
+            </div>
+            <div>
+              <label
+                htmlFor="gate-special-cap"
+                className="mb-1 block text-[13px] font-bold text-navy/60"
+              >
+                {programLabel('special')} 총 상한{' '}
+                <span className="font-normal">(확정+대기)</span>
+              </label>
+              <input
+                id="gate-special-cap"
+                type="number"
+                name="special_total_cap"
+                min={0}
+                max={9999}
+                placeholder="무제한"
+                defaultValue={availability?.special.total_cap ?? ''}
+                className="h-10 w-28 rounded-md border border-foam bg-white px-3 text-[14px] outline-none focus:border-teal"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="h-10 rounded-md border border-ocean px-4 text-[14px] font-bold text-ocean hover:bg-ocean hover:text-white transition-colors"
+            >
+              신규접수 설정 저장
+            </button>
+          </form>
+
+          <ul className="mt-3 space-y-1 text-[12px] text-navy/50">
+            <li>
+              · 체크를 끄면 그 프로그램의 <strong className="text-navy/70">새 신청만</strong>{' '}
+              막힙니다. 이미 접수된 확정·대기는 그대로 유지되고, 취소가 발생하면 대기자는
+              순번대로 자동 확정됩니다.
+            </li>
+            <li>
+              · 총 상한은 <strong className="text-navy/70">확정+대기 합계</strong> 기준입니다.
+              비워 두면 무제한이며, 합계가 상한에 닿으면 새 신청을 받지 않습니다. 상한을
+              낮춰도 이미 접수된 건은 취소되지 않습니다.
+            </li>
+            <li>
+              · 두 프로그램을 모두 끄면 신청 폼 자리에 마감 안내가 표시됩니다.
+            </li>
+          </ul>
         </section>
 
         {/* ── 예약 오픈 ────────────────────────────────────────────────────── */}

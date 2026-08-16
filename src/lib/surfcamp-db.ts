@@ -57,7 +57,24 @@ export interface ProgramAvailability {
   capacity: number;
   confirmed: number;
   waitlist: number;
+  /**
+   * 프로그램 개별 신규접수 스위치(014). false 면 이 프로그램의 신규 신청을 받지 않는다.
+   * ★ 전체 오픈(open)과 다르고, 기존 대기자의 자동 승급과도 무관하다 —
+   *   강습이 막혀 있어도 취소가 나면 대기자는 순번대로 확정된다.
+   */
+  open?: boolean;
+  /** 확정+대기 합계 상한(014). null 이면 무제한. */
+  total_cap?: number | null;
+  /** 현재 확정+대기 합계(014). total_cap 판정의 좌변. */
+  total_taken?: number;
 }
+
+/**
+ * 게이트에 막혀 이번 요청에서 제외된 프로그램 → 사유 코드.
+ * 값은 'lesson_closed' | 'lesson_full' | 'special_closed' | 'special_full'.
+ * 비어 있으면 제외된 프로그램이 없다.
+ */
+export type BlockedPrograms = Partial<Record<ProgramKey, string>>;
 
 export interface SurfcampAvailability {
   /**
@@ -190,6 +207,8 @@ export interface SubmitSuccess {
     lesson: ProgramOutcome | null;
     special: ProgramOutcome | null;
   };
+  /** 마감·상한에 걸려 이번 접수에서 제외된 프로그램. 화면이 그 사실을 안내한다. */
+  blocked?: BlockedPrograms;
   promoted: Promoted[];
 }
 export type SubmitResult = SubmitSuccess | RpcFailure;
@@ -203,6 +222,8 @@ export interface UpdateSuccess {
   };
   /** 수정 후 이 신청서의 프로그램별 확정/대기 인원 */
   current: Partial<Record<ProgramKey, { confirmed: number; waitlist: number }>> | null;
+  /** 마감·상한에 걸려 반영하지 못한 추가분. 기존 신청은 손대지 않는다. */
+  blocked?: BlockedPrograms;
   promoted: Promoted[];
 }
 export type UpdateResult = UpdateSuccess | RpcFailure;
@@ -245,6 +266,16 @@ export type SetNotesResult =
 
 export type SetCapacityResult =
   | { ok: true; lesson: number; special: number; promoted: Promoted[] }
+  | RpcFailure;
+
+export type SetProgramGatesResult =
+  | {
+      ok: true;
+      lesson_open: boolean;
+      special_open: boolean;
+      lesson_total_cap: number | null;
+      special_total_cap: number | null;
+    }
   | RpcFailure;
 
 // ── RPC 래퍼 ──────────────────────────────────────────────────────────────────
@@ -353,6 +384,31 @@ export async function setOpen(open: boolean): Promise<SetOpenResult> {
  */
 export async function setOpenAt(openAtIso: string | null): Promise<SetOpenAtResult> {
   return callRpc<SetOpenAtResult>('surfcamp_set_open_at', { p_open_at: openAtIso });
+}
+
+/**
+ * 프로그램별 신규접수 게이트 설정.
+ *
+ * ★ 정원(setCapacity)과 헷갈리지 말 것.
+ *   정원을 바꾸면 대기자가 승급되고 확정 문자가 나간다.
+ *   게이트는 정원을 건드리지 않으므로 승급도 문자도 발생하지 않는다 —
+ *   "지금부터 새 신청을 받지 않는다"만 바뀐다. 기존 확정/대기는 그대로다.
+ *
+ * @param lessonTotalCap  서핑강습 확정+대기 합계 상한. null 이면 무제한.
+ * @param specialTotalCap 서핑 특화 체험 확정+대기 합계 상한. null 이면 무제한.
+ */
+export async function setProgramGates(
+  lessonOpen: boolean,
+  specialOpen: boolean,
+  lessonTotalCap: number | null,
+  specialTotalCap: number | null,
+): Promise<SetProgramGatesResult> {
+  return callRpc<SetProgramGatesResult>('surfcamp_set_program_gates', {
+    p_lesson_open: lessonOpen,
+    p_special_open: specialOpen,
+    p_lesson_total_cap: lessonTotalCap,
+    p_special_total_cap: specialTotalCap,
+  });
 }
 
 /** 정원 조절. 증설 시 대기열 승급까지 함께 수행된다. */

@@ -12,7 +12,7 @@ import {
   SMS_SENDER_ORG,
   programLabel,
 } from '@/lib/surfcamp-config';
-import type { SurfcampAvailability } from '@/lib/surfcamp-db';
+import type { ProgramAvailability, SurfcampAvailability } from '@/lib/surfcamp-db';
 import campImage from '../../../../public/images/surf-camp/camp.jpg';
 
 /**
@@ -84,6 +84,16 @@ const specialRows = (capacity: number): GuideRow[] => [
   },
 ];
 
+/**
+ * 프로그램별 신규접수 차단 여부. SurfCampForm 의 gateReason 과 같은 판정이다.
+ * (한쪽은 클라이언트 컴포넌트, 한쪽은 서버 컴포넌트라 각자 들고 있다)
+ */
+function isProgramClosed(p?: ProgramAvailability): boolean {
+  if (!p) return false;
+  if (p.open === false) return true;
+  return p.total_cap != null && (p.total_taken ?? 0) >= p.total_cap;
+}
+
 export default function ProgramGuide({
   availability,
 }: {
@@ -91,6 +101,8 @@ export default function ProgramGuide({
 }) {
   const capLesson = availability?.lesson.capacity ?? DEFAULT_CAPACITY.lesson;
   const capSpecial = availability?.special.capacity ?? DEFAULT_CAPACITY.special;
+  const lessonClosed = isProgramClosed(availability?.lesson);
+  const specialClosed = isProgramClosed(availability?.special);
 
   return (
     <section className="mx-auto max-w-3xl px-4 pt-10 md:pt-14">
@@ -125,12 +137,14 @@ export default function ProgramGuide({
           accent="var(--color-ocean)"
           title={programLabel('lesson')}
           capacity={`정원 ${capLesson}명`}
+          closed={lessonClosed}
           rows={lessonRows(capLesson)}
         />
         <ProgramCard
           accent="var(--color-teal)"
           title={programLabel('special')}
           capacity={`정원 ${capSpecial}명`}
+          closed={specialClosed}
           rows={specialRows(capSpecial)}
         />
       </div>
@@ -250,11 +264,14 @@ function ProgramCard({
   accent,
   title,
   capacity,
+  closed,
   rows,
 }: {
   accent: string;
   title: string;
   capacity: string;
+  /** 신규 접수가 마감된 프로그램. 기존 확정·대기에는 영향이 없다. */
+  closed?: boolean;
   rows: GuideRow[];
 }) {
   return (
@@ -266,14 +283,27 @@ function ProgramCard({
         }}
       >
         <h3 className="text-base font-bold text-navy">{title}</h3>
-        <span
-          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-          style={{
-            background: `color-mix(in srgb, ${accent} 12%, transparent)`,
-            color: accent,
-          }}
-        >
-          {capacity}
+        <span className="flex flex-wrap items-center gap-1.5">
+          {closed && (
+            <span
+              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold"
+              style={{
+                background: 'color-mix(in srgb, var(--color-sunset) 15%, transparent)',
+                color: 'var(--color-sunset)',
+              }}
+            >
+              접수 마감
+            </span>
+          )}
+          <span
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+            style={{
+              background: `color-mix(in srgb, ${accent} 12%, transparent)`,
+              color: accent,
+            }}
+          >
+            {capacity}
+          </span>
         </span>
       </div>
       <dl className="space-y-2.5 border-t border-gray-100 px-5 py-4">

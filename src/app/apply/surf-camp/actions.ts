@@ -43,6 +43,17 @@ function fail(message: string): SurfCampFormState {
 /** RPC error 코드 → 사용자 문구 */
 const ERROR_MESSAGES: Record<string, string> = {
   closed: '접수가 마감되었습니다.',
+  // 프로그램별 신규접수 게이트. 이미 접수된 대기 순번·자동 확정에는 영향이 없다.
+  lesson_closed:
+    '서핑강습은 신규 접수가 마감되었습니다. 다른 프로그램만 선택해 다시 신청해 주세요.',
+  special_closed:
+    '서핑 특화 체험은 신규 접수가 마감되었습니다. 다른 프로그램만 선택해 다시 신청해 주세요.',
+  lesson_full:
+    '서핑강습은 접수 상한에 도달해 더 이상 신청을 받지 않습니다. 다른 프로그램만 선택해 다시 신청해 주세요.',
+  special_full:
+    '서핑 특화 체험은 접수 상한에 도달해 더 이상 신청을 받지 않습니다. 신청 인원을 줄이거나 다른 프로그램만 선택해 다시 시도해 주세요.',
+  all_programs_closed:
+    '선택하신 프로그램이 모두 신규 접수 마감되었습니다. 이미 접수하신 분의 대기 순번과 자동 확정은 그대로 유지됩니다.',
   duplicate_phone:
     '이미 해당 번호로 접수된 신청이 있습니다. 수정·취소는 본인 인증 후 가능합니다.',
   consent_required:

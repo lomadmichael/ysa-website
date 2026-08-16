@@ -8,6 +8,7 @@ import OpenCountdown from '@/components/apply/surf-camp/OpenCountdown';
 import ParticipantEditor, {
   emptyParticipant,
   serializeParticipants,
+  type ClosedProgramReasons,
   type ParticipantRow,
 } from '@/components/apply/surf-camp/ParticipantEditor';
 import {
@@ -29,9 +30,35 @@ import {
   programLabel,
   regionLabel,
 } from '@/lib/surfcamp-config';
-import type { ProgramOutcome, SurfcampAvailability } from '@/lib/surfcamp-db';
+import type {
+  ProgramAvailability,
+  ProgramOutcome,
+  SurfcampAvailability,
+} from '@/lib/surfcamp-db';
 
 const initialState: SurfCampFormState = { status: 'idle' };
+
+/**
+ * 프로그램별 신규접수 차단 사유.
+ *
+ * 전체 오픈/마감(availability.open)과는 별개의 축이다. 접수가 열려 있어도
+ * 프로그램 단위로는 막혀 있을 수 있다.
+ *   closed : 관리자가 그 프로그램의 신규접수를 껐다
+ *   full   : 확정+대기 합계가 상한에 도달했다
+ * ★ 여기서 막혀도 이미 접수된 대기자의 자동 승급은 그대로 동작한다.
+ */
+function gateReason(p: ProgramAvailability): 'closed' | 'full' | null {
+  if (p.open === false) return 'closed';
+  if (p.total_cap != null && (p.total_taken ?? 0) >= p.total_cap) return 'full';
+  return null;
+}
+
+/** 체크박스 아래에 붙는 사유 문구 (프로그램 이름은 이미 옆에 있으므로 반복하지 않는다) */
+function gateText(p: ProgramAvailability, reason: 'closed' | 'full'): string {
+  return reason === 'full' && p.total_cap != null
+    ? `접수 상한 ${p.total_cap}명에 도달해 신규 접수가 마감되었습니다.`
+    : '정원과 대기 인원이 모두 차 신규 접수가 마감되었습니다.';
+}
 
 const inputCls =
   'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple/40 focus:border-purple';
@@ -56,6 +83,15 @@ export default function SurfCampForm({
   const [lessonTime, setLessonTime] = useState('');
 
   const closed = KILL_SWITCH || !availability.open;
+
+  // 프로그램별 신규접수 게이트. 막힌 프로그램만 빼고 나머지는 계속 접수한다.
+  const lessonGate = gateReason(availability.lesson);
+  const specialGate = gateReason(availability.special);
+  const closedPrograms: ClosedProgramReasons = {
+    ...(lessonGate ? { lesson: gateText(availability.lesson, lessonGate) } : {}),
+    ...(specialGate ? { special: gateText(availability.special, specialGate) } : {}),
+  };
+  const allProgramsClosed = lessonGate !== null && specialGate !== null;
 
   // ── 접수 전 / 마감 / 일시 중단 ─────────────────────────────────────────────
   if (closed) {
@@ -134,6 +170,12 @@ export default function SurfCampForm({
     const { lesson, special } = state.result.programs;
     const anyWaitlist = lesson?.status === 'waitlist' || special?.status === 'waitlist';
     const accent = anyWaitlist ? 'sunset' : 'teal';
+    // 마감된 프로그램은 접수에서 조용히 빠진다. 말해 주지 않으면 신청자는
+    // 신청됐다고 오해한 채 현장에 온다.
+    const blocked = state.result.blocked ?? {};
+    const blockedLabels = (['lesson', 'special'] as const)
+      .filter((k) => blocked[k])
+      .map((k) => programLabel(k));
 
     return (
       <div
@@ -196,6 +238,17 @@ export default function SurfCampForm({
           </dl>
         </div>
 
+        {blockedLabels.length > 0 && (
+          <div
+            className="border-t border-gray-100 px-6 py-4 text-xs leading-relaxed text-navy/70 sm:px-10 sm:text-sm"
+            style={{ background: 'color-mix(in srgb, var(--color-sunset) 10%, transparent)' }}
+          >
+            <strong className="text-navy">{blockedLabels.join(' · ')}</strong>은 신규 접수가
+            마감되어 이번 신청에서 제외되었습니다. 위 「신청 내역」에 표시된 프로그램만
+            접수되었습니다. 문의는 {INQUIRY_TEL}로 부탁드립니다.
+          </div>
+        )}
+
         {anyWaitlist && (
           <div
             className="border-t border-gray-100 px-6 py-4 text-xs leading-relaxed text-navy/70 sm:px-10 sm:text-sm"
@@ -242,6 +295,33 @@ export default function SurfCampForm({
           </Link>
         </div>
       </div>
+    );
+  }
+
+  // ── 두 프로그램 모두 신규 접수 마감 ────────────────────────────────────────
+  // 전체 스위치가 열려 있어도 받을 수 있는 프로그램이 하나도 없으면 폼을 띄우지 않는다.
+  // (이미 접수하신 분의 대기 순번과 자동 확정은 그대로 유지된다)
+  if (allProgramsClosed) {
+    return (
+      <ClosedNotice title="접수가 마감되었습니다">
+        <p className="mt-3 text-sm leading-relaxed text-navy/60">
+          {EVENT.name}의 두 프로그램 모두 신규 접수가 마감되었습니다.
+        </p>
+        <ul className="mx-auto mt-4 max-w-md space-y-1.5 text-left text-sm text-navy/70">
+          <li>
+            · <strong className="text-navy">{programLabel('lesson')}</strong> —{' '}
+            {gateText(availability.lesson, lessonGate)}
+          </li>
+          <li>
+            · <strong className="text-navy">{programLabel('special')}</strong> —{' '}
+            {gateText(availability.special, specialGate)}
+          </li>
+        </ul>
+        <p className="mt-4 text-sm leading-relaxed text-navy/60">
+          이미 접수하신 분의 확정·대기 순번은 그대로 유지되며, 취소가 발생하면 대기 순번대로
+          자동 확정되어 문자로 안내드립니다.
+        </p>
+      </ClosedNotice>
     );
   }
 
@@ -394,7 +474,41 @@ export default function SurfCampForm({
           </strong>{' '}
           프로그램별로 신청서를 따로 작성하실 필요는 없습니다.
         </p>
-        <ParticipantEditor value={participants} onChange={setParticipants} />
+        {/* 한쪽 프로그램만 마감된 경우 — 체크박스를 눌러 보기 전에 먼저 알려 준다. */}
+        {(lessonGate || specialGate) && (
+          <div
+            className="rounded-xl border px-4 py-3.5 text-sm leading-relaxed text-navy/75"
+            style={{
+              borderColor: 'color-mix(in srgb, var(--color-sunset) 55%, transparent)',
+              background: 'color-mix(in srgb, var(--color-sunset) 12%, transparent)',
+            }}
+          >
+            <p className="font-bold text-navy">신규 접수가 마감된 프로그램이 있습니다.</p>
+            <ul className="mt-1.5 space-y-1">
+              {lessonGate && (
+                <li>
+                  · <strong className="text-navy">{programLabel('lesson')}</strong> —{' '}
+                  {gateText(availability.lesson, lessonGate)}
+                </li>
+              )}
+              {specialGate && (
+                <li>
+                  · <strong className="text-navy">{programLabel('special')}</strong> —{' '}
+                  {gateText(availability.special, specialGate)}
+                </li>
+              )}
+            </ul>
+            <p className="mt-1.5 text-xs text-navy/60">
+              마감된 프로그램은 선택하실 수 없습니다. 남은 프로그램은 계속 신청하실 수
+              있습니다. 이미 접수하신 분의 대기 순번과 자동 확정은 그대로 유지됩니다.
+            </p>
+          </div>
+        )}
+        <ParticipantEditor
+          value={participants}
+          onChange={setParticipants}
+          closedPrograms={closedPrograms}
+        />
       </Section>
 
       {/* 동의 */}

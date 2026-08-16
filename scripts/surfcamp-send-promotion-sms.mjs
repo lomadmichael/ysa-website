@@ -1,17 +1,18 @@
 /**
- * 2026 양양 서핑캠프 — 취소 확인 문자 1건 발송.
+ * 2026 양양 서핑캠프 — 대기 → 확정 승급 안내 문자.
  *
- * 본인이 문자로 취소를 요청한 건에 쓴다.
+ * 관리자 화면으로 취소하면 승급 문자가 자동으로 나가지만,
+ * DB(RPC)에서 직접 취소하면 승급만 일어나고 문자는 나가지 않는다.
+ * 그때 승급자에게 수동으로 알리기 위한 스크립트다.
  *
- * ★ 문구에 취소 "사유"를 넣지 않는다.
- *   DB 에는 집계를 위해 사유(예: 일정 변경)를 남기지만, 그 문구가 그대로 문자로
- *   나가면 "행사 일정이 바뀌어서 운영측이 나를 잘랐다"로 읽힌다.
- *   반대로 "본인 요청"이라고 못박으면, 본인이 요청하지 않은 취소에서 반발을 산다.
- *   그래서 문자에는 사유를 빼고 "요청하신 대로" 로만 알린다.
+ * 승급자는 "내가 확정됐는지" 알 방법이 없으므로 이 문자가 빠지면 안 된다.
  *
  * 사용법 (ysa-website 디렉터리에서):
- *   node scripts/surfcamp-send-cancel-sms.mjs --to 01012345678          # 드라이런
- *   node scripts/surfcamp-send-cancel-sms.mjs --to 01012345678 --send   # 실제 발송
+ *   node scripts/surfcamp-send-promotion-sms.mjs --to 01012345678 --count 2            # 드라이런
+ *   node scripts/surfcamp-send-promotion-sms.mjs --to 01012345678 --count 2 --send     # 발송
+ *
+ * --count 는 확정된 인원 수(해당 프로그램 기준). 생략하면 문구에서 인원을 뺀다.
+ * --program lesson|special (기본 lesson)
  */
 
 import { createHmac, randomBytes } from 'node:crypto';
@@ -42,46 +43,52 @@ const API_SECRET = env.SOLAPI_API_SECRET;
 const SENDER = (env.SOLAPI_SENDER || '').replace(/[-\s]/g, '');
 
 const args = process.argv.slice(2);
-const toIdx = args.indexOf('--to');
-const to = toIdx >= 0 ? args[toIdx + 1]?.replace(/\D/g, '') : null;
+const val = (flag) => {
+  const i = args.indexOf(flag);
+  return i >= 0 ? args[i + 1] : null;
+};
+const to = val('--to')?.replace(/\D/g, '');
+const count = val('--count');
+const program = val('--program') ?? 'lesson';
 const doSend = args.includes('--send');
-/**
- * 행사 일자를 9/12~13 → 9/19~20 으로 옮긴 탓에 참여가 어려워져 취소하는 경우.
- * 우리 사정으로 생긴 취소이므로 사과 한 줄을 넣는다.
- */
-const apology = args.includes('--apology');
-if (!to) throw new Error('사용법: --to 01012345678 [--apology] [--send]');
+if (!to) throw new Error('사용법: --to 01012345678 [--count 2] [--program lesson|special] [--send]');
 
-// 이름 조회 — 취소된 건까지 포함해서 찾는다(이미 취소 처리한 뒤 보내는 경우가 많다)
-const res = await fetch(
-  `${SUPABASE_URL}/rest/v1/rpc/surfcamp_admin_list`,
-  {
-    method: 'POST',
-    headers: {
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ p_include_cancelled: true }),
+const PROGRAM_LABEL = { lesson: '서핑강습', special: '서핑 특화 체험' };
+const SCHEDULE = {
+  lesson: '9월 19일(토), 신청하신 시간대로 진행됩니다.',
+  special: '9월 19일(토)~20일(일)\n  장소 : 웨이브웍스 (양양군 현남면 인구중앙길 110)',
+};
+
+// 이름 조회
+const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/surfcamp_admin_list`, {
+  method: 'POST',
+  headers: {
+    apikey: SERVICE_KEY,
+    Authorization: `Bearer ${SERVICE_KEY}`,
+    'Content-Type': 'application/json',
   },
-);
+  body: JSON.stringify({ p_include_cancelled: true }),
+});
 if (!res.ok) throw new Error(`조회 실패: ${res.status} ${await res.text()}`);
 const rows = (await res.json()) ?? [];
 const hit = rows.find((r) => String(r.phone || '').replace(/\D/g, '') === to);
 if (!hit) throw new Error(`해당 번호의 신청 내역을 찾을 수 없습니다: ${to}`);
 
-const apologyLine = apology
-  ? '\n갑작스러운 일정 변경으로 인해 취소 처리되어 죄송합니다.\n'
-  : '';
+const who = count ? `${PROGRAM_LABEL[program]} ${count}명` : PROGRAM_LABEL[program];
 
 const text = `[양양군체육회] 2026 양양 서핑캠프
-${hit.rep_name}님, 요청하신 대로 신청을 취소 처리했습니다.
-${apologyLine}
-재신청은 접수 기간 중 언제든 가능합니다.
+${hit.rep_name}님, 대기 중이던 신청이 확정되었습니다.
+
+· ${who} — 확정
+  ${SCHEDULE[program]}
+
+기다려 주셔서 감사합니다.
+참여가 어려우시면 다른 분을 위해 이 번호로 "취소" 문자를 보내 주세요.
+
 문의 010-9542-3775
 [로마드협동조합] 양양군체육회 알림 운영 대행`;
 
-console.log(`대상 : ${hit.rep_name} / ${to} (현재 상태: ${hit.status})`);
+console.log(`대상 : ${hit.rep_name} / ${to} (${PROGRAM_LABEL[program]} ${count ?? '-'}명)`);
 console.log(`문안 ${text.length}자\n${'-'.repeat(40)}\n${text}\n${'-'.repeat(40)}`);
 
 if (!doSend) {

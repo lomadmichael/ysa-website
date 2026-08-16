@@ -17,6 +17,7 @@ import {
   setNotes,
   setOpen,
   setOpenAt,
+  setProgramGates,
   type Promoted,
 } from '@/lib/surfcamp-db';
 import { sendCancelSms, sendPromotionSms } from '@/lib/surfcamp-sms';
@@ -377,5 +378,66 @@ export async function setCapacityAction(
     promotedCount > 0
       ? `정원을 강습 ${result.lesson}명 · 특화 ${result.special}명으로 변경했습니다. 대기 ${promotedCount}건이 확정으로 승급되어 안내 문자를 보냈습니다.`
       : `정원을 강습 ${result.lesson}명 · 특화 ${result.special}명으로 변경했습니다.`,
+  );
+}
+
+// ── 프로그램별 신규접수 게이트 ────────────────────────────────────────────────
+
+/**
+ * 총 상한(확정+대기) 입력값 파싱. 빈 칸은 "무제한"(null)이다.
+ * 정원과 달리 0 도 유효하다 — "지금부터 아무도 안 받는다"를 뜻한다.
+ */
+function parseTotalCap(value: FormDataEntryValue | null): number | null | 'invalid' {
+  const raw = String(value ?? '').trim();
+  if (raw === '') return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0 || n > MAX_CAPACITY) return 'invalid';
+  return Math.floor(n);
+}
+
+/**
+ * 프로그램별 오픈/마감 + 총 상한 저장.
+ *
+ * ★ 정원 변경(setCapacityAction)과 결정적으로 다른 점: 승급도 문자도 발생하지 않는다.
+ *   게이트는 "지금부터 새 신청을 받을지"만 바꾸고 기존 확정·대기는 손대지 않는다.
+ *   그래서 여기서는 notifyPromoted 를 부르지 않는다.
+ */
+export async function setProgramGatesAction(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  if (!(await isAdmin())) return { error: SESSION_EXPIRED };
+
+  // 체크박스는 꺼져 있으면 아예 전송되지 않는다 → 값이 없으면 마감.
+  const lessonOpen = ((formData.get('lesson_open') as string | null) ?? '') === 'on';
+  const specialOpen = ((formData.get('special_open') as string | null) ?? '') === 'on';
+
+  const lessonCap = parseTotalCap(formData.get('lesson_total_cap'));
+  const specialCap = parseTotalCap(formData.get('special_total_cap'));
+  if (lessonCap === 'invalid' || specialCap === 'invalid') {
+    backWithMessage(
+      `총 상한은 비워 두거나(무제한) 0 ~ ${MAX_CAPACITY} 사이의 숫자로 입력해 주세요.`,
+    );
+  }
+
+  const result = await setProgramGates(lessonOpen, specialOpen, lessonCap, specialCap).catch(
+    (e: unknown) => {
+      console.error('[surfcamp] 프로그램별 게이트 저장 실패:', e);
+      return null;
+    },
+  );
+
+  if (!result) {
+    backWithMessage('신규접수 설정을 바꾸지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+  if (!result.ok) {
+    backWithMessage(`신규접수 설정을 바꾸지 못했습니다. (${result.error})`);
+  }
+
+  const capText = (v: number | null) => (v === null ? '무제한' : `${v}명`);
+  backWithMessage(
+    `신규접수 설정을 저장했습니다. 서핑강습 ${result.lesson_open ? '접수중' : '마감'}(총 상한 ${capText(result.lesson_total_cap)}) · ` +
+      `특화 체험 ${result.special_open ? '접수중' : '마감'}(총 상한 ${capText(result.special_total_cap)}). ` +
+      '기존 확정·대기와 자동 승급은 그대로입니다.',
   );
 }

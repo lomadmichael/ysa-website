@@ -64,6 +64,13 @@ export function serializeParticipants(rows: ParticipantRow[]): string {
 /** 하드 게이트(만 10세 이상 & 신장 130cm 이상) 안내. 둘 중 하나라도 미달이면 접수가 막힌다. */
 const INELIGIBLE_REASON = `서핑강습은 만 ${LESSON_MIN_AGE}세 이상, 신장 ${LESSON_MIN_HEIGHT}cm 이상만 신청할 수 있습니다. 기준에 미치지 않는 분은 서핑 특화 체험에 참여해 주세요.`;
 
+/**
+ * 프로그램별 신규접수 마감 안내.
+ * 프로그램 키 → 사유 문구. 여기 담긴 프로그램은 체크박스를 비활성화한다.
+ * ★ 자격 미달(나이·신장)과는 다른 축이다. 자격은 사람마다 다르고, 이건 전원 공통이다.
+ */
+export type ClosedProgramReasons = Partial<Record<'lesson' | 'special', string>>;
+
 const inputCls =
   'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple/40 focus:border-purple';
 
@@ -81,10 +88,16 @@ export default function ParticipantEditor({
   value,
   onChange,
   max = MAX_PARTICIPANTS,
+  closedPrograms = {},
 }: {
   value: ParticipantRow[];
   onChange: (rows: ParticipantRow[]) => void;
   max?: number;
+  /**
+   * 신규 접수가 마감된 프로그램. 기본값은 "마감 없음"이라 수정 화면(/apply/surf-camp/my)은
+   * 아무 영향을 받지 않는다.
+   */
+  closedPrograms?: ClosedProgramReasons;
 }): React.ReactElement {
   // 나이나 신장을 기준 미만으로 낮춰 자격을 잃으면 '서핑강습' 선택을 자동으로 해제한다.
   // 부모가 넘겨준 초기값(수정 화면의 DB 데이터)에도 동일하게 적용되도록 effect 로 정규화.
@@ -253,7 +266,10 @@ export default function ParticipantEditor({
                 </label>
                 <div className="space-y-2">
                   {PROGRAMS.map((p) => {
-                    const disabled = p.key === 'lesson' && !eligible;
+                    // 마감(전원 공통)과 자격 미달(참가자별)은 다른 축이지만,
+                    // 체크박스 입장에서는 똑같이 "고를 수 없음"이다.
+                    const closedReason = closedPrograms[p.key];
+                    const disabled = (p.key === 'lesson' && !eligible) || closedReason != null;
                     const checked = row.programs.includes(p.key);
                     return (
                       <label
@@ -275,8 +291,18 @@ export default function ParticipantEditor({
                         />
                         <span>
                           <span className="font-medium">{p.label}</span>
+                          {closedReason && (
+                            <span className="ml-1.5 inline-block rounded bg-sunset/15 px-1.5 py-0.5 text-[11px] font-bold text-sunset align-middle">
+                              접수 마감
+                            </span>
+                          )}
                           {p.hint && (
                             <span className="block text-xs text-navy/50">{p.hint}</span>
+                          )}
+                          {closedReason && (
+                            <span className="mt-0.5 block text-xs font-medium text-sunset">
+                              {closedReason}
+                            </span>
                           )}
                         </span>
                       </label>
