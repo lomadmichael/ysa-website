@@ -86,6 +86,34 @@ export default async function ApplyPage() {
             }
           />
           <ProgramCard
+            href="/apply/landsurfing"
+            accent="teal"
+            eyebrow="LAND SURFING"
+            title="2026 랜드서핑 성과공유회"
+            description="8월 23일(일) 죽도해변 · 랜드서핑교실 1·2기 참가자 및 학부모 · 참가비 무료"
+            statusLabel="접수 중"
+            active
+            cta="접수하기"
+            className="md:col-span-2"
+            icon={
+              <svg
+                className="h-9 w-9 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 15c2.5 0 3-2 5.5-2s3 2 5.5 2 3-2 5.5-2" />
+                <circle cx="8" cy="19" r="1.6" />
+                <circle cx="16" cy="19" r="1.6" />
+                <path d="M6 11.5 9 5h6l2 4" />
+              </svg>
+            }
+          />
+          <ProgramCard
             href="/apply/custom-competition"
             accent="purple"
             eyebrow="COMPETITION"

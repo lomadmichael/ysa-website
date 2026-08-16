@@ -37,6 +37,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/apply/instructor',
     '/apply/surf-camp',
     '/apply/custom-competition',
+    '/apply/landsurfing',
   ];
 
   return staticPages.map((path) => ({
