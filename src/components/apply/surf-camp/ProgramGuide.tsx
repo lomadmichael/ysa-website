@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  DEFAULT_CAPACITY,
+  ANNOUNCED_CAPACITY,
   EVENT,
   INQUIRY_TEL,
   LESSON_MIN_AGE,
@@ -99,8 +99,10 @@ export default function ProgramGuide({
 }: {
   availability?: SurfcampAvailability;
 }) {
-  const capLesson = availability?.lesson.capacity ?? DEFAULT_CAPACITY.lesson;
-  const capSpecial = availability?.special.capacity ?? DEFAULT_CAPACITY.special;
+  // ★ 표기는 공시 정원 고정. DB 의 실제 정원(운영 중 조정될 수 있음)을 그대로
+  //   보여주면 홍보물에 나간 숫자와 어긋나 문의를 부른다. 판정은 DB 가 한다.
+  const capLesson = ANNOUNCED_CAPACITY.lesson;
+  const capSpecial = ANNOUNCED_CAPACITY.special;
   const lessonClosed = isProgramClosed(availability?.lesson);
   const specialClosed = isProgramClosed(availability?.special);
 

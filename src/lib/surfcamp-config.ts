@@ -42,8 +42,18 @@ export type {
  */
 export const KILL_SWITCH = false;
 
-/** DB 시드용 기본 정원. 실제 판정 기준은 항상 DB 값이다. */
-export const DEFAULT_CAPACITY = { lesson: 200, special: 300 } as const;
+/**
+ * 대외 공시 정원. 홍보물·안내문에 나간 숫자이므로 화면에는 항상 이 값을 쓴다.
+ *
+ * ★ DB(surfcamp.config)의 실제 정원과 다를 수 있다.
+ *   운영 중 취소 철회를 되돌리거나 대기자 승급분을 지키려고 정원을 몇 명 올리는
+ *   일이 생기는데(2026-08-10 강습 204 / 특화 330), 그 내부 숫자가 화면에 그대로
+ *   드러나면 "공고와 다르다"는 문의를 부른다. 판정은 DB 값으로, 표기는 이 값으로.
+ */
+export const ANNOUNCED_CAPACITY = { lesson: 200, special: 300 } as const;
+
+/** @deprecated 표기는 ANNOUNCED_CAPACITY 를 쓸 것. 폴백 값 용도로만 남긴다. */
+export const DEFAULT_CAPACITY = ANNOUNCED_CAPACITY;
 
 /**
  * 접수 문의 전화 — 운영 사무국(로마드협동조합) 담당자 직통.

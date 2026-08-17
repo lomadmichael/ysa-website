@@ -12,9 +12,20 @@ function remainOf(p: ProgramAvailability): number {
   return Math.max(0, p.capacity - p.confirmed);
 }
 
+/**
+ * 신규접수가 막혀 있으면 잔여석보다 그 사실이 먼저다.
+ * 게이트가 닫힌 프로그램에 "대기 접수 중"을 띄우면 신청할 수 있는 줄 알고
+ * 폼까지 갔다가 체크박스가 잠겨 있는 걸 보게 된다.
+ */
+function isGated(p: ProgramAvailability): boolean {
+  if (p.open === false) return true;
+  return p.total_cap != null && (p.total_taken ?? 0) >= p.total_cap;
+}
+
 function Pill({ label, avail }: { label: string; avail: ProgramAvailability }) {
   const remain = remainOf(avail);
-  const full = remain === 0;
+  const gated = isGated(avail);
+  const full = gated || remain === 0;
   const accent = full ? 'var(--color-sunset)' : 'var(--color-teal)';
 
   return (
@@ -26,7 +37,7 @@ function Pill({ label, avail }: { label: string; avail: ProgramAvailability }) {
       }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-      {label} · {full ? '대기 접수 중' : `잔여 ${remain}석`}
+      {label} · {gated ? '접수 마감' : remain === 0 ? '대기 접수 중' : `잔여 ${remain}석`}
     </span>
   );
 }
