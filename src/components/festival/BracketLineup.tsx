@@ -32,7 +32,7 @@ export default function BracketLineup({
   liveUrl: string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  // 사진 URL 은 단기 서명 링크라 만료될 수 있다 — 깨진 이미지 대신 이니셜로 대체
+  // 프록시(/api/athlete-photo)도 원본 유실 등으로 실패할 수 있다 — 깨진 이미지 대신 이니셜로 대체
   const [brokenPhotos, setBrokenPhotos] = useState<string[]>([]);
 
   const division = divisions[activeIndex] ?? divisions[0];
@@ -93,12 +93,14 @@ export default function BracketLineup({
                     key={athlete.id ?? `${heat.heat_number}-${athlete.name}`}
                     athlete={athlete}
                     photoBroken={
-                      !athlete.photo_url || brokenPhotos.includes(athlete.photo_url)
+                      !athlete.photo_url ||
+                      !athlete.entry_id ||
+                      brokenPhotos.includes(athlete.entry_id)
                     }
                     onPhotoError={() =>
                       setBrokenPhotos((prev) =>
-                        athlete.photo_url && !prev.includes(athlete.photo_url)
-                          ? [...prev, athlete.photo_url]
+                        athlete.entry_id && !prev.includes(athlete.entry_id)
+                          ? [...prev, athlete.entry_id]
                           : prev
                       )
                     }
@@ -164,11 +166,11 @@ function AthleteRow({
           {athlete.name?.trim().charAt(0) ?? '?'}
         </span>
       ) : (
-        // 서명 URL(단기 만료)이라 next/image 최적화 대상에서 제외한다 —
-        // remotePatterns 에 등록하지 않고 브라우저가 그대로 받게 둔다
+        // 라인업 서명 URL(5분 만료)을 직접 쓰면 캐시 겹침으로 사진이 전멸하는 순간이 생긴다 —
+        // 만료 없는 자체 프록시(/api/athlete-photo)를 거쳐 CDN 에 캐시시킨다
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={athlete.photo_url ?? ''}
+          src={`/api/athlete-photo/${athlete.entry_id}`}
           alt=""
           width={40}
           height={40}

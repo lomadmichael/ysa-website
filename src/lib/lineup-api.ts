@@ -20,6 +20,8 @@ export const BEGINNER_LIVE_URL = `${LINEUP_BASE_URL}/live/${BEGINNER_COMP_SLUG}`
 
 export interface LineupAthlete {
   id?: string;
+  /** 접수(entries) id — 사진 프록시(/api/athlete-photo/[entryId])의 키 */
+  entry_id?: string | null;
   /** 빕(래시가드) 색 — red / yellow / white / blue / green / black */
   jersey: string | null;
   name: string;
@@ -92,13 +94,17 @@ function isDivisionsResponse(value: unknown): value is LineupDivisionsResponse {
  * - 실패(네트워크/타임아웃/4xx/5xx/스키마 불일치)하면 `null`
  */
 export async function fetchLineupDivisions(
-  slug: string = BEGINNER_COMP_SLUG
+  slug: string = BEGINNER_COMP_SLUG,
+  opts?: {
+    /** true = 데이터 캐시 우회 — 사진 서명 URL 이 만료됐을 때 신선한 URL 재획득용 */
+    fresh?: boolean;
+  }
 ): Promise<LineupDivisionsResponse | null> {
   try {
     const res = await fetch(
       `${LINEUP_BASE_URL}/api/public/comp-live/${slug}/divisions`,
       {
-        next: { revalidate: 60 },
+        ...(opts?.fresh ? { cache: 'no-store' as const } : { next: { revalidate: 60 } }),
         // 라인업이 응답하지 않을 때 페이지 렌더가 통째로 매달리지 않게 한다
         signal: AbortSignal.timeout(8000),
       }
