@@ -51,10 +51,13 @@ export default function EntryCta({
   windowKey,
   badgeLabel,
   badgeClass,
+  href = "/apply/competition",
 }: {
   windowKey: EntryWindowKey;
   badgeLabel: string;
   badgeClass: string;
+  /** 접수 폼 경로. 대회 그룹이 겹치는 기간에는 `?type=` 을 붙여 폼을 나눈다 */
+  href?: string;
 }) {
   const now = useSyncExternalStore(
     subscribeClock,
@@ -71,7 +74,7 @@ export default function EntryCta({
           접수가 진행 중입니다. 아래 버튼에서 참가 신청서를 작성해 주세요.
         </p>
         <Link
-          href="/apply/competition"
+          href={href}
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-purple/90"
         >
           참가 신청하기

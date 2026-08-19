@@ -1,15 +1,24 @@
 import type { Metadata } from 'next';
 import { getImageProps } from 'next/image';
-import Link from 'next/link';
-import EntryCta from '@/components/festival/EntryCta';
+import ApplyPanel from '@/components/festival/ApplyPanel';
+import BeginnerPanel from '@/components/festival/BeginnerPanel';
+import FestivalIntroPanel from '@/components/festival/FestivalIntroPanel';
+import FestivalTabs from '@/components/festival/FestivalTabs';
+import OpenCompetitionPanel, {
+  OPEN_COMPETITIONS,
+} from '@/components/festival/OpenCompetitionPanel';
+import type { InfoRow } from '@/components/festival/CompetitionInfoCard';
+import type { RuleDoc } from '@/components/festival/CompetitionDocs';
+import { parseFestivalTab, type FestivalTabId } from '@/components/festival/tabs';
 import type { EntryWindowKey } from '@/lib/festival-2026';
+import { fetchLineupDivisions } from '@/lib/lineup-api';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import mainBannerPc from '../../../public/images/festival/mainbanner_2026_pc.jpg';
 import mainBannerMobile from '../../../public/images/festival/mainbanner_2026_mobile.jpg';
 
 const PAGE_TITLE = '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회';
 const PAGE_DESCRIPTION =
-  '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 8월 죽도해변에서 열리는 비기너 서핑대회와 코리아 오픈(숏보드 · 롱보드 · SUP 서핑) 일정과 접수 정보를 안내합니다.';
+  '2026 양양서핑페스티벌 · 대한서핑협회장배 서핑대회 안내. 죽도해변 비기너 서핑대회 대진표와 코리아 오픈(숏보드 · 롱보드 · SUP 서핑) 일정 · 참가 안내를 확인하세요.';
 /** 카톡·SNS 공유용 (1200x630). 루트 layout 의 기본 og.jpg 대신 페이지 전용 이미지 사용 */
 const OG_IMAGE = {
   url: '/images/og-festival.jpg',
@@ -37,12 +46,6 @@ export const metadata: Metadata = {
   },
 };
 
-interface InfoRow {
-  label: string;
-  value: string;
-  note?: string;
-}
-
 interface Competition {
   id: string;
   icon: string;
@@ -62,7 +65,7 @@ interface Competition {
  * 「코리아 오픈 — SUP 레이싱」은 **참가자 부족으로 대회 취소**.
  * 접수분(확정 35건 · 실인원 13명, 전원 입금 완료)은 운영 DB 에 그대로 보존되고,
  * 여기 정의도 지우지 않고 남겨 둔다 — 취소 안내·환불 정산·결과보고에 필요한 원본이다.
- * 되살릴 때는 아래 객체를 COMPETITIONS 배열에 다시 넣고 접수창(windowKey)만 확인하면 된다.
+ * 되살릴 때는 아래 객체를 탭 구성(FESTIVAL_TABS)과 패널에 다시 넣고 접수창(windowKey)만 확인하면 된다.
  */
 const CANCELLED_COMPETITIONS: Competition[] = [
   {
@@ -100,85 +103,6 @@ const CANCELLED_COMPETITIONS: Competition[] = [
 ];
 void CANCELLED_COMPETITIONS; // 보존용 — 렌더하지 않음
 
-const COMPETITIONS: Competition[] = [
-  {
-    id: 'beginner',
-    icon: '🌊',
-    title: '비기너 서핑대회',
-    subtitle: '서핑에 막 입문한 서퍼들을 위한 무대',
-    badge: '추가 접수 ~ 8/14',
-    badgeClass: 'text-ocean bg-ocean/10',
-    accentClass: 'bg-ocean/10 text-ocean',
-    windowKey: 'beach',
-    rows: [
-      { label: '장소', value: '죽도해변' },
-      {
-        label: '대회일',
-        value: '8월 29일(토) ~ 30일(일)',
-        note: '※ 기상 상황에 따라 9월 첫째주로 변경 가능',
-      },
-      { label: '종목', value: '남자부 · 여자부 (인원 제한 없음)' },
-      {
-        label: '참가대상',
-        value: '2023년 이후 입문자 (국내외 대회 입상자 제외)',
-      },
-      {
-        label: '심사',
-        value: '롱라이딩 초 재기 — 매뉴버 제한 없이 라이딩 초 수로 채점합니다.',
-        note: '전원 동일 스펀지보드 사용 예정',
-      },
-      {
-        label: '접수',
-        value: '8월 5일(수) 09:00 ~ 8월 14일(금) 23:59',
-        note: '※ 추가 접수로 마감이 연장되었습니다',
-      },
-      { label: '참가비', value: '5만원' },
-      {
-        label: '시상',
-        // 2026-08-14 상금 상향 (형님 확정). 오픈부는 변동 없음
-        value: '1위 100만원 · 2위 50만원 · 3위 30만원',
-        note: '남자부 · 여자부 각각 시상',
-      },
-      { label: '참가 굿즈', value: '모자 · 티셔츠 등' },
-    ],
-  },
-  {
-    id: 'open',
-    icon: '🏄',
-    title: '코리아 오픈 — 숏보드 · 롱보드 · SUP 서핑',
-    subtitle: '파도 상황에 맞춰 진행하는 대회',
-    badge: '8/13 09시 접수 시작',
-    badgeClass: 'text-sunset bg-sunset/10',
-    accentClass: 'bg-sunset/10 text-sunset',
-    windowKey: 'open',
-    rows: [
-      {
-        label: '운영 방식',
-        value:
-          '좋은 파도를 기다려 진행합니다. 9월부터 11월까지 파도가 좋은 평일에 순차 진행합니다.',
-        note: '※ 파도 상황에 따라 장소 및 일정이 유동적으로 조정될 수 있습니다',
-      },
-      { label: '종목', value: '숏보드 · 롱보드 · SUP 서핑 (각 남 / 여)' },
-      {
-        label: '장소',
-        value: '숏보드 기사문해변 · 롱보드 설악해변 · SUP 서핑 물치해변',
-      },
-      { label: '시상', value: '8월 6일 모집요강 공지 시 안내' },
-      { label: '모집요강', value: '세부 모집요강 8월 6일 공지 예정' },
-      { label: '접수', value: '8월 13일(목) 09:00 ~ 8월 22일(토) 23:59' },
-    ],
-  },
-];
-
-const ORGANIZERS = [
-  { label: '주최', value: '양양군' },
-  { label: '주관', value: '양양군서핑협회(YSA) · 대한서핑협회(KSA)' },
-  {
-    label: '후원',
-    value: '문화체육관광부 · 강원특별자치도 · 양양군체육회 · 강원특별자치도서핑협회',
-  },
-];
-
 /**
  * 대회 운영 문서 — 자료실(/notice/docs)에 올라온 파일을 그대로 링크한다.
  *
@@ -186,11 +110,6 @@ const ORGANIZERS = [
  * 저장소 경로가 바뀌는데, 하드코딩해 두면 이 페이지 링크만 조용히 죽는다.
  * 제목 키워드로 찾으므로 파일을 지웠다 다시 올려도(=id 가 바뀌어도) 계속 잡힌다.
  */
-interface RuleDoc {
-  title: string;
-  href: string;
-}
-
 async function getCompetitionDocs(): Promise<{
   rulebook: RuleDoc | null;
   objection: RuleDoc | null;
@@ -217,10 +136,26 @@ async function getCompetitionDocs(): Promise<{
 }
 
 // 자료실에서 문서를 교체하면 최대 5분 안에 이 페이지 링크도 갱신된다
+// (대진표는 lineup-api 에서 60초 캐시로 따로 관리)
 export const revalidate = 300;
 
-export default async function FestivalPage() {
-  const docs = await getCompetitionDocs();
+/** `?tab=` 쿼리 (Next 16: searchParams 는 Promise) */
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function FestivalPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  // 인스타 등 외부 링크가 `/festival?tab=beginner` 로 바로 들어와도
+  // 첫 페인트에 해당 탭(대진표 포함)이 그려져야 한다 — 그래서 SSR 에서 탭을 읽는다
+  const initialTab: FestivalTabId = parseFestivalTab((await searchParams).tab);
+
+  // 자료실 문서와 대진표는 서로 무관하니 병렬로 (둘 다 실패해도 페이지는 뜬다)
+  const [docs, lineup] = await Promise.all([
+    getCompetitionDocs(),
+    fetchLineupDivisions(),
+  ]);
 
   // 공식 배너 art direction — 데스크톱(16:9)·모바일(2:3) 각각 한 장만 다운로드
   const bannerAlt =
@@ -231,6 +166,19 @@ export default async function FestivalPage() {
   const {
     props: { srcSet: bannerMobileSrcSet, alt: _alt, ...bannerImgProps },
   } = getImageProps({ alt: bannerAlt, sizes: '100vw', src: mainBannerMobile });
+
+  const panels = [
+    { id: 'festival' as const, content: <FestivalIntroPanel /> },
+    {
+      id: 'beginner' as const,
+      content: <BeginnerPanel lineup={lineup} docs={docs} />,
+    },
+    ...OPEN_COMPETITIONS.map((comp) => ({
+      id: comp.id,
+      content: <OpenCompetitionPanel comp={comp} />,
+    })),
+    { id: 'apply' as const, content: <ApplyPanel /> },
+  ];
 
   return (
     <div className="-mt-16">
@@ -247,7 +195,6 @@ export default async function FestivalPage() {
             className="block h-auto w-full"
           />
         </picture>
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-navy to-transparent md:h-24" />
 
         {/* 배너에 타이틀이 있어 텍스트는 스크린리더·검색엔진 전용 */}
         <div className="sr-only">
@@ -256,325 +203,8 @@ export default async function FestivalPage() {
         </div>
       </section>
 
-      {/* 갈림길 카드 */}
-      <section className="relative z-20 -mt-12 px-4 md:-mt-16">
-        <div className="mx-auto grid max-w-[1000px] gap-4 sm:grid-cols-2">
-          <a
-            href="#competition"
-            className="group rounded-2xl border border-foam bg-white p-6 shadow-lg shadow-navy/5 transition-all hover:-translate-y-1 hover:border-ocean/30 hover:shadow-xl md:p-8"
-          >
-            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-ocean/10 text-2xl">
-              🏄
-            </span>
-            <h2 className="mb-2 text-lg font-bold text-navy md:text-xl">대회 참가하기</h2>
-            <p className="mb-4 text-sm leading-relaxed text-navy/60">
-              비기너 서핑대회와 코리아 오픈 — 종목별 참가 자격과 접수 일정을 확인하세요.
-            </p>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-ocean">
-              대회 정보 보기
-              <svg
-                className="h-4 w-4 transition-transform group-hover:translate-y-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-            </span>
-          </a>
-
-          <a
-            href="#festival"
-            className="group rounded-2xl border border-foam bg-white p-6 shadow-lg shadow-navy/5 transition-all hover:-translate-y-1 hover:border-teal/30 hover:shadow-xl md:p-8"
-          >
-            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-teal/10 text-2xl">
-              🎪
-            </span>
-            <h2 className="mb-2 text-lg font-bold text-navy md:text-xl">페스티벌 즐기기</h2>
-            <p className="mb-4 text-sm leading-relaxed text-navy/60">
-              대회와 함께 죽도해변에서 열리는 현장 프로그램을 준비하고 있습니다.
-            </p>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-teal">
-              페스티벌 소식 보기
-              <svg
-                className="h-4 w-4 transition-transform group-hover:translate-y-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-            </span>
-          </a>
-        </div>
-      </section>
-
-      {/* 대회 */}
-      <section id="competition" className="scroll-mt-20 py-20 md:py-28">
-        <div className="mx-auto max-w-[1200px] px-4">
-          <div className="mb-12 max-w-3xl">
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-teal">
-              COMPETITION
-            </p>
-            <h2 className="mb-4 text-2xl font-bold text-navy md:text-3xl">
-              대한서핑협회장배 서핑대회
-            </h2>
-            <p className="leading-relaxed text-navy/70">
-              2026 양양서핑페스티벌과 함께 열리는 대한서핑협회장배 서핑대회입니다. 비기너 서핑대회는
-              8월 말 죽도해변에서, 코리아 오픈 숏보드 · 롱보드 · SUP 서핑 종목은 파도 상황에 맞춰
-              진행합니다. 종목별 참가 자격과 접수 기간이 다르니 아래 내용을 확인해 주세요.
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            {COMPETITIONS.map((comp) => (
-              <article
-                key={comp.id}
-                className="rounded-2xl border border-foam bg-white p-6 md:p-8"
-              >
-                <div className="mb-6 flex flex-col gap-4 border-b border-foam pb-6 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex items-start gap-4">
-                    <span
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${comp.accentClass}`}
-                    >
-                      {comp.icon}
-                    </span>
-                    <div>
-                      <h3 className="text-lg font-bold text-navy md:text-xl">{comp.title}</h3>
-                      <p className="mt-1 text-sm text-navy/60">{comp.subtitle}</p>
-                    </div>
-                  </div>
-                  <span
-                    className={`w-fit shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${comp.badgeClass}`}
-                  >
-                    {comp.badge}
-                  </span>
-                </div>
-
-                <dl className="divide-y divide-foam">
-                  {comp.rows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-6"
-                    >
-                      <dt className="shrink-0 text-sm font-semibold text-navy sm:w-24">
-                        {row.label}
-                      </dt>
-                      <dd className="text-sm leading-relaxed text-navy/70">
-                        {row.value}
-                        {row.note && (
-                          <span className="mt-1 block text-xs text-navy/45">{row.note}</span>
-                        )}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-
-                <EntryCta
-                  windowKey={comp.windowKey}
-                  badgeLabel={comp.badge}
-                  badgeClass={comp.badgeClass}
-                />
-              </article>
-            ))}
-          </div>
-
-          {/* 대회 규정·서식 — 자료실 문서로 바로 연결 */}
-          <div className="mt-8 rounded-2xl border border-foam bg-white p-6 md:p-8">
-            <h3 className="text-lg font-bold text-navy md:text-xl">대회 규정·서식</h3>
-            <p className="mt-2 text-sm leading-relaxed text-navy/60">
-              경기 진행과 판정은 ISA 경기규칙을 따릅니다. 판정에 이의가 있는 경우 아래
-              신청서를 작성해 대회 본부에 제출해 주세요.
-            </p>
-
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <DocLink
-                doc={docs.rulebook}
-                label="ISA 경기규칙 룰북"
-                caption="영어 원문 · PDF"
-              />
-              <DocLink
-                doc={docs.objection}
-                label="공식 이의제기 신청서"
-                caption="양식 다운로드 · PDF"
-              />
-            </div>
-
-            <Link
-              href="/notice/docs"
-              className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-ocean hover:underline"
-            >
-              규정·서식 자료실 전체 보기
-              <svg
-                className="h-3.5 w-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 주요 일정 */}
-      <section className="bg-white py-20 md:py-28">
-        <div className="mx-auto max-w-[1200px] px-4">
-          <div className="max-w-3xl">
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-teal">SCHEDULE</p>
-            <h2 className="mb-4 text-2xl font-bold text-navy md:text-3xl">주요 일정</h2>
-            <p className="leading-relaxed text-navy/70">
-              공지와 접수, 대회까지 8월 한 달간의 일정입니다. 기상 상황에 따라 변경될 수 있습니다.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 페스티벌 */}
-      <section id="festival" className="scroll-mt-20 py-20 md:py-28">
-        <div className="mx-auto max-w-[1200px] px-4">
-          <div className="mb-10 max-w-3xl">
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-teal">FESTIVAL</p>
-            <h2 className="mb-4 text-2xl font-bold text-navy md:text-3xl">페스티벌 현장</h2>
-          </div>
-
-          <div className="rounded-2xl border border-foam bg-white p-8 md:p-10">
-            <p className="leading-relaxed text-navy/70">
-              대회와 함께 죽도해변에서 즐기는 현장 프로그램을 준비하고 있습니다.
-              <br className="hidden md:block" />
-              세부 프로그램은 확정되는 대로 이 페이지와 공지사항을 통해 안내드립니다.
-            </p>
-            <Link
-              href="/notice"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ocean px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-ocean/90"
-            >
-              공지사항 보기
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 주최·주관·후원 */}
-      <section className="border-t border-foam py-12 md:py-16">
-        <div className="mx-auto max-w-[1200px] px-4">
-          <dl className="max-w-3xl divide-y divide-foam">
-            {ORGANIZERS.map((org) => (
-              <div
-                key={org.label}
-                className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-6"
-              >
-                <dt className="shrink-0 text-sm font-semibold text-navy sm:w-16">
-                  {org.label}
-                </dt>
-                <dd className="text-sm leading-relaxed text-navy/70">{org.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      {/* 10년의 기록 배너 */}
-      <section className="bg-ocean py-16 text-white md:py-20">
-        <div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center">
-          <div>
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-sunset">
-              SINCE 2014
-            </p>
-            <h2 className="mb-2 text-xl font-bold md:text-2xl">양양 서핑페스티벌 10년의 기록</h2>
-            <p className="text-sm leading-relaxed text-white/70">
-              2014년 첫 파도부터 지금까지, 페스티벌이 지나온 시간을 아카이브로 만나보세요.
-            </p>
-          </div>
-          <Link
-            href="/festival/history"
-            className="inline-flex shrink-0 items-center gap-2 bg-sunset px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-sunset/90"
-          >
-            10년의 기록 보기
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-            </svg>
-          </Link>
-        </div>
-      </section>
+      {/* 배너 바로 아래 탭 — 패널은 서버에서 미리 렌더해 넘긴다 */}
+      <FestivalTabs initialTab={initialTab} panels={panels} />
     </div>
-  );
-}
-
-/**
- * 규정 문서 버튼.
- * 자료실에 해당 문서가 아직 없으면 링크가 죽는 대신 자료실 목록으로 보낸다.
- */
-function DocLink({
-  doc,
-  label,
-  caption,
-}: {
-  doc: RuleDoc | null;
-  label: string;
-  caption: string;
-}) {
-  const cls =
-    'group flex flex-1 items-center gap-3 rounded-xl border border-foam bg-sand/40 px-5 py-4 transition-colors hover:border-ocean/30 hover:bg-ocean/5';
-
-  const icon = (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ocean/10 text-ocean">
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
-        />
-      </svg>
-    </span>
-  );
-
-  if (!doc) {
-    return (
-      <Link href="/notice/docs" className={cls}>
-        {icon}
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold text-navy">{label}</span>
-          <span className="block text-xs text-navy/45">자료실에서 확인</span>
-        </span>
-      </Link>
-    );
-  }
-
-  return (
-    <a href={doc.href} target="_blank" rel="noopener noreferrer" className={cls}>
-      {icon}
-      <span className="min-w-0">
-        <span className="block text-sm font-semibold text-navy">{label}</span>
-        <span className="block text-xs text-navy/45">{caption}</span>
-      </span>
-      <svg
-        className="ml-auto h-4 w-4 shrink-0 text-navy/30 transition-colors group-hover:text-ocean"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-      </svg>
-    </a>
   );
 }
