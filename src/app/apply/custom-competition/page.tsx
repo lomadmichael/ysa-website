@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import CustomCompBanner from "@/components/apply/CustomCompBanner";
 import CustomCompEntryForm from "@/components/apply/CustomCompEntryForm";
 import type { Competition } from "@/components/apply/CompEntryForm";
-import { CUSTOM_COMP, CUSTOM_COMP_SLUG } from "@/lib/custom-comp-2026";
+import {
+  CUSTOM_COMP,
+  CUSTOM_COMP_CLOSE_LABEL,
+  CUSTOM_COMP_SLUG,
+} from "@/lib/custom-comp-2026";
 
 const OG_TITLE = "2026 맞춤형 서핑대회 참가 신청";
 const OG_DESCRIPTION =
@@ -81,7 +85,7 @@ function CustomCompBrief() {
     { label: "대상", value: CUSTOM_COMP.target },
     { label: "부문", value: "성인부 · 아동부 (각 48명)" },
     { label: "참가비", value: "무료" },
-    { label: "접수 마감", value: "8월 17일(일) 23:59" },
+    { label: "접수 마감", value: CUSTOM_COMP_CLOSE_LABEL },
   ];
 
   return (

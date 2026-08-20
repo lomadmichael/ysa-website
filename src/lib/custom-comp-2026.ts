@@ -12,13 +12,22 @@
 /** lineup 대회 slug — 이 대회만 이 폼에서 접수하고, 코리아 오픈 폼에서는 제외한다 */
 export const CUSTOM_COMP_SLUG = "surfcomp-yysports";
 
-/** 접수창 — 2026-08-11(화) ~ 8/17(일) 23:59 KST (형님 확정 2026-08-11) */
+/**
+ * 접수창 — 2026-08-11(화) ~ 8/21(금) 23:59 KST.
+ * 당초 8/17 마감이었으나 미신청자가 남아 8/21 까지 재개했다 (2026-08-20).
+ *
+ * ★ 실제 게이트는 lineup 의 competitions.entry_closes_at 이다. 여기 값과 반드시 같아야 하며,
+ *   둘이 어긋나면 폼은 뜨는데 안내 문구는 마감이라고 하는 상태가 된다.
+ */
 export const CUSTOM_COMP_ENTRY_WINDOW = {
   /** 접수 시작: 페이지 공개와 동시 (8/11 00:00 KST) */
   opensAt: Date.UTC(2026, 7, 10, 15, 0, 0),
-  /** 접수 마감: 8/17 23:59:59 KST */
-  closesAt: Date.UTC(2026, 7, 17, 14, 59, 59),
+  /** 접수 마감: 8/21 23:59:59 KST */
+  closesAt: Date.UTC(2026, 7, 21, 14, 59, 59),
 } as const;
+
+/** 화면 표기용 마감 라벨 — 날짜를 바꿀 때 closesAt 과 함께 고칠 것 */
+export const CUSTOM_COMP_CLOSE_LABEL = "8월 21일(금) 23:59";
 
 /** 대회 개요 — 화면 안내 문구의 단일 소스 */
 export const CUSTOM_COMP = {
