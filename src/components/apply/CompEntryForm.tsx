@@ -84,7 +84,12 @@ interface Form {
   athlete_phone: string;
   athlete_birth_date: string;
   athlete_gender: "" | "M" | "F";
-  /** 국적 — ISO 3166-1 alpha-2. 코리아 오픈은 국제 대회라 필수 (2026-08-01 추가) */
+  /**
+   * 국적 — ISO 3166-1 alpha-2. (2026-08-01 추가)
+   * 코리아 오픈은 국가대표 선발 포인트가 부여되는 대회라 **대한민국 국적 선수만
+   * 참가할 수 있다** (2026-08-21 확인). 국적은 그 자격 검증과 선수 등록·보험
+   * 처리에 쓰인다. 비기너 서핑대회는 국적 제한이 없다.
+   */
   athlete_nationality: string;
   athlete_email: string;
   affiliation: string;
@@ -271,6 +276,27 @@ export default function CompEntryForm({
       ),
     [form.division_ids, divisionIndex]
   );
+
+  // 코리아 오픈 부문 포함 여부 — 대한민국 국적만 접수 가능해진다.
+  // 코리아 오픈은 국가대표 선발 포인트가 부여되는 대회라 대한민국 국적 선수만
+  // 참가할 수 있는데, 폼에 제한 안내가 전혀 없어 인도네시아 국적 선수가 숏보드에
+  // 접수하는 일이 있었다 (2026-08-20, 접수 후 개별 안내·환불로 처리).
+  // 판별은 하드코딩 대신 slug prefix(`ksa-cup-2026-open-*`) 기준.
+  // 비기너 서핑대회(`ksa-cup-2026-beginner`)는 국적 제한이 없다.
+  const openSelected = useMemo(
+    () =>
+      form.division_ids.some((id) => {
+        const slug = divisionIndex.get(id)?.competition.slug;
+        return !!slug && isInEntryGroup(slug, "open");
+      }),
+    [form.division_ids, divisionIndex]
+  );
+
+  /** 노출 중인 대회에 코리아 오픈이 있는지 — 부문 선택 전 사전 안내용 */
+  const hasOpenCompetition = useMemo(
+    () => competitions.some((c) => isInEntryGroup(c.slug, "open")),
+    [competitions]
+  );
   const selectedFeeTotal = useMemo(
     () =>
       form.division_ids.reduce((sum, id) => {
@@ -430,6 +456,14 @@ export default function CompEntryForm({
     }
     if (beginnerSelected && !form.eligibility_consent) {
       setError("비기너 부문 참가자격(2023년 1월 1일 이후 입문) 확인에 체크해주세요.");
+      return;
+    }
+    // 코리아 오픈 = 국가대표 선발 포인트 부여 대회 → 대한민국 국적만 참가 가능.
+    // (2026-08-20 외국 국적 선수 접수 사고 → 폼 단계에서 차단. 문구는 한/영 병기)
+    if (openSelected && form.athlete_nationality !== "KR") {
+      setError(
+        "코리아 오픈은 국가대표 선발 포인트가 부여되는 대회로, 대한민국 국적 선수만 참가할 수 있습니다. / The Korea Open is open to athletes with Korean nationality only."
+      );
       return;
     }
     if (!photoBlob && !photoPath) {
@@ -887,6 +921,28 @@ export default function CompEntryForm({
                   </option>
                 ))}
               </select>
+              {/* 코리아 오픈 국적 제한 — 제출 전에 알 수 있게 (2026-08-21) */}
+              {openSelected && (
+                <p className="mt-1 text-xs text-gray-500">
+                  코리아 오픈은 국가대표 선발 포인트 부여 대회로 대한민국 국적
+                  선수만 참가할 수 있습니다.
+                </p>
+              )}
+              {openSelected && form.athlete_nationality !== "KR" && (
+                <div className="mt-2 space-y-1 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+                  <p className="font-semibold">
+                    선택하신 국적으로는 코리아 오픈에 접수할 수 없습니다.
+                  </p>
+                  <p>
+                    코리아 오픈은 국가대표 선발 포인트가 부여되는 대회로, 대한민국
+                    국적 선수만 참가할 수 있습니다.
+                  </p>
+                  <p className="font-semibold">
+                    The Korea Open is open to athletes with Korean nationality
+                    only.
+                  </p>
+                </div>
+              )}
             </Field>
             <Field label="생년월일" required>
               <BirthDatePicker
@@ -1100,6 +1156,14 @@ export default function CompEntryForm({
               성별을 먼저 선택하면 참가 가능한 부문이 활성화됩니다.
             </span>
           </p>
+          {/* 국적 제한은 부문을 고르기 전에 보여야 헛접수를 막는다 (2026-08-21) */}
+          {hasOpenCompetition && (
+            <p className="text-sm text-red-700">
+              코리아 오픈(숏보드·롱보드·SUP 서핑)은 국가대표 선발 포인트 부여
+              대회로 <strong>대한민국 국적 선수만</strong> 참가할 수 있습니다. /
+              The Korea Open is open to athletes with Korean nationality only.
+            </p>
+          )}
           {competitions.length === 0 ? (
             <p className="text-sm text-gray-500 py-8 text-center">
               현재 접수 중인 대회가 없습니다.
