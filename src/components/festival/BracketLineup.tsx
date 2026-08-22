@@ -93,9 +93,11 @@ export default function BracketLineup({
                     key={athlete.id ?? `${heat.heat_number}-${athlete.name}`}
                     athlete={athlete}
                     photoBroken={
-                      !athlete.photo_url ||
-                      !athlete.entry_id ||
-                      brokenPhotos.includes(athlete.entry_id)
+                      // photo_url(60초 캐시 스냅샷)은 보지 않는다 — 라인업 쪽 서명 URL
+                      // 발급이 순간 실패하면 null 이 와서, 프록시 CDN 에 사진이 캐시돼
+                      // 있는데도 이니셜로 떨어지는 깜빡임이 생겼다(2026-08-22). 사진
+                      // 로드는 프록시가 책임지고, 실패는 onError 폴백이 잡는다.
+                      !athlete.entry_id || brokenPhotos.includes(athlete.entry_id)
                     }
                     onPhotoError={() =>
                       setBrokenPhotos((prev) =>
