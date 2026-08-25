@@ -71,7 +71,7 @@ export default function FestivalProgramForm({
             <>
               접수 확인 문자를 보내드렸습니다.
               <br />
-              당일 시작 15분 전까지 죽도해변 프로그램 부스로 와 주세요.
+              당일 시작 15분 전까지 죽도해변 해양종합레포츠센터 앞 프로그램 부스로 와 주세요.
             </>
           ) : (
             <>
@@ -120,7 +120,7 @@ export default function FestivalProgramForm({
           <p className="mt-2 text-sm leading-relaxed text-navy/70">
             온라인 사전신청은 8월 26일(수) 오전 10시에 오픈합니다. 온라인 신청 기간이 끝난 뒤
             잔여 자리는 {EVENT.dateLabel} 현장에서 선착순으로 접수합니다 — 프로그램 시작 30분
-            전부터 죽도해변 프로그램 부스에서 신청해 주세요.
+            전부터 죽도해변 해양종합레포츠센터 앞 프로그램 부스에서 신청해 주세요.
           </p>
           <p className="mt-2 text-sm text-navy/60">문의 {INQUIRY_TEL}</p>
         </div>

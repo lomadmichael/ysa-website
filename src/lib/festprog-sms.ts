@@ -61,7 +61,7 @@ export async function sendApplicationSms(params: {
     `  ${programSchedule(params.program)} · 참가비 ${EVENT.fee}`,
     '',
     confirmed
-      ? '당일 시작 15분 전까지 죽도해변 프로그램 부스로 와 주세요.'
+      ? '당일 시작 15분 전까지 죽도해변 해양종합레포츠센터 앞 프로그램 부스로 와 주세요.'
       : typeof params.waitAhead === 'number'
         ? `현재 대기 순번은 ${params.waitAhead + 1}번입니다. ${WAIT_NOTE}`
         : WAIT_NOTE,
@@ -91,7 +91,7 @@ export async function sendPromotionSms(params: {
     `· ${programLabel(params.program)} — 참가 확정`,
     `  ${programSchedule(params.program)} · 참가비 ${EVENT.fee}`,
     '',
-    '당일 시작 15분 전까지 죽도해변 프로그램 부스로 와 주세요.',
+    '당일 시작 15분 전까지 죽도해변 해양종합레포츠센터 앞 프로그램 부스로 와 주세요.',
     '참석이 어려우시면 아래 링크에서 취소해 주시면 다음 대기자에게 자리가 돌아갑니다.',
     FOOT,
   ].join('\n');

@@ -35,7 +35,7 @@ export const EVENT = {
   shortName: '페스티벌 현장 프로그램',
   host: '양양군서핑협회',
   dateLabel: '8월 29일(토)',
-  place: '죽도해변',
+  place: '죽도해변 해양종합레포츠센터 앞',
   fee: '무료',
   inquiryTel: INQUIRY_TEL,
 } as const;

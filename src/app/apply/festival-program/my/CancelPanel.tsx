@@ -79,7 +79,7 @@ export default function CancelPanel({
 
         <div className="border-t border-foam bg-foam/20 px-6 py-4 text-sm leading-relaxed text-navy/65">
           {confirmed ? (
-            <>참가가 확정되었습니다. 당일 시작 15분 전까지 죽도해변 프로그램 부스로 와 주세요.</>
+            <>참가가 확정되었습니다. 당일 시작 15분 전까지 죽도해변 해양종합레포츠센터 앞 프로그램 부스로 와 주세요.</>
           ) : (
             <>
               현재 대기 상태입니다. 취소가 발생하면 접수 순서대로 자동 확정되며, 확정되면 문자로
