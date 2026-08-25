@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { festivalTabHref, type FestivalTabId } from './tabs';
 import { OPEN_COMPETITIONS } from './OpenCompetitionPanel';
@@ -71,6 +72,54 @@ const STAGE_LINEUP = [
     name: '서도밴드',
     desc: '조선팝 창시자 · JTBC 「풍류대장」 초대 우승',
     headliner: true,
+  },
+];
+
+/**
+ * 공연 팀 소개 카드.
+ * `imagePosition` 은 세로 사진을 16:10 으로 잘라낼 때 얼굴이 잘리지 않도록
+ * 사진마다 맞춘 object-position 값이다 (숫자가 작을수록 위쪽을 살린다).
+ */
+const STAGE_BANDS = [
+  {
+    time: '18:00 – 18:45',
+    name: '보허미안',
+    role: '오프닝',
+    headliner: false,
+    image: '/festival/bands/boheomian.jpg',
+    imagePosition: 'object-[50%_25%]',
+    desc: '파도처럼 흘러가는 감정을 음악으로 기록하는 조선 서프뮤직의 선구자.',
+    tags: ['서프뮤직', '양양', '오프닝 무대'],
+  },
+  {
+    time: '18:50 – 19:30',
+    name: '큐티즈 × 양고밴드',
+    role: null,
+    headliner: false,
+    image: '/festival/bands/cuties.jpg',
+    imagePosition: 'object-[50%_45%]',
+    desc: '양양읍을 중심으로 서핑하는 자영업자들의 동네밴드 큐티즈. 양고 밴드부 출신 멤버와 현 양양고 재학생 밴드부원이 함께 서는 세대 콜라보 무대.',
+    tags: ['동네밴드', '세대 콜라보', '양양고 밴드부'],
+  },
+  {
+    time: '19:35 – 20:15',
+    name: '스트링노스누들',
+    role: null,
+    headliner: false,
+    image: '/festival/bands/stringnorthnoodle.jpg',
+    imagePosition: 'object-[50%_30%]',
+    desc: '현북면 하조대를 중심으로 지지고 볶으며 락스타를 꿈꾸는 양양 대표 락밴드.',
+    tags: ['하조대', '락밴드', '현북면'],
+  },
+  {
+    time: '20:20 – 21:00',
+    name: '서도밴드',
+    role: null,
+    headliner: true,
+    image: '/festival/bands/seodo.jpg',
+    imagePosition: 'object-[50%_22%]',
+    desc: '판소리와 팝이 만나 조선팝이라는 새로운 물결을 연 밴드. 보컬 서도는 양양 서퍼들과 함께 파도를 타는 서퍼이기도 합니다. JTBC 「풍류대장」 초대 우승팀이 죽도해변의 마지막 무대를 장식합니다.',
+    tags: ['조선팝 창시자', '풍류대장 초대 우승', '양양 서퍼'],
   },
 ];
 
@@ -274,42 +323,119 @@ export default function FestivalIntroPanel() {
             </div>
 
             {/* 라이브 스테이지 */}
-            <div className="rounded-2xl bg-navy p-7 text-white md:p-8">
-              <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.3em] text-sunset">
-                Live Stage
-              </p>
-              <h3 className="text-lg font-bold">공연 &amp; 불꽃놀이</h3>
-              <p className="mt-1.5 text-sm text-white/60">
-                18:00 – 21:00 · 죽도해변 메인 스테이지 · 관람 무료
-              </p>
-              <ul className="mt-6 divide-y divide-white/10 border-y border-white/15">
-                {STAGE_LINEUP.map((band) => (
-                  <li key={band.name} className="flex items-start gap-4 py-4">
-                    <span className="w-24 shrink-0 pt-0.5 font-mono text-[13px] font-semibold text-sunset">
-                      {band.time}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-[15px] font-bold">{band.name}</span>
-                        {band.headliner && (
-                          <span className="rounded-full bg-sunset px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-white">
-                            HEADLINER
-                          </span>
-                        )}
+            <div className="relative overflow-hidden rounded-2xl bg-navy p-7 text-white md:p-8">
+              {/* 불꽃놀이 배경 — 네이비 오버레이로 눌러 본문 가독성을 유지한다 */}
+              <Image
+                src="/festival/fireworks-bg.jpg"
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="(max-width: 1024px) 100vw, 600px"
+                className="pointer-events-none object-cover object-center"
+              />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-navy/85" />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-b from-navy/30 via-navy/25 to-navy/75"
+              />
+
+              <div className="relative">
+                <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.3em] text-sunset">
+                  Live Stage
+                </p>
+                <h3 className="text-lg font-bold">공연 &amp; 불꽃놀이</h3>
+                <p className="mt-1.5 text-sm text-white/60">
+                  18:00 – 21:00 · 죽도해변 메인 스테이지 · 관람 무료
+                </p>
+                <ul className="mt-6 divide-y divide-white/10 border-y border-white/15">
+                  {STAGE_LINEUP.map((band) => (
+                    <li key={band.name} className="flex items-start gap-4 py-4">
+                      <span className="w-24 shrink-0 pt-0.5 font-mono text-[13px] font-semibold text-sunset">
+                        {band.time}
                       </span>
-                      <span className="mt-0.5 block text-[13px] leading-relaxed text-white/55">
-                        {band.desc}
+                      <span className="min-w-0">
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="text-[15px] font-bold">{band.name}</span>
+                          {band.headliner && (
+                            <span className="rounded-full bg-sunset px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-white">
+                              HEADLINER
+                            </span>
+                          )}
+                        </span>
+                        <span className="mt-0.5 block text-[13px] leading-relaxed text-white/55">
+                          {band.desc}
+                        </span>
                       </span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 flex items-center gap-2.5 text-sm font-semibold text-white/85">
-                <span aria-hidden="true" className="text-lg">
-                  🎆
-                </span>
-                공연이 끝나면 죽도 밤하늘에서 불꽃놀이 피날레가 이어집니다
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-5 flex items-center gap-2.5 text-sm font-semibold text-white/85">
+                  <span aria-hidden="true" className="text-lg">
+                    🎆
+                  </span>
+                  공연이 끝나면 죽도 밤하늘에서 불꽃놀이 피날레가 이어집니다
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 공연 팀 소개 */}
+          <div className="mt-14">
+            <div className="mb-8 max-w-3xl">
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-teal">LINE UP</p>
+              <h3 className="mb-3 text-xl font-bold text-navy md:text-2xl">공연 팀 소개</h3>
+              <p className="text-sm leading-relaxed text-navy/70">
+                8월 29일(토) 해질녘, 죽도해변 메인 스테이지에 오르는 네 팀입니다. 양양에서 파도를
+                타고 음악을 하는 팀들로 채웠고, 관람은 무료입니다.
               </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              {STAGE_BANDS.map((band) => (
+                <article
+                  key={band.name}
+                  className="overflow-hidden rounded-2xl border border-foam bg-white transition-shadow hover:shadow-lg hover:shadow-navy/5"
+                >
+                  <div className="relative aspect-[16/10] bg-foam">
+                    <Image
+                      src={band.image}
+                      alt={`${band.name} 공연 팀`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 560px"
+                      className={`object-cover ${band.imagePosition}`}
+                    />
+                  </div>
+                  <div className="p-6 md:p-7">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-ocean/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-ocean">
+                        {band.time}
+                      </span>
+                      {band.role && (
+                        <span className="rounded-full border border-foam bg-foam/50 px-2.5 py-0.5 text-[11px] font-semibold text-navy/65">
+                          {band.role}
+                        </span>
+                      )}
+                      {band.headliner && (
+                        <span className="rounded-full bg-sunset px-2.5 py-0.5 text-[10px] font-bold tracking-[0.12em] text-white">
+                          HEADLINER
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="mt-3 text-lg font-bold text-navy">{band.name}</h4>
+                    <p className="mt-2 text-sm leading-relaxed text-navy/65">{band.desc}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {band.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-foam bg-foam/40 px-3 py-1 text-xs font-semibold text-navy/70"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
 
