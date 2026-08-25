@@ -24,6 +24,18 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: 'https://ysakorea.com/apply/festival-program',
     type: 'website',
+    images: [
+      {
+        url: 'https://ysakorea.com/festival/og-festival-program.jpg',
+        width: 1200,
+        height: 630,
+        alt: '해변 바레 & 하이록스 온라인 신청 — 8/29(토) 죽도해변 해양종합레포츠센터 앞',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['https://ysakorea.com/festival/og-festival-program.jpg'],
   },
 };
 
