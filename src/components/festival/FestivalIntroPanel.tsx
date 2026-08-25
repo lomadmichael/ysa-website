@@ -74,9 +74,24 @@ const STAGE_LINEUP = [
   },
 ];
 
+/**
+ * 하루의 흐름.
+ * `apply` 가 있는 항목은 온라인 사전신청을 받는 프로그램이다
+ * (해변 바레 12명 / 하이록스 24명 + 각각 현장 접수분 별도).
+ */
 const DAY_PROGRAMS = [
-  { time: '오후 1시', name: '해변 바레', desc: '파도 소리와 함께하는 바레 클래스' },
-  { time: '오후 3시', name: '해변 하이록스', desc: '모래 위에서 겨루는 피트니스 레이스' },
+  {
+    time: '오후 1시',
+    name: '해변 바레',
+    desc: '파도 소리와 함께하는 바레 클래스',
+    apply: true,
+  },
+  {
+    time: '오후 3시',
+    name: '해변 하이록스',
+    desc: '모래 위에서 겨루는 피트니스 레이스',
+    apply: true,
+  },
   {
     time: '오후 6–9시',
     name: '라이브 공연',
@@ -199,7 +214,17 @@ export default function FestivalIntroPanel() {
                       {prog.time}
                     </span>
                     <span>
-                      <span className="block text-[15px] font-bold text-navy">{prog.name}</span>
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-[15px] font-bold text-navy">{prog.name}</span>
+                        {prog.apply && (
+                          <Link
+                            href="/apply/festival-program"
+                            className="rounded-full bg-ocean px-2.5 py-0.5 text-[11px] font-bold text-white transition-colors hover:bg-ocean/90"
+                          >
+                            사전신청
+                          </Link>
+                        )}
+                      </span>
                       <span className="mt-0.5 block text-sm leading-relaxed text-navy/55">
                         {prog.desc}
                       </span>
@@ -221,10 +246,30 @@ export default function FestivalIntroPanel() {
                     </span>
                   ))}
                 </div>
-                <p className="mt-4 text-xs leading-relaxed text-navy/45">
-                  ※ 해변 바레·하이록스 참여 방법은 확정되는 대로 공지사항과 인스타그램으로
-                  안내드립니다.
-                </p>
+                <div className="mt-5 rounded-xl border border-ocean/20 bg-ocean/5 p-4">
+                  <p className="text-[13px] font-bold text-navy">
+                    해변 바레 · 하이록스는 온라인 사전 신청 + 당일 현장 접수로 운영됩니다
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-navy/55">
+                    참가비 무료 · 한 분당 한 종목 · 바레 15명(온라인 12 + 현장 3) · 하이록스
+                    30명(온라인 24 + 현장 6). 사전신청이 마감되어도 당일 현장에서 선착순으로
+                    참여하실 수 있습니다.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href="/apply/festival-program"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-ocean px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-ocean/90"
+                    >
+                      온라인 사전신청
+                    </Link>
+                    <Link
+                      href="/apply/festival-program/my"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-foam bg-white px-4 py-2 text-[13px] font-semibold text-navy transition-colors hover:bg-foam/40"
+                    >
+                      신청 조회 · 취소
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
 
