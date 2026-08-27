@@ -61,6 +61,8 @@ interface ScheduleHeat {
   dateLabel: string;
   time: string;
   sortAt: number;
+  /** 히트 진행 시간(분) — 라운드 설정값. 없으면 표기하지 않는다 */
+  durationMin: number | null;
   athletes: string[];
 }
 
@@ -85,6 +87,10 @@ function buildSchedule(divisions: LineupDivision[]): ScheduleHeat[] {
           dateLabel: parts.dateLabel,
           time: parts.time,
           sortAt: t,
+          durationMin:
+            typeof round.heat_duration_min === 'number' && round.heat_duration_min > 0
+              ? round.heat_duration_min
+              : null,
           athletes: (heat.athletes ?? []).map((a) => a.name).filter(Boolean),
         });
       }
@@ -110,6 +116,16 @@ function groupByTime(heats: ScheduleHeat[]): TimeGroup[] {
     else map.set(heat.sortAt, { sortAt: heat.sortAt, time: heat.time, heats: [heat] });
   }
   return [...map.values()].sort((a, b) => a.sortAt - b.sortAt);
+}
+
+/**
+ * 그룹 전체가 같은 진행 시간일 때만 그 값 — 동시 진행 두 히트의 길이가
+ * 다르면 시각 옆에 하나만 적는 게 거짓이 되므로 표기하지 않는다.
+ */
+function groupDuration(group: TimeGroup): number | null {
+  const first = group.heats[0]?.durationMin ?? null;
+  if (first == null) return null;
+  return group.heats.every((heat) => heat.durationMin === first) ? first : null;
 }
 
 export default function HeatSchedule({
@@ -222,13 +238,20 @@ export default function HeatSchedule({
         </p>
       ) : (
         <div className="mt-5 overflow-hidden rounded-xl border border-foam">
-          {groups.map((group) => (
+          {groups.map((group) => {
+            const duration = groupDuration(group);
+            return (
             <div key={group.sortAt} className="flex border-b border-foam last:border-b-0">
               {/* 시각은 절대 줄바꿈되면 안 된다 ("11:0 / 0" 으로 쪼개져 보였음) */}
-              <div className="w-[76px] shrink-0 border-r border-foam bg-sand/50 px-3 py-3.5 md:w-24 md:px-4">
-                <span className="whitespace-nowrap font-mono text-sm font-bold tabular-nums text-navy md:text-base">
+              <div className="w-[72px] shrink-0 border-r border-foam bg-sand/50 px-2.5 py-3.5 md:w-24 md:px-4">
+                <span className="block whitespace-nowrap font-mono text-sm font-bold tabular-nums text-navy md:text-base">
                   {group.time}
                 </span>
+                {duration != null && (
+                  <span className="mt-0.5 block whitespace-nowrap text-[11px] text-navy/40 md:text-xs">
+                    {duration}분 경기
+                  </span>
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 {group.heats.map((heat, index) => {
@@ -241,14 +264,14 @@ export default function HeatSchedule({
                   return (
                     <div
                       key={heat.key}
-                      className={`flex flex-wrap items-center gap-x-2.5 gap-y-1.5 px-3.5 py-3 md:px-4 ${
+                      className={`flex flex-wrap items-center gap-x-1.5 gap-y-1.5 px-2.5 py-3 md:gap-x-2.5 md:px-4 ${
                         index > 0 ? 'border-t border-foam/70' : ''
                       } ${done ? 'opacity-45' : ''} ${live ? 'bg-ocean/[0.04]' : ''}`}
                     >
                       <span className="text-sm font-bold text-navy md:text-[15px]">
                         {heat.divisionName}
                       </span>
-                      <span className="text-sm text-navy/70 md:text-[15px]">
+                      <span className="whitespace-nowrap text-[13px] text-navy/70 md:text-[15px]">
                         {heat.roundName} HEAT {heat.heatNumber}
                       </span>
                       {live && (
@@ -257,7 +280,7 @@ export default function HeatSchedule({
                         </span>
                       )}
                       <span
-                        className={`ml-auto shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${info.chip}`}
+                        className={`ml-auto shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-bold md:px-2.5 md:py-1 md:text-xs ${info.chip}`}
                       >
                         {info.label}
                       </span>
@@ -271,7 +294,8 @@ export default function HeatSchedule({
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
