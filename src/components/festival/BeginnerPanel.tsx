@@ -1,6 +1,7 @@
 import CompetitionInfoCard, { type InfoRow } from './CompetitionInfoCard';
 import CompetitionDocs, { type RuleDoc } from './CompetitionDocs';
 import BracketLineup from './BracketLineup';
+import HeatSchedule from './HeatSchedule';
 import { BEGINNER_LIVE_URL, type LineupDivisionsResponse } from '@/lib/lineup-api';
 
 /**
@@ -97,6 +98,11 @@ export default function BeginnerPanel({
           accentClass="bg-ocean/10 text-ocean"
           rows={BEGINNER_ROWS}
         />
+
+        {/* 히트별 시간표·경기 장소 — 대회 직전엔 "언제 어디서"가 가장 급하다 */}
+        {divisions.length > 0 && (
+          <HeatSchedule divisions={divisions} liveUrl={BEGINNER_LIVE_URL} />
+        )}
 
         {/* 대진표 */}
         <div className="mt-8 rounded-2xl border border-foam bg-white p-6 md:p-8">

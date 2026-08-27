@@ -38,6 +38,13 @@ export interface LineupHeat {
   heat_number: number;
   /** upcoming / live / done */
   status?: string | null;
+  /**
+   * 경기 뱅크(타워) — `main` = 메인타워 / `secondary` = 서브타워.
+   * 2뱅크 동시 운영(8/29~30 비기너)에서만 갈린다. 구 응답 호환으로 optional.
+   */
+  bank?: string | null;
+  /** 예정 시작 시각 (UTC ISO). 스케줄 미배정이면 null */
+  scheduled_at?: string | null;
   athletes: LineupAthlete[];
 }
 
