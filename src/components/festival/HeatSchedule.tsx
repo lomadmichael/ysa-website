@@ -224,8 +224,9 @@ export default function HeatSchedule({
         <div className="mt-5 overflow-hidden rounded-xl border border-foam">
           {groups.map((group) => (
             <div key={group.sortAt} className="flex border-b border-foam last:border-b-0">
-              <div className="w-[68px] shrink-0 border-r border-foam bg-sand/50 px-3 py-3.5 md:w-20 md:px-4">
-                <span className="font-mono text-sm font-bold tabular-nums text-navy md:text-base">
+              {/* 시각은 절대 줄바꿈되면 안 된다 ("11:0 / 0" 으로 쪼개져 보였음) */}
+              <div className="w-[76px] shrink-0 border-r border-foam bg-sand/50 px-3 py-3.5 md:w-24 md:px-4">
+                <span className="whitespace-nowrap font-mono text-sm font-bold tabular-nums text-navy md:text-base">
                   {group.time}
                 </span>
               </div>
