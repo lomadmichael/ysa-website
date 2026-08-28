@@ -26,7 +26,7 @@ const BANK_INFO: Record<BankKey, { label: string; venue: string; chip: string; b
   },
   secondary: {
     label: '서브타워',
-    venue: '죽도캠핑장 앞 해변 (수로 건너편)',
+    venue: '죽도캠핑장 앞 해변',
     chip: 'bg-teal/10 text-teal',
     bar: 'bg-teal',
   },
@@ -303,7 +303,8 @@ export default function HeatSchedule({
       {usesSecondary && !searching && (
         <p className="mt-4 text-xs leading-relaxed text-navy/50 md:text-sm">
           같은 시각에 두 경기가 표시되면 두 타워에서 동시에 진행됩니다. 본인 히트의 타워를 확인하고
-          시작 20분 전까지 해당 선수 대기석으로 이동해 주세요.
+          시작 20분 전까지 해당 선수 대기석으로 이동해 주세요. 서브타워 대기석은 수로 건너편이라
+          이동 시간을 넉넉히 잡아 주세요.
         </p>
       )}
 
