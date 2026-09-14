@@ -27,6 +27,20 @@ export { LESSON_MIN_AGE, LESSON_MIN_HEIGHT, LESSON_YOUTH_AGE, MAX_PARTICIPANTS }
 
 /** 문자 발송 주체 — 양양군체육회는 사전등록 발신번호가 없어 대행사 명의로 나간다. */
 export const SMS_SENDER_ORG = '로마드협동조합';
+
+/**
+ * 대기 승급 시 자동 안내 문자를 보낼지.
+ *
+ * ★ 2026-09-14 부터 false.
+ *   스쿨 배정이 끝난 뒤라, 승급자도 서핑샵을 새로 배정해야 확정자와 같은 안내
+ *   (샵·해변·집결시간·샵 연락처)를 보낼 수 있다. 자동 문자에는 그 정보가 없어
+ *   "확정됐다"는 문자만 먼저 가고 정작 어디로 가야 할지는 모르는 상태가 된다.
+ *   그래서 자동 발송을 끄고, 운영진이 배정을 마친 뒤 한 통으로 안내한다.
+ *
+ *   ※ 승급 자체는 그대로 동작한다(DB 는 정상 확정). 승급 발생 여부는
+ *     surfcamp.event_log 의 'promote' 행과 서버 로그로 확인한다.
+ */
+export const AUTO_PROMOTION_SMS = false;
 export type {
   GenderKey,
   LessonTimeKey,

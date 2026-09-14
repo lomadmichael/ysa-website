@@ -1,6 +1,7 @@
 import 'server-only';
 import { sendAlimtalk } from '@/lib/solapi';
 import {
+  AUTO_PROMOTION_SMS,
   EVENT,
   INQUIRY_TEL,
   SMS_SENDER_ORG,
@@ -116,6 +117,17 @@ export async function sendPromotionSms(params: {
   programs: { program: ProgramKey; count: number }[];
   lessonTime?: string | null;
 }) {
+  // 배정 완료 이후에는 자동 발송하지 않는다(surfcamp-config 의 주석 참고).
+  // 승급은 그대로 일어나고, 운영진이 서핑샵을 배정한 뒤 한 통으로 안내한다.
+  if (!AUTO_PROMOTION_SMS) {
+    console.info(
+      '[surfcamp] 승급 자동문자 꺼짐 — 수동 안내 대상: %s %s (%s)',
+      params.repName,
+      params.phone,
+      params.programs.map((p) => `${programLabel(p.program)} ${p.count}명`).join(', '),
+    );
+    return null;
+  }
   const lines = params.programs.map(
     (p) =>
       `· ${programLabel(p.program)} ${p.count}명 — 확정\n  ${scheduleOf(p.program, params.lessonTime)}`,

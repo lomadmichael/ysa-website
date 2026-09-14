@@ -80,7 +80,13 @@ function groupPromoted(promoted: Promoted[] | undefined) {
   return Array.from(map.values());
 }
 
-/** 승급 안내 문자. 한 건이 실패해도 나머지는 계속 발송한다. */
+/**
+ * 승급자 안내.
+ *
+ * ★ AUTO_PROMOTION_SMS 가 꺼져 있으면 sendPromotionSms 는 아무것도 보내지 않는다.
+ *   배정이 끝난 뒤라 승급자에게도 서핑샵을 배정해서 한 통으로 안내해야 하기 때문.
+ *   그래서 반환값은 "문자를 보낸 건수"가 아니라 "승급된 건수"로 읽어야 한다.
+ */
 async function notifyPromoted(promoted: Promoted[] | undefined): Promise<number> {
   const groups = groupPromoted(promoted);
   for (const g of groups) {
@@ -168,7 +174,7 @@ export async function adminForceCancel(
   const promotedCount = await notifyPromoted(result.promoted);
   backWithMessage(
     promotedCount > 0
-      ? `취소 처리했습니다. 대기 ${promotedCount}건이 확정으로 승급되어 안내 문자를 보냈습니다.`
+      ? `취소 처리했습니다. 대기 ${promotedCount}건이 확정으로 승급되었습니다. ⚠ 승급자에게는 자동 문자가 나가지 않습니다 — 서핑샵 배정 후 안내해 주세요.`
       : '취소 처리했습니다.',
   );
 }
@@ -376,7 +382,7 @@ export async function setCapacityAction(
   const promotedCount = await notifyPromoted(result.promoted);
   backWithMessage(
     promotedCount > 0
-      ? `정원을 강습 ${result.lesson}명 · 특화 ${result.special}명으로 변경했습니다. 대기 ${promotedCount}건이 확정으로 승급되어 안내 문자를 보냈습니다.`
+      ? `정원을 강습 ${result.lesson}명 · 특화 ${result.special}명으로 변경했습니다. 대기 ${promotedCount}건이 확정으로 승급되었습니다. ⚠ 승급자에게는 자동 문자가 나가지 않습니다 — 서핑샵 배정 후 안내해 주세요.`
       : `정원을 강습 ${result.lesson}명 · 특화 ${result.special}명으로 변경했습니다.`,
   );
 }
