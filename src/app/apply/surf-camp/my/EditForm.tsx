@@ -8,6 +8,7 @@ import ParticipantEditor, {
   type ParticipantRow,
 } from '@/components/apply/surf-camp/ParticipantEditor';
 import {
+  cancelMyProgram,
   cancelMyRegistration,
   updateMyRegistration,
   type MyFormState,
@@ -75,6 +76,10 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
     cancelMyRegistration,
     initialState,
   );
+  const [cancelProgramState, cancelProgramAction, cancellingProgram] = useActionState(
+    cancelMyProgram,
+    initialState,
+  );
 
   const [participants, setParticipants] = useState<ParticipantRow[]>(() =>
     toRows(registration),
@@ -86,6 +91,17 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
   const [region, setRegion] = useState<string>(registration.region);
   const [lessonTime, setLessonTime] = useState<string>(registration.lesson_time);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  /** 프로그램별 취소 확인 체크 — 한 번에 하나만 열어 실수를 줄인다. */
+  const [confirmProgram, setConfirmProgram] = useState<string | null>(null);
+
+  /** 아직 살아 있는 프로그램 (신청 순서대로) */
+  const activePrograms = Array.from(
+    new Set(
+      registration.participants.flatMap((p) =>
+        p.signups.filter((s) => s.status !== 'cancelled').map((s) => s.program),
+      ),
+    ),
+  );
 
   const savedCount = registration.participants.length;
   const grew = participants.length > savedCount;
@@ -315,9 +331,77 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
         </div>
       </form>
 
+      {/* ── 프로그램별 취소 ────────────────────────────────────────────────
+          두 프로그램을 함께 신청한 경우에만 보여준다. 한쪽만 못 오게 됐는데
+          전체 취소밖에 없으면 멀쩡한 프로그램까지 날아간다. */}
+      {activePrograms.length > 1 && (
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-navy">프로그램별 취소</h2>
+          <p className="mt-2 text-sm leading-relaxed text-navy/60">
+            한 프로그램만 참가가 어려우시면 해당 프로그램만 취소하실 수 있습니다. 나머지
+            프로그램은 그대로 유지됩니다. 취소한 좌석은 즉시 대기자에게 넘어갑니다.
+          </p>
+
+          <div className="mt-4 space-y-3">
+            {activePrograms.map((pk) => (
+              <form
+                key={pk}
+                action={cancelProgramAction}
+                className="rounded-xl border border-gray-200 p-4"
+              >
+                <input type="hidden" name="registration_id" value={registration.id} />
+                <input type="hidden" name="program" value={pk} />
+                <label className="flex cursor-pointer items-start gap-2.5 text-sm text-navy/70">
+                  <input
+                    type="checkbox"
+                    name="confirm"
+                    required
+                    checked={confirmProgram === pk}
+                    onChange={(e) => setConfirmProgram(e.target.checked ? pk : null)}
+                    className="mt-1 shrink-0"
+                  />
+                  <span>
+                    <strong className="text-navy">{programLabel(pk)}</strong> 참가를
+                    취소하겠습니다.
+                  </span>
+                </label>
+                <button
+                  type="submit"
+                  disabled={cancellingProgram || confirmProgram !== pk}
+                  className="mt-3 inline-flex items-center justify-center rounded-lg border border-sunset px-5 py-2 text-sm font-bold text-sunset transition hover:bg-sunset hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-sunset"
+                >
+                  {cancellingProgram && confirmProgram === pk
+                    ? '취소 처리 중…'
+                    : `${programLabel(pk)}만 취소하기`}
+                </button>
+              </form>
+            ))}
+          </div>
+
+          {cancelProgramState.status === 'error' && cancelProgramState.message && (
+            <p
+              role="alert"
+              className="mt-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+            >
+              {cancelProgramState.message}
+            </p>
+          )}
+          {cancelProgramState.status === 'success' && cancelProgramState.message && (
+            <p
+              role="status"
+              className="mt-3 rounded-lg border border-teal/40 bg-teal/10 p-4 text-sm text-ocean"
+            >
+              {cancelProgramState.message}
+            </p>
+          )}
+        </section>
+      )}
+
       {/* ── 취소 ───────────────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-navy">신청 취소</h2>
+        <h2 className="text-lg font-semibold text-navy">
+          {activePrograms.length > 1 ? '신청 전체 취소' : '신청 취소'}
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-navy/60">
           취소하면 이 신청의 모든 참가자·프로그램이 함께 취소되고, 확정 좌석은 즉시
           대기자에게 넘어갑니다. 접수 기간 중에는 같은 번호로 다시 신청할 수 있지만, 그때는

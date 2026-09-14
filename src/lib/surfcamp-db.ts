@@ -239,6 +239,20 @@ export interface CancelSuccess {
 }
 export type CancelResult = CancelSuccess | RpcFailure;
 
+export interface CancelProgramSuccess {
+  ok: true;
+  cancelled: boolean;
+  program?: ProgramKey;
+  rep_name?: string;
+  phone?: string;
+  /** 이번에 반납된 확정 좌석 수 */
+  freed?: number;
+  /** 남은 프로그램이 없어 신청서 전체가 취소로 내려갔는지 */
+  whole_cancelled?: boolean;
+  promoted: Promoted[];
+}
+export type CancelProgramResult = CancelProgramSuccess | RpcFailure;
+
 export interface OtpSetSuccess {
   ok: true;
   phone: string;
@@ -318,6 +332,26 @@ export async function cancelRegistration(
   return callRpc<CancelResult>('surfcamp_cancel', {
     p_registration_id: registrationId,
     p_phone: phone,
+    p_reason: reason ?? null,
+  });
+}
+
+/**
+ * 프로그램 하나만 취소.
+ *
+ * 두 프로그램을 함께 신청한 가족이 한쪽만 못 오게 됐을 때 쓴다.
+ * 남은 프로그램이 없으면 RPC 가 알아서 신청서 전체를 취소로 내린다.
+ */
+export async function cancelRegistrationProgram(
+  registrationId: string,
+  phone: string | null,
+  program: ProgramKey,
+  reason?: string | null,
+): Promise<CancelProgramResult> {
+  return callRpc<CancelProgramResult>('surfcamp_cancel_program', {
+    p_registration_id: registrationId,
+    p_phone: phone,
+    p_program: program,
     p_reason: reason ?? null,
   });
 }

@@ -196,3 +196,41 @@ export async function sendCancelSms(params: {
     fallbackText: body,
   });
 }
+
+/**
+ * 프로그램 하나만 취소했을 때의 확인 문자.
+ *
+ * ★ 남은 프로그램을 반드시 같이 알린다. "취소했다"만 오면 신청자는 둘 다
+ *   날아갔다고 읽고 다시 전화한다 — 전화를 줄이려고 만든 기능이 전화를 부른다.
+ */
+export async function sendCancelProgramSms(params: {
+  phone: string;
+  repName: string;
+  program: ProgramKey;
+  /** 취소 후에도 남아 있는 프로그램 (없으면 신청서 전체가 취소된 것) */
+  remaining: ProgramKey[];
+  byAdmin?: boolean;
+}) {
+  const who = params.byAdmin ? '운영 사무국에서 취소 처리했습니다.' : '취소되었습니다.';
+  const kept = params.remaining.length
+    ? `${params.remaining.map(programLabel).join('·')}은(는) 그대로 유지됩니다.`
+    : '신청하신 모든 프로그램이 취소되었습니다.';
+  const body = [
+    HEAD,
+    `${params.repName}님, 신청하신 ${programLabel(params.program)}이(가) ${who}`,
+    '',
+    kept,
+    '',
+    `문의: ${INQUIRY_TEL}`,
+    SENDER,
+  ]
+    .filter((line) => line !== undefined)
+    .join('\n');
+
+  return sendAlimtalk({
+    to: params.phone,
+    templateId: 'TMPL_SURFCAMP_CANCEL',
+    variables: {},
+    fallbackText: body,
+  });
+}

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import {
   cancelRegistration,
+  cancelRegistrationProgram,
   lookupByPhone,
   otpSet,
   otpVerify,
@@ -18,6 +19,7 @@ import {
 } from '@/lib/surfcamp-db';
 import { generateOtp, hashOtp, signSession, verifySession } from '@/lib/surfcamp-otp';
 import {
+  sendCancelProgramSms,
   sendCancelSms,
   sendOtpSms,
   sendPromotionSms,
@@ -274,6 +276,7 @@ const ERROR_MESSAGES: Record<string, string> = {
     '추가하시려는 프로그램이 모두 신규 접수 마감되었습니다. 기존 신청 내역은 그대로 유지되며, 인원 추가 없이 다른 정보만 수정하시는 것은 가능합니다.',
   not_found: '신청 정보를 찾을 수 없습니다. 이미 취소되었을 수 있습니다.',
   forbidden: '해당 신청에 대한 권한이 없습니다.',
+  no_such_program: '이미 취소된 프로그램입니다. 화면을 새로고침해 주세요.',
   unknown_participant:
     '참가자 정보가 변경되어 저장하지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.',
   empty_registration:
@@ -551,5 +554,76 @@ export async function cancelMyRegistration(
   return {
     status: 'success',
     message: '신청이 취소되었습니다. 접수 기간 중에는 같은 번호로 다시 신청할 수 있습니다.',
+  };
+}
+
+/**
+ * 프로그램 하나만 취소.
+ *
+ * 배정이 끝난 뒤에는 시간·스쿨 변경을 받지 않지만, 한쪽 프로그램만 못 오게 된 경우까지
+ * 전체 취소로 몰면 멀쩡한 다른 프로그램까지 날아간다. 그래서 프로그램 단위 경로를 둔다.
+ */
+export async function cancelMyProgram(
+  _prev: MyFormState,
+  formData: FormData,
+): Promise<MyFormState> {
+  const text = (key: string) => (formData.get(key) as string | null)?.trim() ?? '';
+  const registrationId = text('registration_id');
+  const program = text('program');
+
+  if (program !== 'lesson' && program !== 'special') {
+    return fail('취소할 프로그램을 선택해 주세요.');
+  }
+  if (formData.get('confirm') == null) {
+    return fail('취소를 진행하시려면 확인란에 체크해 주세요.');
+  }
+
+  const auth = await authorize(registrationId);
+  if (!auth.ok) return fail(auth.message);
+  const { phone, target } = auth;
+
+  // 취소 전 스냅샷으로 "남는 프로그램"을 계산한다(취소 후에는 사라져서 알 수 없다).
+  const stillHas = (p: ProgramKey) =>
+    (target.participants ?? []).some((x) =>
+      (x.signups ?? []).some((s) => s.program === p && s.status !== 'cancelled'),
+    );
+  const other: ProgramKey = program === 'lesson' ? 'special' : 'lesson';
+  const remaining: ProgramKey[] = stillHas(other) ? [other] : [];
+
+  let result;
+  try {
+    result = await cancelRegistrationProgram(registrationId, phone, program, null);
+  } catch (e) {
+    console.error('[surfcamp] cancelRegistrationProgram failed:', e);
+    return fail('취소 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+  if (!result.ok) return fail(messageFor(result));
+
+  revalidatePath(MY_PATH);
+
+  if (!result.cancelled) {
+    return { status: 'success', message: '이미 취소된 신청입니다.' };
+  }
+
+  try {
+    await sendCancelProgramSms({
+      phone: result.phone ?? phone,
+      repName: result.rep_name ?? target.rep_name,
+      program,
+      remaining,
+      byAdmin: false,
+    });
+  } catch (e) {
+    console.error('[surfcamp] cancel-program SMS failed:', e);
+  }
+
+  await notifyPromoted(result.promoted);
+
+  const label = program === 'lesson' ? '서핑강습' : '서핑 특화 체험';
+  return {
+    status: 'success',
+    message: remaining.length
+      ? `${label} 참가가 취소되었습니다. 나머지 프로그램은 그대로 유지됩니다.`
+      : `${label} 참가가 취소되었습니다. 신청하신 모든 프로그램이 취소되었습니다.`,
   };
 }
