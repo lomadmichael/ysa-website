@@ -309,7 +309,11 @@ export default function ParticipantEditor({
                     );
                   })}
                 </div>
-                {!eligible && <p className="text-xs text-sunset">{INELIGIBLE_REASON}</p>}
+                {/* 강습이 마감이면 자격 경고도 접는다. 나이·신장을 아직 안 적은 참가자마다
+                    강습 자격 문구가 떠서 특화 신청 화면을 어지럽혔다(2026-09-16). */}
+                {!eligible && !closedPrograms.lesson && (
+                  <p className="text-xs text-sunset">{INELIGIBLE_REASON}</p>
+                )}
               </div>
             </div>
           </div>

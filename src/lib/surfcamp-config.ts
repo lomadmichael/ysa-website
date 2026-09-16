@@ -64,7 +64,9 @@ export const KILL_SWITCH = false;
  *   일이 생기는데(2026-08-10 강습 204 / 특화 330), 그 내부 숫자가 화면에 그대로
  *   드러나면 "공고와 다르다"는 문의를 부른다. 판정은 DB 값으로, 표기는 이 값으로.
  */
-export const ANNOUNCED_CAPACITY = { lesson: 200, special: 300 } as const;
+// special 330: 2026-09-16 특화 추가 접수 때 300 → 330 으로 상향(현장접수 포함 400명 운영 기준).
+// DB special_total_cap(330)과 맞춘다 — 표기 300 / 잔여석 330 기준이면 신청자가 헷갈린다.
+export const ANNOUNCED_CAPACITY = { lesson: 200, special: 330 } as const;
 
 /** @deprecated 표기는 ANNOUNCED_CAPACITY 를 쓸 것. 폴백 값 용도로만 남긴다. */
 export const DEFAULT_CAPACITY = ANNOUNCED_CAPACITY;
