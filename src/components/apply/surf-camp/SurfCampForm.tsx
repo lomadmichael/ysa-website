@@ -229,10 +229,13 @@ export default function SurfCampForm({
           </p>
           <dl className="space-y-3 text-sm">
             <ReceiptRow label="대표 신청자" value={state.result.rep_name} />
-            <ReceiptRow
-              label="희망 강습권역 · 시간"
-              value={`${regionLabel(region)} · ${lessonTimeLabel(lessonTime)}`}
-            />
+            {/* 강습 마감 중에는 권역·시간을 묻지 않았으므로 내역에도 싣지 않는다. */}
+            {!lessonGate && (
+              <ReceiptRow
+                label="희망 강습권역 · 시간"
+                value={`${regionLabel(region)} · ${lessonTimeLabel(lessonTime)}`}
+              />
+            )}
             <ProgramResultRow programKey="lesson" outcome={lesson} />
             <ProgramResultRow programKey="special" outcome={special} />
           </dl>
@@ -409,31 +412,43 @@ export default function SurfCampForm({
         </Field>
       </Section>
 
-      {/* 희망 강습권역 / 시간 */}
-      <Section title="희망 강습권역 · 시간" required>
-        <p className="text-sm text-navy/60">
-          권역과 시간은 <strong className="text-navy">신청 전체에 1개</strong>만 선택하며,
-          가족 참가자 전원에게 동일하게 적용됩니다. 신청 현황에 따라 조정될 수 있습니다.
-        </p>
-        <Field label="희망 강습권역" required>
-          <OptionGroup
-            name="region"
-            options={REGIONS}
-            value={region}
-            onChange={setRegion}
-            columns="grid-cols-3 sm:grid-cols-5"
-          />
-        </Field>
-        <Field label="희망 강습시간" required>
-          <OptionGroup
-            name="lesson_time"
-            options={LESSON_TIMES}
-            value={lessonTime}
-            onChange={setLessonTime}
-            columns="grid-cols-3"
-          />
-        </Field>
-      </Section>
+      {/* 희망 강습권역 / 시간
+          ★ 강습이 마감되면 이 섹션을 통째로 접는다. 특화만 신청하러 온 사람이
+          "왜 강습 시간을 고르지?" 하고 멈추는 지점이었다(2026-09-16 특화 추가 접수).
+          DB(surfcamp_submit)는 region·lesson_time 을 필수로 검증하므로 빈 값을 보낼 수
+          없다 — 특화 장소가 웨이브웍스(현남면) 하나라 region 은 hyeonnam, 시간은
+          '시간무관'을 hidden 으로 보낸다. 강습이 다시 열리면 원래 화면으로 돌아온다. */}
+      {lessonGate ? (
+        <>
+          <input type="hidden" name="region" value="hyeonnam" />
+          <input type="hidden" name="lesson_time" value="any" />
+        </>
+      ) : (
+        <Section title="희망 강습권역 · 시간" required>
+          <p className="text-sm text-navy/60">
+            권역과 시간은 <strong className="text-navy">신청 전체에 1개</strong>만 선택하며,
+            가족 참가자 전원에게 동일하게 적용됩니다. 신청 현황에 따라 조정될 수 있습니다.
+          </p>
+          <Field label="희망 강습권역" required>
+            <OptionGroup
+              name="region"
+              options={REGIONS}
+              value={region}
+              onChange={setRegion}
+              columns="grid-cols-3 sm:grid-cols-5"
+            />
+          </Field>
+          <Field label="희망 강습시간" required>
+            <OptionGroup
+              name="lesson_time"
+              options={LESSON_TIMES}
+              value={lessonTime}
+              onChange={setLessonTime}
+              columns="grid-cols-3"
+            />
+          </Field>
+        </Section>
+      )}
 
       {/* 참가자 */}
       <Section title="참가자 정보" required>
@@ -452,28 +467,38 @@ export default function SurfCampForm({
             참가자 명단에 자동으로 포함되지 않습니다.
           </p>
         </div>
-        <p className="text-sm leading-relaxed text-navy/60">
-          함께 참가하는 분을 모두 등록해 주세요. 참가자별로 신청 프로그램을 1개 이상
-          선택해야 합니다. 신장·몸무게는 수트와 보드 준비를 위해 사용됩니다.{' '}
-          <strong className="text-navy">
-            {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세 이상, 신장{' '}
-            {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다.
-          </strong>{' '}
-          기준에 미치지 않는 분은 {programLabel('special')}만 신청하실 수 있습니다.
-        </p>
-        {/*
-          프로그램마다 신청서를 따로 쓰는 분들이 실제로 있었다(번호를 바꿔 두 번 접수).
-          체크박스 바로 위에서 한 번 더 짚어 준다.
-        */}
-        <p
-          className="rounded-lg px-4 py-3 text-sm leading-relaxed text-navy/75"
-          style={{ background: 'color-mix(in srgb, var(--color-teal) 9%, transparent)' }}
-        >
-          <strong className="text-navy">
-            두 프로그램을 모두 참여하시려면 아래에서 둘 다 체크해 주세요.
-          </strong>{' '}
-          프로그램별로 신청서를 따로 작성하실 필요는 없습니다.
-        </p>
+        {lessonGate ? (
+          <p className="text-sm leading-relaxed text-navy/60">
+            함께 참가하는 분을 모두 등록해 주세요. 신장·몸무게는 장비 준비와 현장 안전
+            관리를 위해 사용됩니다. {programLabel('special')}은 연령·신장 제한 없이
+            신청하실 수 있습니다.
+          </p>
+        ) : (
+          <>
+            <p className="text-sm leading-relaxed text-navy/60">
+              함께 참가하는 분을 모두 등록해 주세요. 참가자별로 신청 프로그램을 1개 이상
+              선택해야 합니다. 신장·몸무게는 수트와 보드 준비를 위해 사용됩니다.{' '}
+              <strong className="text-navy">
+                {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세 이상, 신장{' '}
+                {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있습니다.
+              </strong>{' '}
+              기준에 미치지 않는 분은 {programLabel('special')}만 신청하실 수 있습니다.
+            </p>
+            {/*
+              프로그램마다 신청서를 따로 쓰는 분들이 실제로 있었다(번호를 바꿔 두 번 접수).
+              체크박스 바로 위에서 한 번 더 짚어 준다.
+            */}
+            <p
+              className="rounded-lg px-4 py-3 text-sm leading-relaxed text-navy/75"
+              style={{ background: 'color-mix(in srgb, var(--color-teal) 9%, transparent)' }}
+            >
+              <strong className="text-navy">
+                두 프로그램을 모두 참여하시려면 아래에서 둘 다 체크해 주세요.
+              </strong>{' '}
+              프로그램별로 신청서를 따로 작성하실 필요는 없습니다.
+            </p>
+          </>
+        )}
         {/* 한쪽 프로그램만 마감된 경우 — 체크박스를 눌러 보기 전에 먼저 알려 준다. */}
         {(lessonGate || specialGate) && (
           <div
@@ -559,12 +584,21 @@ export default function SurfCampForm({
             label="[필수] 안전 및 기상상황 확인 / 안전수칙 준수"
             desc="서핑은 해양환경에서 진행되는 활동으로, 기상·파고·풍향·풍속 등 현장 상황에 따라 프로그램이 변경·중단 또는 취소될 수 있음을 확인합니다. 또한 강사의 안전교육과 현장 통제에 따르며, 안전수칙을 준수하지 않는 경우 강습 참여가 제한될 수 있음에 동의합니다."
           />
-          <Consent
-            name="consent_assignment"
-            required
-            label="[필수] 스쿨 배정 확인"
-            desc="희망 강습권역과 시간을 기준으로 신청하되, 최종 서핑스쿨 및 시간은 신청현황과 현장 운영여건에 따라 조정·배정될 수 있음을 확인합니다."
-          />
+          {lessonGate ? (
+            <Consent
+              name="consent_assignment"
+              required
+              label="[필수] 프로그램 운영 확인"
+              desc={`${programLabel('special')}은 웨이브웍스 양양(현남면 인구중앙길 110)에서 진행되며, 진행 시간과 방식은 신청 현황과 현장 운영 여건에 따라 조정될 수 있음을 확인합니다.`}
+            />
+          ) : (
+            <Consent
+              name="consent_assignment"
+              required
+              label="[필수] 스쿨 배정 확인"
+              desc="희망 강습권역과 시간을 기준으로 신청하되, 최종 서핑스쿨 및 시간은 신청현황과 현장 운영여건에 따라 조정·배정될 수 있음을 확인합니다."
+            />
+          )}
         </div>
       </Section>
 

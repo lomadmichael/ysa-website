@@ -121,8 +121,20 @@ export default function ProgramGuide({
             프로그램 안내
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-navy/70">
-            {EVENT.name}는 두 가지 프로그램으로 운영합니다. 아래 내용을 확인하신 뒤
-            신청해 주세요.
+            {lessonClosed && !specialClosed ? (
+              <>
+                {EVENT.name}는 두 가지 프로그램으로 운영합니다.{' '}
+                <strong className="text-navy">
+                  {programLabel('lesson')}은 접수가 마감되었고, 지금은{' '}
+                  {programLabel('special')}만 추가 접수 중입니다.
+                </strong>
+              </>
+            ) : (
+              <>
+                {EVENT.name}는 두 가지 프로그램으로 운영합니다. 아래 내용을 확인하신 뒤
+                신청해 주세요.
+              </>
+            )}
           </p>
         </div>
         <Image
@@ -151,7 +163,9 @@ export default function ProgramGuide({
         />
       </div>
 
-      {/* 가장 헷갈리는 지점 — 두 프로그램의 관계 */}
+      {/* 가장 헷갈리는 지점 — 두 프로그램의 관계.
+          한쪽이 마감이면 "둘 다 신청" 안내 자체가 혼란이라 숨긴다. */}
+      {!lessonClosed && !specialClosed && (
       <div
         className="mt-4 rounded-2xl border px-5 py-4 text-sm leading-relaxed text-navy/75"
         style={{
@@ -168,6 +182,7 @@ export default function ProgramGuide({
         하시면 되고, 같은 가족 안에서도 참가자별로 다르게 고르실 수 있습니다. 물론 둘 중
         하나만 신청하셔도 됩니다.
       </div>
+      )}
 
       {/* 접수 안내 */}
       <div className="mt-10">
@@ -186,18 +201,31 @@ export default function ProgramGuide({
             선택합니다. 대표 신청자는 연락·접수를 담당하는 분으로{' '}
             <strong className="text-navy">참가자로 자동 등록되지 않으니</strong>, 본인도
             참가하신다면 참가자 정보에 본인을 반드시 추가해 주세요.
-            <br />
-            <strong className="text-navy">
-              두 프로그램을 모두 신청하실 때도 신청서는 한 번만 작성하시면 됩니다.
-            </strong>{' '}
-            프로그램마다 따로 신청하지 마시고, 참가자별로 참여할 프로그램을 함께
-            선택해 주세요.
+            {!lessonClosed && (
+              <>
+                <br />
+                <strong className="text-navy">
+                  두 프로그램을 모두 신청하실 때도 신청서는 한 번만 작성하시면 됩니다.
+                </strong>{' '}
+                프로그램마다 따로 신청하지 마시고, 참가자별로 참여할 프로그램을 함께
+                선택해 주세요.
+              </>
+            )}
           </GuideStep>
 
           <GuideStep step={2} title="신청 대상">
-            양양군민 및 양양 생활인구. {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세
-            이상, 신장 {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있으며, 기준에 미치지
-            않는 분은 {programLabel('special')}에 신청해 주세요.
+            {lessonClosed ? (
+              <>
+                양양군민 및 양양 생활인구. {programLabel('special')}은 연령·신장 제한 없이
+                신청하실 수 있습니다.
+              </>
+            ) : (
+              <>
+                양양군민 및 양양 생활인구. {programLabel('lesson')}은 만 {LESSON_MIN_AGE}세
+                이상, 신장 {LESSON_MIN_HEIGHT}cm 이상만 신청하실 수 있으며, 기준에 미치지
+                않는 분은 {programLabel('special')}에 신청해 주세요.
+              </>
+            )}
           </GuideStep>
 
           <GuideStep step={3} title="중복 신청 방지">
@@ -205,20 +233,40 @@ export default function ProgramGuide({
             수 없으니, 함께 참가하실 분을 한 번에 등록해 주세요.
           </GuideStep>
 
-          <GuideStep step={4} title="확정 · 대기">
-            정원 안에 들면 즉시 확정되고, 정원을 초과하면 대기로 접수됩니다. 취소가
-            발생하면 대기 순번대로 자동 확정되며 문자로 안내드립니다. 신청은 프로그램별로
-            가족 전원이 함께 확정되므로,{' '}
-            <strong className="text-navy">
-              남은 자리보다 인원이 많은 가족은 건너뛰고 다음 순번이 먼저 확정될 수
-              있습니다.
-            </strong>
-          </GuideStep>
+          {lessonClosed ? (
+            <>
+              {/* 특화 추가 접수 기간 — 정원(확정+대기 상한)이 차면 대기 없이 접수가 닫히고
+                  현장접수로 안내한다(2026-09-16 운영 방침). */}
+              <GuideStep step={4} title="확정 · 마감">
+                정원 안에 들면 즉시 확정됩니다. 정원이 차면 온라인 접수가 마감되며, 이후에는{' '}
+                <strong className="text-navy">
+                  9월 19일(토)~20일(일) 행사 현장에서 접수하실 수 있습니다.
+                </strong>
+              </GuideStep>
 
-          <GuideStep step={5} title="배정 안내">
-            최종 서핑스쿨과 장소, 집결 시간, 준비물은 참가가 확정된 뒤 개별
-            안내드립니다.
-          </GuideStep>
+              <GuideStep step={5} title="장소 · 준비물 안내">
+                {programLabel('special')}은 웨이브웍스 양양(현남면 인구중앙길 110)에서
+                진행됩니다. 집결 시간과 준비물은 접수 확정 문자로 안내드립니다.
+              </GuideStep>
+            </>
+          ) : (
+            <>
+              <GuideStep step={4} title="확정 · 대기">
+                정원 안에 들면 즉시 확정되고, 정원을 초과하면 대기로 접수됩니다. 취소가
+                발생하면 대기 순번대로 자동 확정되며 문자로 안내드립니다. 신청은 프로그램별로
+                가족 전원이 함께 확정되므로,{' '}
+                <strong className="text-navy">
+                  남은 자리보다 인원이 많은 가족은 건너뛰고 다음 순번이 먼저 확정될 수
+                  있습니다.
+                </strong>
+              </GuideStep>
+
+              <GuideStep step={5} title="배정 안내">
+                최종 서핑스쿨과 장소, 집결 시간, 준비물은 참가가 확정된 뒤 개별
+                안내드립니다.
+              </GuideStep>
+            </>
+          )}
 
           <GuideStep step={6} title="안내 문자">
             접수·확정·대기 안내 문자는 {EVENT.host} 알림 운영 대행사인{' '}
@@ -308,14 +356,22 @@ function ProgramCard({
           </span>
         </span>
       </div>
-      <dl className="space-y-2.5 border-t border-gray-100 px-5 py-4">
-        {rows.map((row) => (
-          <div key={row.label}>
-            <dt className="text-xs font-semibold text-navy/45">{row.label}</dt>
-            <dd className="mt-0.5 text-sm leading-relaxed text-navy/75">{row.value}</dd>
-          </div>
-        ))}
-      </dl>
+      {/* 마감된 프로그램은 상세(일시·자격·정원·진행)를 접는다. 신청 못 하는 프로그램의
+          설명이 열린 프로그램만큼 길면 어느 쪽을 신청하는 화면인지 흐려진다. */}
+      {closed ? (
+        <p className="border-t border-gray-100 px-5 py-4 text-sm leading-relaxed text-navy/60">
+          신규 접수가 마감되었습니다. 이미 접수하신 분의 확정·대기 순번은 그대로 유지됩니다.
+        </p>
+      ) : (
+        <dl className="space-y-2.5 border-t border-gray-100 px-5 py-4">
+          {rows.map((row) => (
+            <div key={row.label}>
+              <dt className="text-xs font-semibold text-navy/45">{row.label}</dt>
+              <dd className="mt-0.5 text-sm leading-relaxed text-navy/75">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </article>
   );
 }
