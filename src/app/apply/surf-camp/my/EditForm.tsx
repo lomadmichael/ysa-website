@@ -108,6 +108,29 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
 
   return (
     <div className="space-y-8">
+      {/* ── 프로그램별 취소 결과 배너 ──────────────────────────────────────────
+          ★ 이 배너는 반드시 「프로그램별 취소」 섹션 밖에 있어야 한다.
+          그 섹션은 activePrograms.length > 1 일 때만 그려지는데, 한 프로그램을
+          취소하면 남는 게 하나가 되어 섹션이 통째로 사라진다. 성공 메시지를
+          섹션 안에 두면 취소에 성공한 순간 안내까지 같이 사라져서, 사용자는
+          "안 된 건가?" 하고 아래 전체 취소를 눌러 멀쩡한 프로그램까지 날린다.
+          (2026-09-16 임현아 님 건 — 08:56에 강습 취소 직후 전체 취소 실행) */}
+      {cancelProgramState.status === 'success' && cancelProgramState.message && (
+        <section
+          role="status"
+          className="rounded-2xl border border-teal/50 bg-teal/10 p-5 shadow-sm"
+        >
+          <p className="text-base font-bold text-ocean">취소 처리가 완료되었습니다</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-navy/80">
+            {cancelProgramState.message}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-navy/60">
+            확인 문자도 함께 보내드렸습니다. <strong className="text-navy">추가로 취소하실 것이
+            없다면 이 화면에서 더 하실 일은 없습니다.</strong>
+          </p>
+        </section>
+      )}
+
       {/* ── 운영 사무국 안내 ───────────────────────────────────────────────────
           관리자가 이 신청 건에 남긴 안내(applicant_notice)만 표시한다.
           내부 운영 메모(staff_note)는 조회 RPC 가 아예 돌려주지 않으므로
@@ -386,22 +409,15 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
               {cancelProgramState.message}
             </p>
           )}
-          {cancelProgramState.status === 'success' && cancelProgramState.message && (
-            <p
-              role="status"
-              className="mt-3 rounded-lg border border-teal/40 bg-teal/10 p-4 text-sm text-ocean"
-            >
-              {cancelProgramState.message}
-            </p>
-          )}
+          {/* 성공 메시지는 이 섹션이 사라져도 남도록 화면 맨 위 배너에서 그린다. */}
         </section>
       )}
 
       {/* ── 취소 ───────────────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-navy">
-          {activePrograms.length > 1 ? '신청 전체 취소' : '신청 취소'}
-        </h2>
+        {/* 제목은 남은 프로그램 수와 무관하게 「전체」로 고정한다. 버튼이 '전체
+            취소하기'인데 제목만 '신청 취소'면 범위가 흐려진다. */}
+        <h2 className="text-lg font-semibold text-navy">신청 전체 취소</h2>
         <p className="mt-2 text-sm leading-relaxed text-navy/60">
           취소하면 이 신청의 모든 참가자·프로그램이 함께 취소되고, 확정 좌석은 즉시
           대기자에게 넘어갑니다. 접수 기간 중에는 같은 번호로 다시 신청할 수 있지만, 그때는
@@ -422,7 +438,9 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
             />
             <span>
               위 내용을 확인했으며,{' '}
-              <strong className="text-navy">신청을 취소하겠습니다.</strong>
+              <strong className="text-navy">
+                신청한 프로그램 전체를 취소하겠습니다.
+              </strong>
             </span>
           </label>
 
@@ -443,12 +461,16 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
             </p>
           )}
 
+          {/* ★ 프로그램별 취소 버튼과 크기·스타일을 똑같이 맞춘다(px-5 py-2).
+              이 버튼이 조금이라도 더 커 보이면 「위에서 체크하고 여기서 최종 제출」
+              하는 것처럼 읽혀서, 한 프로그램만 끊으려던 사람이 전체를 날린다.
+              문구도 '신청 취소하기' → '전체 취소하기' 로 바꿔 범위를 못 박는다. */}
           <button
             type="submit"
             disabled={cancelling || !confirmCancel}
-            className="inline-flex items-center justify-center rounded-lg border border-sunset px-6 py-2.5 text-sm font-bold text-sunset transition hover:bg-sunset hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-sunset"
+            className="inline-flex items-center justify-center rounded-lg border border-sunset px-5 py-2 text-sm font-bold text-sunset transition hover:bg-sunset hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-sunset"
           >
-            {cancelling ? '취소 처리 중…' : '신청 취소하기'}
+            {cancelling ? '취소 처리 중…' : '전체 취소하기'}
           </button>
         </form>
       </section>

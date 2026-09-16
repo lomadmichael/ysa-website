@@ -619,11 +619,19 @@ export async function cancelMyProgram(
 
   await notifyPromoted(result.promoted);
 
-  const label = program === 'lesson' ? '서핑강습' : '서핑 특화 체험';
+  // 남는 프로그램은 이름을 그대로 적는다. "나머지 프로그램"이라고만 쓰면
+  // 무엇이 살아 있는지 확신이 안 서서, 취소가 안 된 줄 알고 전체 취소를
+  // 한 번 더 누르는 사고가 난다(2026-09-16 임현아 님 건).
+  const nameOf = (p: ProgramKey) => (p === 'lesson' ? '서핑강습' : '서핑 특화 체험');
+  const label = nameOf(program);
   return {
     status: 'success',
+    // 조사는 '은' 고정 — 프로그램명이 「서핑강습」·「서핑 특화 체험」 둘뿐이고
+    // 둘 다 받침으로 끝난다. 프로그램이 늘면 여기도 손봐야 한다.
     message: remaining.length
-      ? `${label} 참가가 취소되었습니다. 나머지 프로그램은 그대로 유지됩니다.`
+      ? `${label} 참가가 취소되었습니다. ${remaining
+          .map(nameOf)
+          .join(' · ')}은 취소되지 않았습니다. 그대로 참가하시면 됩니다.`
       : `${label} 참가가 취소되었습니다. 신청하신 모든 프로그램이 취소되었습니다.`,
   };
 }
