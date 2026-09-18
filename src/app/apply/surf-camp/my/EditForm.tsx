@@ -21,6 +21,7 @@ import {
   LESSON_TIMES,
   REGIONS,
   RESIDENT_TYPES,
+  SELF_CANCEL_CLOSED,
   lessonTimeLabel,
   programLabel,
   regionLabel,
@@ -357,7 +358,7 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
       {/* ── 프로그램별 취소 ────────────────────────────────────────────────
           두 프로그램을 함께 신청한 경우에만 보여준다. 한쪽만 못 오게 됐는데
           전체 취소밖에 없으면 멀쩡한 프로그램까지 날아간다. */}
-      {activePrograms.length > 1 && (
+      {!SELF_CANCEL_CLOSED && activePrograms.length > 1 && (
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-navy">프로그램별 취소</h2>
           <p className="mt-2 text-sm leading-relaxed text-navy/60">
@@ -414,6 +415,20 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
       )}
 
       {/* ── 취소 ───────────────────────────────────────────────────────────── */}
+      {SELF_CANCEL_CLOSED ? (
+        /* 2026-09-18 — 명단이 서핑샵에 전달된 뒤라 온라인 취소를 닫았다(DB 게이트 018 + 이 스위치). */
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-navy">신청 취소 안내</h2>
+          <p className="mt-2 text-sm leading-relaxed text-navy/60">
+            참가자 명단이 각 서핑샵에 전달되어 <strong className="text-navy">온라인 취소는 마감</strong>
+            되었습니다. 참가가 어려우시면 운영본부{' '}
+            <a href={`tel:${INQUIRY_TEL}`} className="font-bold text-ocean underline">
+              {INQUIRY_TEL}
+            </a>
+            로 문자 또는 전화로 알려주세요.
+          </p>
+        </section>
+      ) : (
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         {/* 제목은 남은 프로그램 수와 무관하게 「전체」로 고정한다. 버튼이 '전체
             취소하기'인데 제목만 '신청 취소'면 범위가 흐려진다. */}
@@ -474,6 +489,7 @@ export default function EditForm({ registration }: { registration: SurfcampRegis
           </button>
         </form>
       </section>
+      )}
 
       <p className="text-center text-xs text-navy/50">
         문의 {INQUIRY_TEL} (운영 사무국)

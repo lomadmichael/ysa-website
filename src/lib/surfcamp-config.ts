@@ -41,6 +41,16 @@ export const SMS_SENDER_ORG = '로마드협동조합';
  *     surfcamp.event_log 의 'promote' 행과 서버 로그로 확인한다.
  */
 export const AUTO_PROMOTION_SMS = false;
+
+/**
+ * 본인(/my) 취소를 닫았는지 — 화면용 스위치.
+ *
+ * ★ 2026-09-18 부터 true. 9/17 샵별 명단 전달 뒤에도 /my 취소가 이어져(대기 0명이라 보충 불가,
+ *   샵 명단만 흔들림) 형님 지시로 닫았다. 실제 차단은 DB(마이그레이션 018,
+ *   surfcamp.config.self_cancel_open=false → 'cancel_closed')가 하고, 이 상수는 취소 섹션을
+ *   안내 문구로 바꿔 보여주는 용도다. 다시 열 때는 둘 다 되돌린다.
+ */
+export const SELF_CANCEL_CLOSED = true;
 export type {
   GenderKey,
   LessonTimeKey,
