@@ -6,8 +6,7 @@
  * (그래서 이 스크립트는 여러 번 돌려도 같은 사람에게 두 번 가지 않는다 —
  *  추첨을 나눠서 할 때마다 그냥 다시 실행하면 된다).
  *
- * 경품별 수령 안내는 업체와 협의한 내용을 아래 CLAIM 에 채워야 한다.
- * 【 】 가 남아 있으면 --send 를 거부한다.
+ * 수령 방법은 협회가 따로 연락하므로 문자에는 경품·제공사·장소까지만 적는다.
  *
  * 사용법:
  *   node scripts/livedraw-send-winners.mjs                        # dry-run (대상·문안 확인)
@@ -40,13 +39,11 @@ const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE
   auth: { persistSession: false },
 });
 
-// ───── 경품별 수령 안내 (업체 협의 후 채울 것) ─────
-const CLAIM = {
-  STAND_MEAL: '【수령 방법 — 예: 방문 시 성함 말씀하시면 확인됩니다 / 유효기간】',
-  APEX_POOL: '【수령 방법 — 예: 사전 예약 필요 여부·연락처 / 이용 가능 기간】',
-  APEX_MEAL: '【수령 방법 — 예: 방문 시 성함 말씀하시면 확인됩니다 / 유효기간】',
-};
-/** 경품별 장소 안내 */
+// ───── 경품별 장소 안내 ─────
+/**
+ * 수령 방법은 업체 확인이 끝나는 대로 협회가 따로 연락한다(형님 지시, 2026-09-21).
+ * 그래서 문자에는 장소까지만 적고 수령 절차는 "별도 안내"로 둔다.
+ */
 const PLACE = {
   STAND_MEAL: '더 스탠드 (하조대해변)',
   APEX_POOL: '양양 에이펙스호텔 (동산해변)',
@@ -56,7 +53,6 @@ const PLACE = {
 
 function buildText({ name, sponsor, prize_title, prize_code }) {
   const place = PLACE[prize_code] ?? sponsor;
-  const claim = CLAIM[prize_code] ?? '【수령 방법 미정】';
   return `[대한서핑협회장배 코리아 오픈] 경품 당첨 안내
 
 ${name}님, 코리아 오픈 롱보드 유튜브 생중계 경품에 당첨되셨습니다. 축하드립니다.
@@ -65,7 +61,7 @@ ${name}님, 코리아 오픈 롱보드 유튜브 생중계 경품에 당첨되�
 ▶ 제공 : ${sponsor}
 ▶ 장소 : ${place}
 
-${claim}
+수령 방법은 확인 후 협회에서 별도로 안내드립니다.
 
 경품을 제공해 주신 ${sponsor}에 감사드립니다.
 
@@ -141,9 +137,6 @@ async function main() {
   console.log(`\n--- 문안 미리보기 ---\n${sample}`);
   console.log(`\n글자수 ${sample.length} · UTF-8 ${Buffer.byteLength(sample, 'utf8')} bytes (LMS)`);
 
-  const unconfirmed = targets.some((t) => buildText(t).includes('【')) || sample.includes('【');
-  if (unconfirmed) console.log('\n🚫 수령 안내(CLAIM)가 미확정입니다 — 실발송 불가');
-
   if (samplePhone) {
     console.log(`\n🟠 샘플 1건 → ${mask(samplePhone)}`);
     await sendMany([{ to: samplePhone, from, text: sample }]);
@@ -154,7 +147,10 @@ async function main() {
     console.log('\n🟡 DRY-RUN — 실행: --sample <번호> / --send');
     return;
   }
-  if (unconfirmed) process.exit(1);
+  if (targets.length === 0) {
+    console.log('\n보낼 대상이 없어 발송하지 않았습니다.');
+    return;
+  }
 
   console.log(`\n🔴 발송 ${targets.length}건`);
   const messages = targets.map((t) => ({ to: digits(t.phone), from, text: buildText(t) }));
