@@ -42,9 +42,12 @@ export const ALOHA_MINOR_AFTER = "2007-10-09";
 
 /** 선수 교체·환불 규정 — 동의 체크 상세와 상단 안내의 단일 소스 */
 export const ALOHA_REFUND_POLICY = [
-  "선수 교체는 접수 마감(9월 30일 23:59) 전까지만 가능합니다. (같은 성별, 협회로 연락)",
+  "선수 교체는 접수 마감(9월 30일 23:59) 전까지 팀 대표자가 홈페이지 「팀 정보 수정」에서 직접 할 수 있습니다.",
   "입금 확정 이후 개인 사정으로 인한 환불은 불가합니다.",
   "기상 악화 등으로 대회가 취소되면 참가비를 전액 환불합니다.",
 ] as const;
 
 export const TEAM_SIZE = 4;
+
+/** 팀 정보 수정 마감 안내 (서버 entry_closes_at 이 실제 게이트) */
+export const ALOHA_EDIT_DEADLINE_LABEL = "9월 30일(수) 23:59";

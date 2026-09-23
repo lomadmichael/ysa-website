@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AlohaTeamBanner from "@/components/apply/AlohaTeamBanner";
 import AlohaTeamEntryForm from "@/components/apply/AlohaTeamEntryForm";
 import type { Competition } from "@/components/apply/CompEntryForm";
@@ -81,6 +82,18 @@ function AlohaTeamBrief() {
 
   return (
     <section className="mb-9 space-y-4">
+      <Link
+        href="/apply/aloha-team/edit"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-purple/30 bg-purple/5 px-5 py-3.5 text-sm font-semibold text-navy transition hover:bg-purple/10"
+      >
+        <span>
+          이미 신청한 팀 — <span className="text-purple">팀 정보 수정</span>
+        </span>
+        <span aria-hidden="true" className="text-purple">
+          →
+        </span>
+      </Link>
+
       <div className="rounded-2xl border border-ocean/15 bg-ocean/5 p-5 sm:p-6">
         <h2 className="text-xl font-bold text-navy">대회 안내</h2>
         <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2.5 sm:grid-cols-2">
