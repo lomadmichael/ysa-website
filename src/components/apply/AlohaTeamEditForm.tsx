@@ -173,6 +173,10 @@ export default function AlohaTeamEditForm() {
   const [error, setError] = useState<string | null>(null);
   const [errorMember, setErrorMember] = useState<number | null>(null);
   const [saved, setSaved] = useState<string[] | null>(null);
+  // 저장 완료 화면 — 저장 후 폼 위로만 스크롤되면 반영 여부가 불명확하다는 형님 피드백(9/23)
+  const [done, setDone] = useState<{ changes: string[]; notes: string[] } | null>(
+    null
+  );
   const memberRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   /** 서버 응답으로 화면·폼 상태를 통째로 맞춘다 */
@@ -520,8 +524,7 @@ export default function AlohaTeamEditForm() {
         );
       }
       applyTeam(data as unknown as TeamData);
-      setSaved(notes);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setDone({ changes, notes });
     } catch {
       fail("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
@@ -530,7 +533,21 @@ export default function AlohaTeamEditForm() {
     }
   }
 
+  // 완료 화면이 뜨면 그 카드로 스크롤 — 페이지 맨 위로 가면 모바일에선 주황 히어로만 보인다
+  useEffect(() => {
+    if (!done) return;
+    // 긴 폼 → 짧은 완료 화면으로 높이가 급변하므로 smooth 대신 즉시 이동 (헤더 높이만큼 여백)
+    const el = document.getElementById("aloha-edit-done");
+    if (el) {
+      window.scrollTo({
+        top: el.getBoundingClientRect().top + window.scrollY - 96,
+        behavior: "instant",
+      });
+    }
+  }, [done]);
+
   function logout() {
+    setDone(null);
     saveSession(null);
     setSession(null);
     setTeam(null);
@@ -688,6 +705,81 @@ export default function AlohaTeamEditForm() {
             처음으로
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (done) {
+    return (
+      <div id="aloha-edit-done" className="mx-auto max-w-xl scroll-mt-24 space-y-6">
+        <div className="rounded-2xl border-2 border-black bg-[#FFF4E8] p-6 text-center sm:p-8">
+          <div
+            aria-hidden="true"
+            className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#EC6C01] text-2xl font-black text-black"
+          >
+            ✓
+          </div>
+          <h2 className="mt-4 text-2xl font-bold text-black">
+            팀 정보 수정이 완료되었습니다
+          </h2>
+          <p className="mt-2 text-sm text-black/65">
+            {team.competition_name || ALOHA_TEAM.title} · {team.team_name}
+          </p>
+        </div>
+
+        <div role="status" className="rounded-2xl border border-black/15 bg-white p-5">
+          <p className="mb-2 text-sm font-bold text-black">변경된 내용</p>
+          <ul className="space-y-1 text-sm text-black/80">
+            {done.changes.map((c) => (
+              <li key={c}>· {c}</li>
+            ))}
+          </ul>
+          {done.notes.map((n) => (
+            <p
+              key={n}
+              className="mt-3 rounded-lg bg-[#FFF4E8] p-3 text-sm font-medium text-black"
+            >
+              {n}
+            </p>
+          ))}
+        </div>
+
+        <div className="rounded-2xl border border-black/15 bg-white p-5">
+          <p className="mb-3 text-sm font-bold text-black">현재 팀 명단</p>
+          <dl className="space-y-2 text-sm">
+            {orderedMembers(team).map((m, i) => (
+              <ReceiptRow
+                key={m.entry_id}
+                label={i === 0 ? "대표자" : memberLabel(i)}
+                value={`${m.name} (${m.gender === "M" ? "남" : "여"}) · ${formatPhoneLive(
+                  digits(m.phone ?? "")
+                )}`}
+              />
+            ))}
+          </dl>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => {
+              setDone(null);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`${btnPrimary} w-full sm:flex-1`}
+          >
+            다시 수정하기
+          </button>
+          <Link
+            href="/apply/aloha-team"
+            className="inline-flex w-full items-center justify-center rounded-full border-2 border-black bg-white px-5 py-3 text-sm font-bold text-black sm:flex-1"
+          >
+            대회 안내로
+          </Link>
+        </div>
+        <p className="text-center text-xs text-black/55">
+          팀 정보는 {ALOHA_EDIT_DEADLINE_LABEL}까지 다시 수정할 수 있습니다.
+        </p>
       </div>
     );
   }
