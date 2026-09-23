@@ -472,8 +472,13 @@ export default function AlohaTeamEntryForm({
   }
 
   const division = competition.divisions[0];
+  // 부문 정원·접수 수는 **선수(명) 단위** — 팀 수로 환산해 표시 (80명 = 20팀)
+  const capacityTeams = division ? Math.floor(division.capacity / TEAM_SIZE) : 0;
   const remainingTeams = division
-    ? Math.max(0, division.capacity - division.confirmed_count)
+    ? Math.max(
+        0,
+        Math.floor((division.capacity - division.confirmed_count) / TEAM_SIZE)
+      )
     : null;
 
   return (
@@ -484,7 +489,7 @@ export default function AlohaTeamEntryForm({
         <Section title="팀 정보">
           {remainingTeams !== null && division && division.capacity > 0 && (
             <p className="text-xs text-navy/50">
-              잔여 {remainingTeams}팀 / {division.capacity}팀
+              잔여 {remainingTeams}팀 / {capacityTeams}팀
             </p>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
