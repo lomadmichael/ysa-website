@@ -454,7 +454,7 @@ export default function AlohaTeamEntryForm({
   }
 
   const division = competition.divisions[0];
-  // 부문 정원·접수 수는 **선수(명) 단위** — 팀 수로 환산해 표시 (80명 = 20팀)
+  // 부문 정원·접수 수는 **선수(명) 단위** — 팀 수로 환산해 표시 (128명 = 32팀)
   const capacityTeams = division ? Math.floor(division.capacity / TEAM_SIZE) : 0;
   const remainingTeams = division
     ? Math.max(

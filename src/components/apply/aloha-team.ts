@@ -19,7 +19,7 @@ export const ALOHA_TEAM = {
   format: "혼성 4인 1팀 (남 2 · 여 2)",
   feeLabel: "팀당 100,000원",
   feeAmount: 100000,
-  capacityLabel: "20팀 선착순",
+  capacityLabel: "32팀 선착순",
   entryPeriodLabel: "9월 23일(수) ~ 9월 30일(수) 23:59",
   bank: {
     name: "신한은행",

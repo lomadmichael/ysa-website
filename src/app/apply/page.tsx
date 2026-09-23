@@ -63,7 +63,7 @@ export default async function ApplyPage() {
             accent="sunset"
             eyebrow="TEAM COMPETITION"
             title="2026 양양군의장배 알로하 팀 챌린지"
-            description="10월 9일(금) 죽도해변 · 혼성 4인 1팀(남2·여2) · 팀당 100,000원 · 20팀 선착순 · 접수 9월 23일(수)~9월 30일(수)"
+            description="10월 9일(금) 죽도해변 · 혼성 4인 1팀(남2·여2) · 팀당 100,000원 · 32팀 선착순 · 접수 9월 23일(수)~9월 30일(수)"
             statusLabel="접수 중"
             active
             cta="팀 신청하기"
