@@ -13,6 +13,7 @@ import {
 import { COUNTRIES, countryName } from "@/lib/countries";
 import { ACCEPTED_IMAGE_TYPES, resizeToJpeg } from "@/lib/athlete-photo";
 import { CUSTOM_COMP_SLUG } from "@/lib/custom-comp-2026";
+import { ALOHA_TEAM_SLUG } from "./aloha-team";
 
 // ApplyForm 과 동일한 API base 정책 (golineup.kr fallback + env override)
 const CERT_API =
@@ -120,13 +121,17 @@ const formatDate = (d: string) =>
  * 이 폼이 다루는 대회 목록.
  * 맞춤형 서핑대회는 참가비·수집 항목이 완전히 달라 전용 폼(/apply/custom-competition)
  * 에서만 접수한다 — 여기 섞이면 무료 대회에 참가비 5만원이 합산돼 표시된다.
+ * 알로하 팀 챌린지는 4인 팀 단위 접수라 전용 폼(/apply/aloha-team)에서만 받는다.
  */
 function visibleCompetitions(
   list: Competition[],
   group: EntryGroup | null = null
 ): Competition[] {
   return list.filter(
-    (c) => c.slug !== CUSTOM_COMP_SLUG && isInEntryGroup(c.slug, group)
+    (c) =>
+      c.slug !== CUSTOM_COMP_SLUG &&
+      c.slug !== ALOHA_TEAM_SLUG &&
+      isInEntryGroup(c.slug, group)
   );
 }
 

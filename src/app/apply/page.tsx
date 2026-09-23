@@ -59,6 +59,34 @@ export default async function ApplyPage() {
       <section className="max-w-4xl mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <ProgramCard
+            href="/apply/aloha-team"
+            accent="sunset"
+            eyebrow="TEAM COMPETITION"
+            title="2026 양양군의장배 알로하 팀 챌린지"
+            description="10월 9일(금) 죽도해변 · 혼성 4인 1팀(남2·여2) · 팀당 100,000원 · 20팀 선착순 · 접수 9월 23일(수)~9월 30일(수)"
+            statusLabel="접수 중"
+            active
+            cta="팀 신청하기"
+            className="md:col-span-2"
+            icon={
+              <svg
+                className="h-9 w-9 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="9" cy="7" r="3" />
+                <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+                <circle cx="17" cy="8" r="2.5" />
+                <path d="M16 14.2A5 5 0 0 1 21 19" />
+              </svg>
+            }
+          />
+          <ProgramCard
             href="/apply/surf-camp"
             accent="ocean"
             eyebrow="SURF CAMP"
