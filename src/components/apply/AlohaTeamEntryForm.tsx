@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Competition } from "./CompEntryForm";
 import {
+  ALOHA_FORM_ANCHOR,
   ALOHA_TEAM,
   ALOHA_TEAM_ENTRY_WINDOW,
   ALOHA_TEAM_SLUG,
@@ -14,20 +15,30 @@ import {
   ConsentRow,
   DepositBox,
   Field,
-  GenderCount,
+  GenderBar,
+  Hint,
   MemberCard,
   ReceiptRow,
   Section,
   birthTooYoung,
+  btnPrimary,
+  btnPrimarySm,
+  btnSecondary,
+  btnSecondarySm,
   emptyMember,
   inputCls,
   isMinor,
   isValidMobile,
+  linkCls,
+  memberLabel,
   type Member,
 } from "./aloha-team-ui";
 
 const CERT_API =
   process.env.NEXT_PUBLIC_CERT_API_BASE ?? "https://golineup.kr";
+
+/** 대표자는 항상 첫 번째 칸 (rep_index 0 고정) */
+const REP_INDEX = 0;
 
 /** lineup 이 내려줄 수 있는 접수 여부 플래그 (없으면 목록 포함 = 접수 중으로 본다) */
 type AlohaCompetition = Competition & { entry_open?: boolean };
@@ -73,7 +84,6 @@ export default function AlohaTeamEntryForm({
   const [members, setMembers] = useState<Member[]>(() =>
     Array.from({ length: TEAM_SIZE }, emptyMember)
   );
-  const [repIndex, setRepIndex] = useState(0);
   const [consents, setConsents] = useState<Consents>({
     privacy: false,
     publicity: false,
@@ -159,13 +169,13 @@ export default function AlohaTeamEntryForm({
     }
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      const label = `팀원 ${i + 1}`;
+      const label = memberLabel(i);
       if (!m.name.trim()) return fail(`${label}의 성명을 입력해주세요.`, i);
       if (!m.gender) return fail(`${label}의 성별을 선택해주세요.`, i);
       if (!m.birth_date)
         return fail(`${label}의 생년월일을 선택해주세요.`, i);
       if (birthTooYoung(m.birth_date))
-        return fail(`${label}: 초등학생 이상(2019년 이전 출생)만 참가할 수 있습니다.`, i);
+        return fail(`${label}: 생년월일을 다시 확인해주세요.`, i);
       if (!isValidMobile(m.phone))
         return fail(`${label}의 연락처를 정확히 입력해주세요.`, i);
       if (isMinor(m.birth_date)) {
@@ -218,7 +228,7 @@ export default function AlohaTeamEntryForm({
           division_id: divisionId,
           team_name: teamName.trim(),
           ...(affiliation.trim() ? { affiliation: affiliation.trim() } : {}),
-          rep_index: repIndex,
+          rep_index: REP_INDEX,
           members: members.map((m) => ({
             name: m.name.trim(),
             gender: m.gender,
@@ -260,13 +270,20 @@ export default function AlohaTeamEntryForm({
         Array.isArray(data?.entries) ? data.entries : [];
       const list =
         entries.length > 0
-          ? [...entries]
-              .sort((a, b) => (a.member_no ?? 0) - (b.member_no ?? 0))
+            ? [...entries]
+              .sort(
+                (a, b) =>
+                  Number(!!b.is_rep) - Number(!!a.is_rep) ||
+                  (a.member_no ?? 0) - (b.member_no ?? 0)
+              )
               .map((en) => ({ name: en.name, isRep: !!en.is_rep }))
-          : members.map((m, i) => ({ name: m.name.trim(), isRep: i === repIndex }));
+          : members.map((m, i) => ({
+              name: m.name.trim(),
+              isRep: i === REP_INDEX,
+            }));
       setSuccess({
         teamName: (data?.team_name as string) ?? teamName.trim(),
-        repName: members[repIndex].name.trim(),
+        repName: members[REP_INDEX].name.trim(),
         feeTotal:
           typeof data?.fee_total === "number"
             ? data.fee_total
@@ -326,16 +343,19 @@ export default function AlohaTeamEntryForm({
     return (
       <>
         {brief}
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center space-y-3">
-          <h2 className="text-xl font-bold text-navy">접수 기간이 아닙니다</h2>
-          <p className="text-sm text-navy/60">
+        <div
+          id={ALOHA_FORM_ANCHOR}
+          className="scroll-mt-20 space-y-3 rounded-2xl border-2 border-black bg-[#FFF4E8] p-8 text-center"
+        >
+          <h2 className="text-xl font-bold text-black">접수 기간이 아닙니다</h2>
+          <p className="text-sm text-black/65">
             {closed
               ? "접수가 마감되었습니다. 참가 안내는 팀 대표자 연락처로 개별 발송됩니다."
               : `접수 기간: ${ALOHA_TEAM.entryPeriodLabel}`}
           </p>
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-gray-50"
+            className={btnSecondarySm}
           >
             홈으로
           </Link>
@@ -347,26 +367,13 @@ export default function AlohaTeamEntryForm({
   if (success) {
     return (
       <div
-        className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+        className="overflow-hidden rounded-2xl border-2 border-black bg-white"
         style={{ animation: "ysaFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
-        <div
-          className="px-6 sm:px-10 pt-10 pb-8 text-center"
-          style={{
-            background:
-              "linear-gradient(to bottom, color-mix(in srgb, var(--color-teal) 10%, transparent), transparent)",
-          }}
-        >
-          <div
-            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full shadow-lg"
-            style={{
-              background: "var(--color-teal)",
-              boxShadow:
-                "0 10px 30px -10px color-mix(in srgb, var(--color-teal) 60%, transparent)",
-            }}
-          >
+        <div className="bg-[#EC6C01] px-6 pb-8 pt-10 text-center sm:px-10">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-[3px] border-black bg-white">
             <svg
-              className="h-11 w-11 text-white"
+              className="h-11 w-11 text-black"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -378,16 +385,16 @@ export default function AlohaTeamEntryForm({
               <path d="M5 12.5l4.5 4.5L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-navy tracking-tight">
+          <h2 className="text-2xl font-black tracking-tight text-black sm:text-3xl">
             팀 참가 신청이 접수되었습니다
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-navy/60">
+          <p className="mt-3 text-sm font-medium text-black sm:text-base">
             접수 확인 문자가 대표자에게 발송됩니다
           </p>
         </div>
 
         <div className="border-t border-dashed border-gray-200 px-6 sm:px-10 py-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-navy/40">
+          <p className="mb-4 text-xs font-bold uppercase tracking-wider text-black/45">
             신청 내역
           </p>
           <dl className="space-y-3 text-sm">
@@ -400,7 +407,7 @@ export default function AlohaTeamEntryForm({
                     <li key={`${m.name}-${i}`}>
                       {m.name}
                       {m.isRep && (
-                        <span className="ml-1.5 inline-flex items-center rounded-full bg-sunset/15 px-2 py-0.5 text-[11px] font-bold text-sunset">
+                        <span className="ml-1.5 inline-flex items-center rounded-full bg-black px-2 py-0.5 text-[11px] font-bold text-white">
                           대표자
                         </span>
                       )}
@@ -417,7 +424,7 @@ export default function AlohaTeamEntryForm({
         </div>
 
         <div className="border-t border-dashed border-gray-200 px-6 sm:px-10 py-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-navy/40">
+          <p className="mb-4 text-xs font-bold uppercase tracking-wider text-black/45">
             입금 안내
           </p>
           <DepositBox repName={success.repName} amount={success.feeTotal} />
@@ -425,29 +432,20 @@ export default function AlohaTeamEntryForm({
             신청 후 <strong>3일 이내</strong> 미입금 시 접수가 취소됩니다.
             입금 확인 후 참가 확정 문자를 보내드립니다.
           </p>
-          <p className="mt-3 text-sm text-navy/60">
+          <p className="mt-3 text-sm text-black/65">
             팀원 교체·정보 수정은 접수 마감 전까지{" "}
-            <Link
-              href="/apply/aloha-team/edit"
-              className="font-semibold text-purple underline underline-offset-2"
-            >
+            <Link href="/apply/aloha-team/edit" className={linkCls}>
               팀 정보 수정
             </Link>
             에서 대표자가 직접 할 수 있습니다.
           </p>
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 border-t border-gray-100 bg-gray-50/50 px-6 sm:px-10 py-5">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-gray-50 transition"
-          >
+        <div className="flex flex-col-reverse gap-2 border-t border-black/10 bg-[#FFF4E8] px-6 py-5 sm:flex-row sm:justify-end sm:gap-3 sm:px-10">
+          <Link href="/" className={btnSecondarySm}>
             홈으로
           </Link>
-          <Link
-            href="/apply"
-            className="inline-flex items-center justify-center rounded-lg bg-purple px-5 py-2.5 text-sm font-bold text-white hover:bg-purple/90 transition"
-          >
+          <Link href="/apply" className={btnPrimarySm}>
             다른 접수 보기
           </Link>
         </div>
@@ -468,11 +466,16 @@ export default function AlohaTeamEntryForm({
   return (
     <>
       {brief}
-      <form onSubmit={handleSubmit} noValidate className="space-y-9">
+      <form
+        id={ALOHA_FORM_ANCHOR}
+        onSubmit={handleSubmit}
+        noValidate
+        className="scroll-mt-20 space-y-9"
+      >
         {/* 팀 정보 */}
         <Section title="팀 정보">
           {remainingTeams !== null && division && division.capacity > 0 && (
-            <p className="text-xs text-navy/50">
+            <p className="text-xs font-medium text-black/55">
               잔여 {remainingTeams}팀 / {capacityTeams}팀
             </p>
           )}
@@ -502,22 +505,12 @@ export default function AlohaTeamEntryForm({
 
         {/* 팀원 */}
         <Section title="팀원 정보">
-          <div className="sticky top-0 z-10 -mx-1 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur">
-            <span className="text-sm font-semibold text-navy">
-              <GenderCount label="남" count={maleCount} />
-              <span className="mx-2 text-navy/30">·</span>
-              <GenderCount label="여" count={femaleCount} />
-            </span>
-            <span
-              className={`text-xs font-medium ${genderOk ? "text-teal" : "text-navy/50"}`}
-            >
-              {genderOk ? "혼성 구성 완료" : "남 2명 · 여 2명으로 구성해주세요"}
-            </span>
-          </div>
-          <p className="rounded-lg bg-sunset/10 px-3.5 py-2.5 text-sm leading-relaxed text-navy/80">
-            <strong className="text-navy">대표자</strong> 연락처로 접수·확정
-            문자가 발송되며, 입금자명은 대표자 이름으로 해주세요.
-          </p>
+          <GenderBar male={maleCount} female={femaleCount} />
+          <Hint>
+            첫 번째 칸이 <strong className="text-black">대표자</strong>입니다.
+            대표자 연락처로 접수·확정 문자가 발송되며, 입금자명은 대표자
+            이름으로 해주세요.
+          </Hint>
 
           <div className="space-y-4">
             {members.map((m, i) => (
@@ -525,12 +518,10 @@ export default function AlohaTeamEntryForm({
                 key={i}
                 index={i}
                 member={m}
-                isRep={repIndex === i}
                 highlighted={errorMember === i}
                 cardRef={(el) => {
                   memberRefs.current[i] = el;
                 }}
-                onRep={() => setRepIndex(i)}
                 onChange={(key, value) => updateMember(i, key, value)}
               />
             ))}
@@ -604,16 +595,13 @@ export default function AlohaTeamEntryForm({
             </p>
           )}
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50"
-            >
+            <Link href="/" className={btnSecondary}>
               취소
             </Link>
             <button
               type="submit"
               disabled={submitting || !genderOk}
-              className="inline-flex items-center justify-center rounded-lg bg-purple px-8 py-3.5 text-base text-white font-bold hover:bg-purple/90 disabled:opacity-50"
+              className={btnPrimary}
             >
               {submitting ? "접수 중..." : "팀 참가 신청하기"}
             </button>

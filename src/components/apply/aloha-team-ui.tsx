@@ -46,28 +46,47 @@ export const birthTooYoung = (birth: string) =>
 
 export const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 
+/** 카드·검증 메시지 라벨 — 첫 칸은 항상 대표자, 나머지는 팀원 1~3 */
+export const memberLabel = (index: number) =>
+  index === 0 ? "대표자" : `팀원 ${index}`;
+
+/* ── 포스터 팔레트 ─────────────────────────────────────────────────────────
+ * 대회 포스터(대회포스터.jpg) 배경에서 샘플링한 주황 #EC6C01 + 검정 + 흰색,
+ * 섹션 배경용 따뜻한 오프화이트 #FFF4E8.
+ * 주황 위 작은 흰 글씨는 대비가 약해(≈3:1) 쓰지 않는다 — 주황 위 글씨는 검정.
+ * Tailwind 가 스캔할 수 있도록 클래스 문자열은 리터럴로 둔다.
+ */
+export const btnPrimary =
+  "inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-base font-bold text-white transition hover:bg-black/85 disabled:opacity-40";
+export const btnSecondary =
+  "inline-flex items-center justify-center rounded-full border-2 border-black bg-white px-6 py-3 text-base font-bold text-black transition hover:bg-[#FFF4E8] disabled:opacity-40";
+export const btnPrimarySm =
+  "inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white transition hover:bg-black/85 disabled:opacity-40";
+export const btnSecondarySm =
+  "inline-flex items-center justify-center rounded-full border-2 border-black bg-white px-5 py-2 text-sm font-bold text-black transition hover:bg-[#FFF4E8] disabled:opacity-40";
+export const linkCls =
+  "font-semibold text-black underline decoration-[#EC6C01] decoration-2 underline-offset-[3px] hover:decoration-black";
+
 /* ── 하위 컴포넌트 ─────────────────────────────────────────────────────────── */
 
 // 16px(text-base) — iOS Safari 는 16px 미만 입력칸 포커스 시 화면을 확대한다
 export const inputCls =
-  "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-purple/40 focus:border-purple";
+  "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#EC6C01]/50 focus:border-black";
 export function MemberCard({
   index,
   member: m,
-  isRep,
   highlighted,
   cardRef,
-  onRep,
   onChange,
 }: {
+  /** 0 = 대표자 (고정), 1~3 = 팀원 */
   index: number;
   member: Member;
-  isRep: boolean;
   highlighted: boolean;
   cardRef: (el: HTMLDivElement | null) => void;
-  onRep: () => void;
   onChange: <K extends keyof Member>(key: K, value: Member[K]) => void;
 }) {
+  const isRep = index === 0;
   const tooYoung = birthTooYoung(m.birth_date);
   const minor = isMinor(m.birth_date);
   const phoneBad = m.phone.length >= 10 && !isValidMobile(m.phone);
@@ -79,28 +98,25 @@ export function MemberCard({
         highlighted
           ? "border-red-400 ring-2 ring-red-200"
           : isRep
-            ? "border-purple/50"
+            ? "border-2 border-black"
             : "border-gray-200"
       }`}
     >
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-base font-bold text-navy">팀원 {index + 1}</h3>
-        <label
-          className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-            isRep
-              ? "border-purple bg-purple text-white"
-              : "border-gray-300 text-navy/60 hover:border-gray-400"
-          }`}
-        >
-          <input
-            type="radio"
-            name="rep_index"
-            checked={isRep}
-            onChange={onRep}
-            className="size-4 accent-white"
-          />
-          대표자
-        </label>
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+        {isRep ? (
+          <h3 className="inline-flex items-center rounded-full bg-black px-3.5 py-1 text-sm font-bold text-white">
+            대표자
+          </h3>
+        ) : (
+          <h3 className="text-base font-bold text-black">
+            {memberLabel(index)}
+          </h3>
+        )}
+        {isRep && (
+          <span className="text-xs font-medium text-black/60">
+            접수·확정 문자 수신 · 입금자명 기준
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -126,8 +142,8 @@ export function MemberCard({
                   onClick={() => onChange("gender", g)}
                   className={`py-2.5 text-base font-semibold transition ${
                     on
-                      ? "bg-purple text-white"
-                      : "bg-white text-navy/60 hover:bg-gray-50"
+                      ? "bg-black text-white"
+                      : "bg-white text-black/55 hover:bg-[#FFF4E8]"
                   } ${g === "F" ? "border-l border-gray-300" : ""}`}
                 >
                   {g === "M" ? "남" : "여"}
@@ -146,7 +162,7 @@ export function MemberCard({
           </div>
           {tooYoung && (
             <p className="mt-1 text-xs font-medium text-red-600">
-              초등학생 이상(2019년 12월 31일 이전 출생)만 참가할 수 있습니다.
+              생년월일을 다시 확인해주세요.
             </p>
           )}
           {minor && !tooYoung && (
@@ -174,7 +190,7 @@ export function MemberCard({
       </div>
 
       {minor && (
-        <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl bg-gray-50 p-4 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl bg-[#FFF4E8] p-4 md:grid-cols-2">
           <Field label="보호자 성명" required>
             <input
               type="text"
@@ -206,18 +222,54 @@ export function MemberCard({
 
 export function GenderCount({ label, count }: { label: string; count: number }) {
   const cls =
-    count === 2 ? "text-teal" : count > 2 ? "text-red-600" : "text-navy";
+    count === 2
+      ? "bg-black text-white"
+      : count > 2
+        ? "bg-red-600 text-white"
+        : "bg-white text-black ring-1 ring-inset ring-black/25";
   return (
-    <span className={cls}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 tabular-nums ${cls}`}
+    >
       {label} {count}/2
     </span>
+  );
+}
+
+/** 팀원 정보 상단 고정 바 — 남 x/2 · 여 y/2 */
+export function GenderBar({ male, female }: { male: number; female: number }) {
+  const ok = male === 2 && female === 2;
+  return (
+    <div className="sticky top-[76px] z-10 -mx-1 flex flex-wrap items-center justify-between gap-2 rounded-full border-2 border-black bg-white/95 py-1.5 pl-2 pr-4 backdrop-blur">
+      <span className="flex items-center gap-1.5 text-sm font-bold">
+        <GenderCount label="남" count={male} />
+        <GenderCount label="여" count={female} />
+      </span>
+      <span
+        className={`flex items-center gap-1.5 text-xs font-semibold ${ok ? "text-black" : "text-black/55"}`}
+      >
+        {ok && (
+          <span aria-hidden="true" className="size-2 rounded-full bg-[#EC6C01]" />
+        )}
+        {ok ? "혼성 구성 완료" : "남 2명 · 여 2명으로 구성해주세요"}
+      </span>
+    </div>
+  );
+}
+
+/** 포스터 톤 안내 한 줄 (주황 왼쪽 선 + 오프화이트) */
+export function Hint({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="rounded-r-lg border-l-4 border-[#EC6C01] bg-[#FFF4E8] px-3.5 py-2.5 text-sm leading-relaxed text-black/80">
+      {children}
+    </p>
   );
 }
 
 export function DepositBox({ repName, amount }: { repName: string; amount: number }) {
   const { bank } = ALOHA_TEAM;
   return (
-    <dl className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm">
+    <dl className="space-y-3 rounded-xl border border-black/10 bg-[#FFF4E8] p-4 text-sm">
       <ReceiptRow label="참가비" value={<strong>{won(amount)}</strong>} />
       <ReceiptRow label="은행" value={bank.name} />
       <div className="flex items-center justify-between gap-4">
@@ -255,7 +307,8 @@ export function Section({
 }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold flex items-center gap-2">
+      <h2 className="flex items-center gap-2 text-lg font-bold text-black">
+        <span aria-hidden="true" className="h-5 w-1.5 rounded-full bg-[#EC6C01]" />
         {title}
         {required && <span className="text-red-500 text-sm">*</span>}
       </h2>
@@ -306,8 +359,8 @@ export function ConsentRow({
 }) {
   return (
     <div
-      className={`rounded-lg border-2 transition ${
-        checked ? "border-purple bg-purple/10" : "border-purple/40 bg-purple/5"
+      className={`rounded-xl border-2 transition ${
+        checked ? "border-black bg-[#FFF4E8]" : "border-black/15 bg-white"
       }`}
     >
       <label className="flex cursor-pointer items-start gap-3 p-3.5">
@@ -315,20 +368,47 @@ export function ConsentRow({
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className="mt-0.5 size-5 shrink-0 accent-purple"
+          className="mt-0.5 size-5 shrink-0 accent-black"
         />
-        <span className="text-sm font-semibold leading-snug text-navy">
+        <span className="text-sm font-semibold leading-snug text-black">
           {label}
         </span>
       </label>
       {detail && (
-        <details className="border-t border-purple/15 px-3.5 py-2.5 text-xs text-gray-700">
-          <summary className="cursor-pointer select-none font-medium text-navy/60">
+        <details className="border-t border-black/10 px-3.5 py-2.5 text-xs text-gray-700">
+          <summary className="cursor-pointer select-none font-medium text-black/60">
             자세히 보기
           </summary>
           <div className="pt-2 leading-relaxed">{detail}</div>
         </details>
       )}
     </div>
+  );
+}
+
+/** 히어로 「참가 신청하기」 — JS 가 있으면 부드럽게, 없으면 앵커로 이동 */
+export function ScrollToFormLink({
+  targetId,
+  className,
+  children,
+}: {
+  targetId: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={`#${targetId}`}
+      className={className}
+      onClick={(e) => {
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", `#${targetId}`);
+      }}
+    >
+      {children}
+    </a>
   );
 }

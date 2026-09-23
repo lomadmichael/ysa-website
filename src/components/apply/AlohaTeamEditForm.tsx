@@ -12,16 +12,22 @@ import {
   ConsentRow,
   DepositBox,
   Field,
-  GenderCount,
+  GenderBar,
+  Hint,
   MemberCard,
   ReceiptRow,
   Section,
   birthTooYoung,
+  btnPrimary,
+  btnSecondary,
+  btnSecondarySm,
   digits,
   formatPhoneLive,
   inputCls,
   isMinor,
   isValidMobile,
+  linkCls,
+  memberLabel,
   type Member,
 } from "./aloha-team-ui";
 
@@ -109,12 +115,19 @@ async function callApi(
 const errText = (data: Record<string, unknown>, fallback: string) =>
   typeof data.error === "string" && data.error ? data.error : fallback;
 
-function sortedMembers(team: TeamData): TeamMember[] {
-  return [...team.members].sort((a, b) => a.member_no - b.member_no);
+/**
+ * 화면 순서 — 대표자(is_rep)가 항상 첫 칸, 나머지는 member_no 순으로 팀원 1~3.
+ * 대표자 자체를 바꾸려면 첫 칸(대표자)의 이름·연락처를 새 사람으로 고친다.
+ */
+function orderedMembers(team: TeamData): TeamMember[] {
+  return [...team.members].sort(
+    (a, b) =>
+      Number(b.is_rep) - Number(a.is_rep) || a.member_no - b.member_no
+  );
 }
 
 function toEditMembers(team: TeamData): EditMember[] {
-  return sortedMembers(team).map((m) => ({
+  return orderedMembers(team).map((m) => ({
     entry_id: m.entry_id,
     name: m.name ?? "",
     gender: m.gender ?? "",
@@ -153,7 +166,6 @@ export default function AlohaTeamEditForm() {
   const [teamName, setTeamName] = useState("");
   const [affiliation, setAffiliation] = useState("");
   const [members, setMembers] = useState<EditMember[]>([]);
-  const [repIndex, setRepIndex] = useState(0);
   const [guardianConsent, setGuardianConsent] = useState(false);
 
   const [saving, setSaving] = useState(false);
@@ -168,10 +180,7 @@ export default function AlohaTeamEditForm() {
     setTeam(t);
     setTeamName(t.team_name ?? "");
     setAffiliation(t.affiliation ?? "");
-    const list = toEditMembers(t);
-    setMembers(list);
-    const rep = sortedMembers(t).findIndex((m) => m.is_rep);
-    setRepIndex(rep >= 0 ? rep : 0);
+    setMembers(toEditMembers(t));
     setGuardianConsent(false);
     setError(null);
     setErrorMember(null);
@@ -361,13 +370,13 @@ export default function AlohaTeamEditForm() {
     if (!teamName.trim()) return fail("팀명을 입력해주세요.");
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      const label = `팀원 ${i + 1}`;
+      const label = memberLabel(i);
       if (!m.name.trim()) return fail(`${label}의 성명을 입력해주세요.`, i);
       if (!m.gender) return fail(`${label}의 성별을 선택해주세요.`, i);
       if (!m.birth_date) return fail(`${label}의 생년월일을 선택해주세요.`, i);
       if (birthTooYoung(m.birth_date))
         return fail(
-          `${label}: 초등학생 이상(2019년 이전 출생)만 참가할 수 있습니다.`,
+          `${label}: 생년월일을 다시 확인해주세요.`,
           i
         );
       if (!isValidMobile(m.phone))
@@ -404,11 +413,11 @@ export default function AlohaTeamEditForm() {
         `소속: ${t.affiliation || "(없음)"} → ${affiliation.trim() || "(없음)"}`
       );
     }
-    const orig = sortedMembers(t);
+    const orig = orderedMembers(t);
     members.forEach((m, i) => {
       const o = orig.find((x) => x.entry_id === m.entry_id);
       if (!o) return;
-      const label = `팀원 ${i + 1}`;
+      const label = memberLabel(i);
       const name = m.name.trim();
       if (name !== o.name) {
         lines.push(`${label}: ${o.name} → ${name}`);
@@ -428,12 +437,6 @@ export default function AlohaTeamEditForm() {
       }
       if (fields.length) lines.push(`${label}(${name}): ${fields.join("·")} 변경`);
     });
-    const origRep = orig.findIndex((m) => m.is_rep);
-    if (origRep !== repIndex) {
-      lines.push(
-        `대표자: ${orig[origRep]?.name ?? "-"} → ${members[repIndex]?.name.trim()}`
-      );
-    }
     return lines;
   }
 
@@ -459,7 +462,8 @@ export default function AlohaTeamEditForm() {
     }
 
     const prevRep = repOf(team);
-    const nextRep = members[repIndex];
+    // 대표자는 첫 칸 고정 — 대표자 entry 는 그대로 두고 그 칸의 사람 정보만 바뀐다
+    const nextRep = members[0];
 
     savingRef.current = true;
     setSaving(true);
@@ -510,13 +514,9 @@ export default function AlohaTeamEditForm() {
       }
 
       const notes: string[] = [];
-      if (prevRep && prevRep.entry_id !== nextRep.entry_id) {
+      if (prevRep && digits(prevRep.phone ?? "") !== nextRep.phone) {
         notes.push(
-          "대표자가 변경되었습니다. 다음 수정부터는 새 대표자 연락처로 인증해주세요."
-        );
-      } else if (prevRep && digits(prevRep.phone ?? "") !== nextRep.phone) {
-        notes.push(
-          "대표자 연락처가 변경되었습니다. 다음 수정부터는 변경된 연락처로 인증해주세요."
+          "대표자 연락처가 변경되었습니다. 다음 인증부터는 새 연락처로 인증해주세요."
         );
       }
       applyTeam(data as unknown as TeamData);
@@ -548,8 +548,8 @@ export default function AlohaTeamEditForm() {
     return (
       <div className="mx-auto max-w-md space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-navy">대표자 인증</h2>
-          <p className="mt-1.5 text-sm text-navy/60">
+          <h2 className="text-xl font-bold text-black">대표자 인증</h2>
+          <p className="mt-1.5 text-sm text-black/60">
             접수 때 입력한 대표자 연락처로 인증합니다.
           </p>
         </div>
@@ -580,13 +580,13 @@ export default function AlohaTeamEditForm() {
                     void sendCode();
                   }
                 }}
-                className={`${inputCls} disabled:bg-gray-50 disabled:text-navy/60`}
+                className={`${inputCls} disabled:bg-gray-50 disabled:text-black/60`}
               />
               <button
                 type="button"
                 onClick={() => void sendCode()}
                 disabled={authBusy || cooldown > 0}
-                className="shrink-0 rounded-lg bg-purple px-4 text-sm font-bold text-white hover:bg-purple/90 disabled:opacity-50"
+                className="shrink-0 rounded-full bg-black px-4 text-sm font-bold text-white transition hover:bg-black/85 disabled:opacity-40"
               >
                 {cooldown > 0
                   ? `재발송 ${cooldown}초`
@@ -606,7 +606,7 @@ export default function AlohaTeamEditForm() {
                 setCode("");
                 setAuthError(null);
               }}
-              className="text-xs font-medium text-navy/50 underline underline-offset-2"
+              className="text-xs font-medium text-black/55 underline underline-offset-2"
             >
               번호 다시 입력
             </button>
@@ -630,13 +630,13 @@ export default function AlohaTeamEditForm() {
                 className={`${inputCls} tracking-[0.3em] tabular-nums`}
               />
             </Field>
-            <p className="text-xs text-navy/50">
+            <p className="text-xs text-black/55">
               문자로 받은 인증번호를 5분 안에 입력해주세요.
             </p>
             <button
               type="submit"
               disabled={authBusy || code.length !== 6}
-              className="w-full rounded-lg bg-purple px-6 py-3.5 text-base font-bold text-white hover:bg-purple/90 disabled:opacity-50"
+              className={`${btnPrimary} w-full`}
             >
               {authBusy ? "확인 중..." : "확인"}
             </button>
@@ -652,12 +652,9 @@ export default function AlohaTeamEditForm() {
           </div>
         )}
 
-        <p className="text-xs leading-relaxed text-navy/50">
+        <p className="text-xs leading-relaxed text-black/55">
           아직 신청하지 않았다면{" "}
-          <Link
-            href="/apply/aloha-team"
-            className="font-semibold text-purple underline underline-offset-2"
-          >
+          <Link href="/apply/aloha-team" className={linkCls}>
             참가 신청
           </Link>
           부터 해주세요.
@@ -686,7 +683,7 @@ export default function AlohaTeamEditForm() {
           <button
             type="button"
             onClick={logout}
-            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-gray-50"
+            className={btnSecondarySm}
           >
             처음으로
           </button>
@@ -698,33 +695,33 @@ export default function AlohaTeamEditForm() {
   const rep = repOf(team);
   const header = (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-ocean/15 bg-ocean/5 p-5 sm:p-6">
-        <p className="text-xs font-semibold text-navy/50">
+      <div className="rounded-2xl border-2 border-black bg-[#FFF4E8] p-5 sm:p-6">
+        <p className="text-xs font-semibold text-black/55">
           {team.competition_name || ALOHA_TEAM.title}
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          <h2 className="text-xl font-bold text-navy">{team.team_name}</h2>
+          <h2 className="text-xl font-bold text-black">{team.team_name}</h2>
           {team.paid ? (
-            <span className="inline-flex items-center rounded-full bg-teal/15 px-2.5 py-0.5 text-xs font-bold text-teal">
+            <span className="inline-flex items-center rounded-full bg-black px-2.5 py-0.5 text-xs font-bold text-white">
               입금 완료
             </span>
           ) : (
-            <span className="inline-flex items-center rounded-full bg-sunset/15 px-2.5 py-0.5 text-xs font-bold text-sunset">
+            <span className="inline-flex items-center rounded-full border-2 border-black bg-[#EC6C01] px-2.5 py-0.5 text-xs font-bold text-black">
               입금 대기
             </span>
           )}
         </div>
         {team.affiliation && (
-          <p className="mt-1 text-sm text-navy/60">{team.affiliation}</p>
+          <p className="mt-1 text-sm text-black/60">{team.affiliation}</p>
         )}
-        <p className="mt-3 text-sm text-navy/70">
+        <p className="mt-3 text-sm text-black/70">
           팀 정보는 {ALOHA_EDIT_DEADLINE_LABEL}까지 수정할 수 있습니다.
         </p>
       </div>
 
       {!team.paid && (
-        <div className="rounded-2xl border border-sunset/30 bg-sunset/5 p-4 sm:p-5">
-          <p className="mb-3 text-sm font-semibold text-navy">
+        <div className="rounded-2xl border-2 border-[#EC6C01] bg-white p-4 sm:p-5">
+          <p className="mb-3 text-sm font-semibold text-black">
             참가비 입금이 아직 확인되지 않았습니다. 입금자명은{" "}
             <strong>대표자 이름</strong>으로 해주세요.
           </p>
@@ -735,11 +732,14 @@ export default function AlohaTeamEditForm() {
       {saved && (
         <div
           role="status"
-          className="rounded-lg border border-teal/30 bg-teal/10 p-4 text-sm text-navy"
+          className="rounded-xl border-2 border-black bg-white p-4 text-sm text-black"
         >
-          <p className="font-bold">저장되었습니다</p>
+          <p className="flex items-center gap-2 font-bold">
+            <span aria-hidden="true" className="size-2.5 rounded-full bg-[#EC6C01]" />
+            저장되었습니다
+          </p>
           {saved.map((n) => (
-            <p key={n} className="mt-1 text-navy/80">
+            <p key={n} className="mt-1 text-black/80">
               {n}
             </p>
           ))}
@@ -752,24 +752,27 @@ export default function AlohaTeamEditForm() {
     return (
       <div className="space-y-6">
         {header}
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm font-medium text-navy">
+        <div className="rounded-xl border border-black/15 bg-gray-50 p-4 text-sm font-medium text-black">
           접수가 마감되어 팀 정보를 수정할 수 없습니다.
         </div>
         <Section title="팀원 정보">
           <div className="space-y-3">
-            {sortedMembers(team).map((m, i) => (
+            {orderedMembers(team).map((m, i) => (
               <div
                 key={m.entry_id}
-                className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5"
+                className={`rounded-2xl bg-white p-4 sm:p-5 ${
+                  i === 0 ? "border-2 border-black" : "border border-gray-200"
+                }`}
               >
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-base font-bold text-navy">
-                    팀원 {i + 1}
-                  </h3>
-                  {m.is_rep && (
-                    <span className="inline-flex items-center rounded-full bg-purple px-3 py-1 text-xs font-bold text-white">
+                <div className="mb-3">
+                  {i === 0 ? (
+                    <h3 className="inline-flex items-center rounded-full bg-black px-3.5 py-1 text-sm font-bold text-white">
                       대표자
-                    </span>
+                    </h3>
+                  ) : (
+                    <h3 className="text-base font-bold text-black">
+                      {memberLabel(i)}
+                    </h3>
                   )}
                 </div>
                 <dl className="space-y-2 text-sm">
@@ -836,22 +839,12 @@ export default function AlohaTeamEditForm() {
         </Section>
 
         <Section title="팀원 정보">
-          <div className="sticky top-0 z-10 -mx-1 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white/95 px-3 py-2.5 shadow-sm backdrop-blur">
-            <span className="text-sm font-semibold text-navy">
-              <GenderCount label="남" count={maleCount} />
-              <span className="mx-2 text-navy/30">·</span>
-              <GenderCount label="여" count={femaleCount} />
-            </span>
-            <span
-              className={`text-xs font-medium ${genderOk ? "text-teal" : "text-navy/50"}`}
-            >
-              {genderOk ? "혼성 구성 완료" : "남 2명 · 여 2명으로 구성해주세요"}
-            </span>
-          </div>
-          <p className="rounded-lg bg-sunset/10 px-3.5 py-2.5 text-sm leading-relaxed text-navy/80">
-            선수를 교체하려면 해당 팀원 칸의 정보를 새 선수로 바꿔 입력하세요.
-            대표자를 바꾸면 이후 인증·문자는 새 대표자 연락처로 갑니다.
-          </p>
+          <GenderBar male={maleCount} female={femaleCount} />
+          <Hint>
+            선수를 교체하려면 해당 칸의 정보를 새 선수로 바꿔 입력하세요.
+            대표자는 <strong className="text-black">첫 번째 칸</strong>이며,
+            접수·확정 문자와 인증은 대표자 연락처로 갑니다.
+          </Hint>
 
           <div className="space-y-4">
             {members.map((m, i) => (
@@ -859,14 +852,9 @@ export default function AlohaTeamEditForm() {
                 key={m.entry_id}
                 index={i}
                 member={m}
-                isRep={repIndex === i}
                 highlighted={errorMember === i}
                 cardRef={(el) => {
                   memberRefs.current[i] = el;
-                }}
-                onRep={() => {
-                  setRepIndex(i);
-                  setSaved(null);
                 }}
                 onChange={(key, value) => updateMember(i, key, value)}
               />
@@ -908,14 +896,14 @@ export default function AlohaTeamEditForm() {
                 setSaved(null);
               }}
               disabled={saving}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50 disabled:opacity-50"
+              className={btnSecondary}
             >
               되돌리기
             </button>
             <button
               type="submit"
               disabled={saving || !genderOk}
-              className="inline-flex items-center justify-center rounded-lg bg-purple px-8 py-3.5 text-base text-white font-bold hover:bg-purple/90 disabled:opacity-50"
+              className={btnPrimary}
             >
               {saving ? "저장 중..." : "변경 내용 저장"}
             </button>
@@ -939,17 +927,17 @@ function Skeleton() {
 
 function FooterLinks({ onLogout }: { onLogout: () => void }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-t border-gray-100 pt-5 text-sm">
+    <div className="flex items-center justify-between gap-3 border-t border-black/10 pt-5 text-sm">
       <Link
         href="/apply/aloha-team"
-        className="font-medium text-navy/60 hover:text-navy"
+        className="font-medium text-black/60 hover:text-black"
       >
         ← 대회 안내
       </Link>
       <button
         type="button"
         onClick={onLogout}
-        className="font-medium text-navy/60 underline underline-offset-2 hover:text-navy"
+        className="font-medium text-black/60 underline underline-offset-2 hover:text-black"
       >
         인증 종료
       </button>

@@ -34,8 +34,8 @@ export const ALOHA_TEAM_ENTRY_WINDOW = {
   closesAt: Date.UTC(2026, 8, 30, 14, 59, 59),
 } as const;
 
-/** 생년월일 상한 — 초등학생 이상 (2019-12-31 이전 출생) */
-export const ALOHA_MAX_BIRTH_DATE = "2019-12-31";
+/** 생년월일 상한 — 참가 대상 제한 없음(형님 확정 9/23, 포스터 기준). 대회일 이후 출생만 막는 오입력 방어 */
+export const ALOHA_MAX_BIRTH_DATE = "2026-10-09";
 
 /** 이 날짜 이후 출생 = 대회일(2026-10-09) 기준 미성년 → 보호자 정보·동의 필요 */
 export const ALOHA_MINOR_AFTER = "2007-10-09";
@@ -48,6 +48,9 @@ export const ALOHA_REFUND_POLICY = [
 ] as const;
 
 export const TEAM_SIZE = 4;
+
+/** 히어로 「참가 신청하기」가 스크롤해 오는 접수폼 앵커 id */
+export const ALOHA_FORM_ANCHOR = "apply-form";
 
 /** 팀 정보 수정 마감 안내 (서버 entry_closes_at 이 실제 게이트) */
 export const ALOHA_EDIT_DEADLINE_LABEL = "9월 30일(수) 23:59";

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import AlohaTeamBanner from "@/components/apply/AlohaTeamBanner";
 import AlohaTeamEntryForm from "@/components/apply/AlohaTeamEntryForm";
 import type { Competition } from "@/components/apply/CompEntryForm";
@@ -13,6 +12,14 @@ const OG_TITLE = "2026 양양군의장배 알로하 팀 챌린지 참가 신청"
 const OG_DESCRIPTION =
   "10월 9일(금) 죽도해변. 혼성 4인 1팀(남2·여2), 팀당 참가비 100,000원, 20팀 선착순. 팀 대표자가 온라인으로 신청합니다.";
 
+/** 공식 포스터에서 만든 1200×630 공유 이미지 */
+const OG_IMAGE = {
+  url: "/images/aloha/aloha-og.jpg",
+  width: 1200,
+  height: 630,
+  alt: "2026 양양군의장배 전국서핑대회 · ALOHA TEAM CHALLENGE",
+};
+
 export const metadata: Metadata = {
   title: "알로하 팀 챌린지 참가 신청",
   description: OG_DESCRIPTION,
@@ -24,11 +31,13 @@ export const metadata: Metadata = {
     url: "/apply/aloha-team",
     title: OG_TITLE,
     description: OG_DESCRIPTION,
+    images: [OG_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: OG_TITLE,
     description: OG_DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
 };
 
@@ -81,36 +90,24 @@ function AlohaTeamBrief() {
   ];
 
   return (
-    <section className="mb-9 space-y-4">
-      <Link
-        href="/apply/aloha-team/edit"
-        className="flex items-center justify-between gap-3 rounded-2xl border border-purple/30 bg-purple/5 px-5 py-3.5 text-sm font-semibold text-navy transition hover:bg-purple/10"
-      >
-        <span>
-          이미 신청한 팀 — <span className="text-purple">팀 정보 수정</span>
-        </span>
-        <span aria-hidden="true" className="text-purple">
-          →
-        </span>
-      </Link>
-
-      <div className="rounded-2xl border border-ocean/15 bg-ocean/5 p-5 sm:p-6">
-        <h2 className="text-xl font-bold text-navy">대회 안내</h2>
+    <section className="mb-10 space-y-4">
+      <div className="rounded-2xl border-2 border-black bg-[#FFF4E8] p-5 sm:p-6">
+        <h2 className="text-xl font-black text-black">대회 안내</h2>
         <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2.5 sm:grid-cols-2">
           {facts.map((f) => (
             <div key={f.label} className="flex gap-3 text-sm">
-              <dt className="w-12 shrink-0 font-semibold text-navy/50">
+              <dt className="w-12 shrink-0 font-semibold text-black/50">
                 {f.label}
               </dt>
-              <dd className="font-medium text-navy">{f.value}</dd>
+              <dd className="font-semibold text-black">{f.value}</dd>
             </div>
           ))}
         </dl>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
-        <h3 className="mb-3 text-base font-bold text-navy">경기 방식</h3>
-        <ul className="space-y-2 text-sm leading-relaxed text-navy/70">
+      <div className="rounded-2xl border border-black/15 bg-white p-5 sm:p-6">
+        <h3 className="mb-3 text-base font-bold text-black">경기 방식</h3>
+        <ul className="space-y-2 text-sm leading-relaxed text-black/70">
           <li className="flex gap-2.5">
             <span className="shrink-0" aria-hidden="true">🏄</span>
             <span>팀원 4명이 차례로 1인 2라이딩</span>
@@ -118,7 +115,7 @@ function AlohaTeamBrief() {
           <li className="flex gap-2.5">
             <span className="shrink-0" aria-hidden="true">⏱️</span>
             <span>
-              <strong className="text-navy">8개 라이딩 시간을 합산</strong>해
+              <strong className="text-black">8개 라이딩 시간을 합산</strong>해
               순위를 정합니다
             </span>
           </li>
@@ -129,20 +126,20 @@ function AlohaTeamBrief() {
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-sunset/30 bg-sunset/5 p-5 sm:p-6">
-        <h3 className="mb-3 text-base font-bold text-navy">
+      <div className="rounded-2xl border-2 border-[#EC6C01] bg-white p-5 sm:p-6">
+        <h3 className="mb-3 text-base font-bold text-black">
           참가비 입금 · 선수 교체 · 환불
         </h3>
-        <p className="text-sm font-semibold text-navy">
+        <p className="text-sm font-semibold text-black">
           {bank.name} {bank.account}
         </p>
-        <p className="text-xs text-navy/60">예금주 {bank.holder}</p>
-        <ul className="mt-3 space-y-1 text-sm text-navy/70">
+        <p className="text-xs text-black/60">예금주 {bank.holder}</p>
+        <ul className="mt-3 space-y-1 text-sm text-black/70">
           <li>
-            · 입금자명은 <strong className="text-navy">팀 대표자 이름</strong>
+            · 입금자명은 <strong className="text-black">팀 대표자 이름</strong>
           </li>
           <li>
-            · 신청 후 <strong className="text-navy">3일 이내 미입금 시 취소</strong>
+            · 신청 후 <strong className="text-black">3일 이내 미입금 시 취소</strong>
           </li>
           {ALOHA_REFUND_POLICY.map((line) => (
             <li key={line}>· {line}</li>
@@ -150,7 +147,7 @@ function AlohaTeamBrief() {
         </ul>
       </div>
 
-      <p className="text-xs text-navy/50">
+      <p className="text-xs text-black/50">
         문의: 인스타그램 @ysa_korea · ysa_korea@naver.com
       </p>
     </section>
