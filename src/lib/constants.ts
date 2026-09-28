@@ -56,6 +56,7 @@ export const NAV_ITEMS = [
     href: '/festival',
     children: [
       { label: '2026 페스티벌·대회', href: '/festival' },
+      { label: '알로하 팀 챌린지', href: '/comp/aloha-team' },
       { label: '10년의 기록', href: '/festival/history' },
     ],
   },

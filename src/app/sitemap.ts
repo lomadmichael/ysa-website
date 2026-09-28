@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/schedule/closed',
     '/festival',
     '/festival/history',
+    '/comp/aloha-team',
     '/notice',
     '/notice/press',
     '/notice/gallery',
