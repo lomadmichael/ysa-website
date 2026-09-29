@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/shared/PageHeader";
-// 일정·명칭은 서핑캠프 설정을 단일 소스로 쓴다. 여기 하드코딩하면 날짜 변경 때 빠진다.
-import { EVENT } from "@/lib/surfcamp-config";
 
 export const metadata: Metadata = {
   title: "온라인 접수",
   description:
-    "양양군서핑협회 온라인 접수 - 2026 양양 서핑캠프, 심판/강사 인증 교육. 회원가입 없이 신청 가능합니다.",
+    "양양군서핑협회 온라인 접수 - 대회, 심판/강사 인증 교육. 회원가입 없이 신청 가능합니다.",
   alternates: { canonical: "https://ysakorea.com/apply" },
 };
 
@@ -28,6 +26,8 @@ interface Schedule {
   status: string;
 }
 
+// 접수 가능한 차수만 반환. 종료된 차수(end_date 경과)도 DB status 는 'open' 으로
+// 남아 있으므로 날짜로 거른다 — ApplyForm getClosedReason 과 같은 기준, 오늘은 KST.
 async function fetchSchedules(): Promise<Schedule[]> {
   try {
     const res = await fetch(`${CERT_API}/api/public/schedules`, {
@@ -35,7 +35,12 @@ async function fetchSchedules(): Promise<Schedule[]> {
     });
     if (!res.ok) return [];
     const data = (await res.json()) as { schedules?: Schedule[] };
-    return data.schedules ?? [];
+    const todayKst = new Date(Date.now() + 9 * 3600 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    return (data.schedules ?? []).filter(
+      (s) => s.status === "open" && s.end_date.slice(0, 10) >= todayKst
+    );
   } catch {
     return [];
   }
@@ -50,7 +55,7 @@ export default async function ApplyPage() {
     <>
       <PageHeader
         title="온라인 접수"
-        description="양양군서핑협회 서핑캠프·심판/강사 인증 교육 온라인 접수. 회원가입 없이 신청 가능합니다."
+        description="양양군서핑협회 대회·심판/강사 인증 교육 온라인 접수. 회원가입 없이 신청 가능합니다."
         breadcrumbs={[
           { label: "홈", href: "/" },
           { label: "온라인 접수" },
@@ -87,93 +92,11 @@ export default async function ApplyPage() {
             }
           />
           <ProgramCard
-            href="/apply/surf-camp"
-            accent="ocean"
-            eyebrow="SURF CAMP"
-            title={EVENT.name}
-            description={`${EVENT.specialDateLabel} · 양양군민 및 양양 생활인구 대상 · 참가비 무료`}
-            statusLabel="접수 중"
-            active
-            cta="접수하기"
-            className="md:col-span-2"
-            icon={
-              <svg
-                className="h-9 w-9 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="5" r="2" />
-                <path d="M2 13c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
-                <path d="M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
-              </svg>
-            }
-          />
-          <ProgramCard
-            href="/apply/landsurfing"
-            accent="teal"
-            eyebrow="LAND SURFING"
-            title="2026 랜드서핑 성과공유회"
-            description="8월 23일(일) 죽도해변 · 랜드서핑교실 1·2기 참가자 및 학부모 · 참가비 무료"
-            statusLabel="접수 중"
-            active
-            cta="접수하기"
-            className="md:col-span-2"
-            icon={
-              <svg
-                className="h-9 w-9 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M3 15c2.5 0 3-2 5.5-2s3 2 5.5 2 3-2 5.5-2" />
-                <circle cx="8" cy="19" r="1.6" />
-                <circle cx="16" cy="19" r="1.6" />
-                <path d="M6 11.5 9 5h6l2 4" />
-              </svg>
-            }
-          />
-          <ProgramCard
-            href="/apply/custom-competition"
-            accent="purple"
-            eyebrow="COMPETITION"
-            title="2026 맞춤형 서핑대회"
-            description="8월 23일(일) 죽도해변 · 맞춤형 서핑교실 1~4기 참가자 대상 · 참가비 무료"
-            statusLabel="접수 중"
-            active
-            cta="접수하기"
-            className="md:col-span-2"
-            icon={
-              <svg
-                className="h-9 w-9 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M8 21h8M12 17v4" />
-                <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
-                <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
-              </svg>
-            }
-          />
-          <ProgramCard
             href="/apply/referee"
             accent="teal"
             eyebrow="REFEREE"
             title="심판교육 접수"
-            description="2026년 5월~6월 총 7회차 진행"
+            description="2026 하반기 · 7차 10월 24일(토)~25일(일) · 8차 10월 31일(토)~11월 1일(일)"
             statusLabel={`${refCount > 0 ? `${refCount}개 회차 접수 중` : "접수 준비 중"}`}
             active={refCount > 0}
             cta="접수하기"
@@ -199,7 +122,7 @@ export default async function ApplyPage() {
             accent="sunset"
             eyebrow="INSTRUCTOR"
             title="강사교육 접수"
-            description="2026년 6월 진행"
+            description="2026 하반기 · 3차 10월 17일(토)~18일(일)"
             statusLabel={`${insCount > 0 ? `${insCount}개 회차 접수 중` : "접수 준비 중"}`}
             active={insCount > 0}
             cta={insCount > 0 ? "접수하기" : "자세히 보기"}
