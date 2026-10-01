@@ -91,7 +91,7 @@ const SAMPLE = [
 
 const RULES: { rule: string; result: string; dq?: boolean }[] = [
   { rule: '손 터치 전에 출발', result: '해당 선수 기록 무효' },
-  { rule: '제출한 출전 순서 바꾸기', result: '해당 선수 기록 무효' },
+  { rule: '제출한 출전 순서와 다르게 출전', result: '해당 선수 기록 무효' },
   { rule: '한 명이 3번 이상 라이딩', result: '초과분 무효' },
   { rule: '다른 선수 라이딩 방해', result: '해당 라이딩 0초' },
   { rule: '시작 신호 전 라이딩', result: '실격', dq: true },
@@ -99,9 +99,9 @@ const RULES: { rule: string; result: string; dq?: boolean }[] = [
 ];
 
 const DAY_PROGRAM = [
-  { what: '선수 체크인 · 출전 순서 제출 · 대회 브리핑', where: '웨이브웍스' },
-  { what: '개회식', where: '웨이브웍스' },
-  { what: '예선 → 준결승 → 결승', where: '죽도해변' },
+  { what: '선수등록 06:00 ~ 09:00 · 출전 순서 제출', where: '죽도해변 웨이브웍스' },
+  { what: '개회식 09:00 · 모든 팀 필수 참석', where: '웨이브웍스' },
+  { what: 'ROUND 1 → QUARTER FINAL → SEMI FINAL → FINAL', where: '죽도해변' },
   { what: '시상식 (폐막식 겸)', where: '해양종합레포츠센터 앞' },
 ];
 
@@ -287,7 +287,7 @@ export default async function AlohaTeamPage() {
               </ol>
               <p className="mt-4 text-center font-black">2번 → 3번 → 4번 선수까지 반복 🔁</p>
               <ul className="mt-5 space-y-1.5 text-sm font-semibold text-black/70">
-                <li>· 출전 순서(1~4번, 남녀 순서 자유)는 당일 체크인 때 제출하고 이후 바꿀 수 없습니다</li>
+                <li>· 출전 순서(1~4번, 남녀 순서 자유)는 선수등록 때 확정해 제출합니다. 라운드가 바뀔 때 조정할 수 있습니다</li>
                 <li>· 경기 때는 팀별 색상 조끼(RED · BLUE · YELLOW · WHITE)를 입습니다</li>
               </ul>
             </div>
@@ -361,7 +361,7 @@ export default async function AlohaTeamPage() {
 
         {/* 스케줄 */}
         <section id="schedule" className="scroll-mt-32 border-t-[3px] border-black py-14 md:py-20">
-          <SectionHead en="Schedule" ko="대회 당일 스케줄" desc="10월 9일(금) 하루에 예선부터 결승까지 진행합니다." />
+          <SectionHead en="Schedule" ko="대회 당일 스케줄" desc="10월 9일(금) 하루에 ROUND 1부터 FINAL까지 진행합니다. HEAT 1~4 출전 팀은 경기 전에 선수등록을 마쳐야 합니다." />
           <ol className={`${card} divide-y-2 divide-dashed divide-black/15 px-6 py-2 md:px-8`}>
             {DAY_PROGRAM.map((p, i) => (
               <li key={p.what} className="flex items-center gap-4 py-4">
