@@ -1,6 +1,8 @@
 # ysa-website 작업 인수인계
 
-> 최종 업데이트: 2026-08-03
+> ⚡ **2026-10-08 추가 (알로하 팀 챌린지, 대회 10/9)**: `/comp/aloha-team` 페이지를 팀 패들링 릴레이로 전환했다 — 당일 스케줄(`088cf51`), 「경기 방식」·About·메타(`0b8750e`), 수정 화면 마감 문구를 서버 `edit_closes_at` 로 표시(`60114c3`). 서핑 릴레이 원문 백업 = `docs/backup/aloha-team-format-section-surf-relay-2026-10-08.tsx.txt`. 대진표·히트 시각은 라인업 API 자동 반영. **운영 절차·시스템 상태는 `cert-manager/HANDOFF.md` 최상단(2026-10-08 밤) 참조.** 작업 트리의 `scripts/livedraw-send-winners.mjs` 수정은 다른 세션 것(미커밋, 건드리지 않음).
+
+> 최종 업데이트: 2026-08-03 (아래 본문)
 > 브랜치: `master` (라이브, feat/comp-entry 머지 완료)
 > 작업 디렉토리: `C:\Users\hongk\Desktop\ClaudeCode\ysa-website`
 > 라이브: https://ysakorea.com
