@@ -52,5 +52,28 @@ export const TEAM_SIZE = 4;
 /** 히어로 「참가 신청하기」가 스크롤해 오는 접수폼 앵커 id */
 export const ALOHA_FORM_ANCHOR = "apply-form";
 
-/** 팀 정보 수정 마감 안내 (서버 entry_closes_at 이 실제 게이트) */
-export const ALOHA_EDIT_DEADLINE_LABEL = "9월 30일(수) 23:59";
+/**
+ * 팀 정보 수정 마감 안내 — 서버가 내려주는 edit_closes_at 이 있으면 그 값을 쓰고(formatEditDeadline),
+ * 없을 때만 이 상수를 쓴다. 실제 게이트는 서버(settings.team_edit_closes_at → entry_closes_at).
+ * 2026-10-08 재개방: 경기 방식이 팀 패들링으로 바뀌어 선수 교체를 대회 당일 08:00 까지 허용.
+ */
+export const ALOHA_EDIT_DEADLINE_LABEL = "10월 9일(금) 08:00";
+
+/** ISO 시각 → "10월 9일(금) 08:00" (KST). 파싱 실패·누락 시 상수 폴백 */
+export function formatEditDeadline(iso: string | null | undefined): string {
+  if (!iso) return ALOHA_EDIT_DEADLINE_LABEL;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return ALOHA_EDIT_DEADLINE_LABEL;
+  const parts = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const get = (t: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === t)?.value ?? "";
+  const hour = get("hour") === "24" ? "00" : get("hour");
+  return `${get("month")}월 ${get("day")}일(${get("weekday")}) ${hour}:${get("minute")}`;
+}

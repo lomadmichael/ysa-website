@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ALOHA_EDIT_DEADLINE_LABEL,
   ALOHA_TEAM,
   ALOHA_TEAM_SLUG,
   TEAM_SIZE,
+  formatEditDeadline,
 } from "./aloha-team";
 import {
   ConsentRow,
@@ -57,6 +57,8 @@ interface TeamData {
   affiliation: string | null;
   competition_name: string;
   entry_closes_at: string | null;
+  /** 실제 수정 마감 (서버 settings.team_edit_closes_at 우선, 없으면 접수 마감) */
+  edit_closes_at?: string | null;
   editable: boolean;
   paid: boolean;
   members: TeamMember[];
@@ -507,7 +509,7 @@ export default function AlohaTeamEditForm() {
           errText(
             data,
             status === 403
-              ? "접수가 마감되어 팀 정보를 수정할 수 없습니다."
+              ? "수정 마감이 지나 팀 정보를 수정할 수 없습니다."
               : status === 409
                 ? "다른 곳에서 먼저 변경되었습니다. 새로고침 후 다시 시도해주세요."
                 : "저장에 실패했습니다."
@@ -778,7 +780,7 @@ export default function AlohaTeamEditForm() {
           </Link>
         </div>
         <p className="text-center text-xs text-black/55">
-          팀 정보는 {ALOHA_EDIT_DEADLINE_LABEL}까지 다시 수정할 수 있습니다.
+          팀 정보는 {formatEditDeadline(team.edit_closes_at ?? team.entry_closes_at)}까지 다시 수정할 수 있습니다.
         </p>
       </div>
     );
@@ -807,7 +809,7 @@ export default function AlohaTeamEditForm() {
           <p className="mt-1 text-sm text-black/60">{team.affiliation}</p>
         )}
         <p className="mt-3 text-sm text-black/70">
-          팀 정보는 {ALOHA_EDIT_DEADLINE_LABEL}까지 수정할 수 있습니다.
+          팀 정보는 {formatEditDeadline(team.edit_closes_at ?? team.entry_closes_at)}까지 수정할 수 있습니다.
         </p>
       </div>
 
@@ -845,7 +847,7 @@ export default function AlohaTeamEditForm() {
       <div className="space-y-6">
         {header}
         <div className="rounded-xl border border-black/15 bg-gray-50 p-4 text-sm font-medium text-black">
-          접수가 마감되어 팀 정보를 수정할 수 없습니다.
+          수정 마감이 지나 팀 정보를 수정할 수 없습니다.
         </div>
         <Section title="팀원 정보">
           <div className="space-y-3">
