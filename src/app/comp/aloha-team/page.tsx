@@ -98,10 +98,16 @@ const RULES: { rule: string; result: string; dq?: boolean }[] = [
   { rule: '본인 히트 불참', result: '실격', dq: true },
 ];
 
+// 2026-10-08 팀 패들링 전환 타임테이블(최종 xls) 기준 — 히트 10분 · 히트 사이 5분.
+// 히트별 시각은 라인업 API(heats.scheduled_at)가 대진표 섹션에 따로 뿌린다.
 const DAY_PROGRAM = [
-  { what: '선수등록 06:00 ~ 09:00 · 출전 순서 제출', where: '죽도해변 웨이브웍스' },
+  { what: '팀 등록 08:00 ~ 09:00 · 출전 순서 1~4번 확정·제출', where: '죽도해변 웨이브웍스' },
   { what: '개회식 09:00 · 모든 팀 필수 참석', where: '웨이브웍스' },
-  { what: 'ROUND 1 → QUARTER FINAL → SEMI FINAL → FINAL', where: '죽도해변' },
+  { what: 'ROUND 1 10:30 ~ 12:25 · HEAT 1~8', where: '죽도해변' },
+  { what: '점심 12:30 ~ 13:10', where: '' },
+  { what: 'QUARTER FINAL 13:15 ~ 14:10 · HEAT 1~4', where: '죽도해변' },
+  { what: 'SEMI FINAL 14:45 ~ 15:10 · HEAT 1~2', where: '죽도해변' },
+  { what: 'FINAL 15:40 ~ 15:50', where: '죽도해변' },
   { what: '시상식 (폐막식 겸)', where: '해양종합레포츠센터 앞' },
 ];
 
@@ -361,7 +367,7 @@ export default async function AlohaTeamPage() {
 
         {/* 스케줄 */}
         <section id="schedule" className="scroll-mt-32 border-t-[3px] border-black py-14 md:py-20">
-          <SectionHead en="Schedule" ko="대회 당일 스케줄" desc="10월 9일(금) 하루에 ROUND 1부터 FINAL까지 진행합니다. HEAT 1~4 출전 팀은 경기 전에 선수등록을 마쳐야 합니다." />
+          <SectionHead en="Schedule" ko="대회 당일 스케줄" desc="10월 9일(금) 하루에 ROUND 1부터 FINAL까지 진행합니다. 히트당 10분, 4팀 동시 경기, 히트 사이 5분입니다. 모든 팀은 개회식 전까지 팀 등록을 마쳐야 합니다." />
           <ol className={`${card} divide-y-2 divide-dashed divide-black/15 px-6 py-2 md:px-8`}>
             {DAY_PROGRAM.map((p, i) => (
               <li key={p.what} className="flex items-center gap-4 py-4">
@@ -374,7 +380,7 @@ export default async function AlohaTeamPage() {
             ))}
           </ol>
           <p className="mt-4 text-sm font-semibold text-black/60">
-            ※ 시간대별 상세 스케줄과 히트별 경기 시각은 대진 확정 후 공개합니다. 파도 · 기상 상황에 따라 바뀔 수 있습니다.
+            ※ 히트별 경기 시각은 아래 대진표에 표시됩니다. 경기 순서와 시간은 파도 · 기상 상황에 따라 바뀔 수 있으며, 파도 상황이 좋아지면 서핑 경기로 다시 변경될 수 있습니다.
           </p>
         </section>
 
