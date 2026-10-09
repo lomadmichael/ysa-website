@@ -99,10 +99,10 @@ const DAY_PROGRAM = [
   { what: '팀 등록 08:00 ~ 09:00 · 출전 순서 1~4번 확정·제출', where: '죽도해변 웨이브웍스' },
   { what: '개회식 09:00 · 모든 팀 필수 참석', where: '웨이브웍스' },
   { what: 'ROUND 1 10:30 ~ 12:25 · HEAT 1~8', where: '죽도해변' },
-  { what: '점심 12:30 ~ 13:10', where: '' },
-  { what: 'QUARTER FINAL 13:15 ~ 14:10 · HEAT 1~4', where: '죽도해변' },
-  { what: 'SEMI FINAL 14:45 ~ 15:10 · HEAT 1~2', where: '죽도해변' },
-  { what: 'FINAL 15:40 ~ 15:50', where: '죽도해변' },
+  { what: '점심 · 휴식 (QUARTER FINAL 14:00 전까지)', where: '' },
+  { what: 'QUARTER FINAL 14:00 ~ 14:55 · HEAT 1~4', where: '죽도해변' },
+  { what: 'SEMI FINAL 15:30 ~ 15:55 · HEAT 1~2', where: '죽도해변' },
+  { what: 'FINAL 16:25 ~ 16:35', where: '죽도해변' },
   { what: '시상식 (폐막식 겸)', where: '해양종합레포츠센터 앞' },
 ];
 
