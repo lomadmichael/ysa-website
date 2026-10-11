@@ -153,6 +153,16 @@ export default async function ApplyPage() {
           />
         </div>
 
+        <p className="mt-6 text-center text-sm text-navy/60">
+          심판·강사교육 신청하셨나요?{" "}
+          <Link
+            href="/apply/education/my"
+            className="font-semibold text-navy underline underline-offset-2"
+          >
+            신청 확인·취소 →
+          </Link>
+        </p>
+
         <p className="mt-8 text-center text-xs text-navy/50">
           프로그램 안내 상세는{" "}
           <Link

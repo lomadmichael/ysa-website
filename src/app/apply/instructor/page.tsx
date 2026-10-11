@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageHeader from "@/components/shared/PageHeader";
 import ApplyForm from "@/components/apply/ApplyForm";
 import EducationFAQ from "@/components/programs/EducationFAQ";
@@ -58,6 +59,15 @@ export default async function ApplyInstructorPage() {
       />
       <section className="max-w-3xl mx-auto px-4 py-12 md:py-16">
         <ApplyForm initialSchedules={initialSchedules} certType="INS" />
+        <p className="mt-6 text-center text-sm text-navy/60">
+          이미 신청하셨나요?{" "}
+          <Link
+            href="/apply/education/my"
+            className="font-semibold text-navy underline underline-offset-2"
+          >
+            신청 확인·취소 →
+          </Link>
+        </p>
         <EducationFAQ />
       </section>
     </>
