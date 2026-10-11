@@ -9,15 +9,14 @@ const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
     q: '신청한 차수를 다른 회차로 옮기고 싶어요',
     a: (
       <>
+        같은 교육은 한 차수만 신청할 수 있습니다.{' '}
         <a
-          href="https://golineup.kr"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/apply/education/my"
           className="text-ocean underline underline-offset-2 hover:text-ocean/80"
         >
-          golineup.kr
+          신청 확인·취소
         </a>{' '}
-        에 신청 시 입력하신 이메일로 회원가입하시면 마이페이지에서 직접 차수 변경이 가능합니다.
+        페이지에서 휴대폰 인증 후 기존 신청을 취소하고, 원하는 차수로 다시 신청해 주세요.
         문제가 있을 경우 협회 대표번호로 연락주세요.
       </>
     ),
@@ -27,15 +26,14 @@ const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         <a
-          href="https://golineup.kr"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/apply/education/my"
           className="text-ocean underline underline-offset-2 hover:text-ocean/80"
         >
-          golineup.kr
+          신청 확인·취소
         </a>{' '}
-        회원가입 후 마이페이지에서 직접 취소할 수 있습니다. 본 교육은 <strong>무료 교육</strong>이라
-        별도 환불 절차는 없습니다. 다른 신청자가 자리를 이용할 수 있도록 가급적 빨리 취소해주세요.
+        페이지에서 회원가입 없이 휴대폰 인증만으로 직접 취소할 수 있습니다. 교육 시작 24시간 전까지
+        가능합니다. 본 교육은 <strong>무료 교육</strong>이라 별도 환불 절차는 없습니다. 다른 신청자가
+        자리를 이용할 수 있도록 가급적 빨리 취소해주세요.
       </>
     ),
   },

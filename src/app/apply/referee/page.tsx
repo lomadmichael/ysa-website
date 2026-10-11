@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PageHeader from "@/components/shared/PageHeader";
 import ApplyForm from "@/components/apply/ApplyForm";
 import EducationFAQ from "@/components/programs/EducationFAQ";
+import EducationMyBanner from "@/components/apply/EducationMyBanner";
 
 export const metadata: Metadata = {
   title: "심판교육 접수",
@@ -57,16 +57,8 @@ export default async function ApplyRefereePage() {
         ]}
       />
       <section className="max-w-3xl mx-auto px-4 py-12 md:py-16">
+        <EducationMyBanner />
         <ApplyForm initialSchedules={initialSchedules} certType="REF" />
-        <p className="mt-6 text-center text-sm text-navy/60">
-          이미 신청하셨나요?{" "}
-          <Link
-            href="/apply/education/my"
-            className="font-semibold text-navy underline underline-offset-2"
-          >
-            신청 확인·취소 →
-          </Link>
-        </p>
         <EducationFAQ />
       </section>
     </>

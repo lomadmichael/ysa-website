@@ -358,6 +358,18 @@ export default function ApplyForm({
           </div>
         )}
 
+        {/* 신청 확인·취소 안내 */}
+        <div className="border-t border-gray-100 px-6 sm:px-10 py-4 text-xs sm:text-sm leading-relaxed text-navy/70">
+          신청 내역 확인·취소는{" "}
+          <Link
+            href="/apply/education/my"
+            className="font-semibold text-navy underline underline-offset-2"
+          >
+            신청 확인·취소
+          </Link>{" "}
+          페이지에서 휴대폰 인증만으로 할 수 있습니다.
+        </div>
+
         {/* Actions */}
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 border-t border-gray-100 bg-gray-50/50 px-6 sm:px-10 py-5">
           <Link
