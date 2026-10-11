@@ -92,6 +92,12 @@ export interface EduApplication {
   waitlist_order: number | null;
   cancellable: boolean;
   cancel_block_reason: string | null;
+  /**
+   * 신청자 이름 / 신청 시각(ISO). cert-manager 2026-10 추가 필드 —
+   * 구버전 응답에는 없으므로 옵셔널. 없으면 화면에서 해당 줄을 숨긴다.
+   */
+  applicant_name?: string | null;
+  created_at?: string | null;
 }
 
 function serviceHeaders(): HeadersInit {

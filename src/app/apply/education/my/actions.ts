@@ -247,6 +247,8 @@ export async function cancelEduMy(_prev: CancelState, formData: FormData): Promi
     return { status: 'error', message };
   }
 
+  // 성공 알림이 revalidate 후에도 사라지지 않도록 쿼리스트링에 취소한 신청 id 를 남긴다.
+  // 페이지는 이 id 가 "본인 목록에 있고 취소 상태"일 때만 알림을 띄운다(타인 id 는 무시).
   revalidatePath(MY_PATH);
-  return { status: 'success', message: '신청이 취소되었습니다.' };
+  redirect(`${MY_PATH}?cancelled=${encodeURIComponent(id)}`);
 }
