@@ -109,7 +109,7 @@ export default function DrawStage({
 
       <div className="flex flex-1 flex-col items-center justify-center px-8 py-10 text-center">
         <p className="text-[22px] font-semibold tracking-[0.22em] text-[#e3b25c]">
-          2026 대한서핑협회장배 코리아 오픈 · 롱보드
+          2026 대한서핑협회장배 코리아 오픈 · SUP 서핑
         </p>
 
         {prize && (

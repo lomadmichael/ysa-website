@@ -7,14 +7,17 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: '유튜브 라이브 경품 응모 | 2026 코리아 오픈',
   description:
-    '2026 대한서핑협회장배 코리아 오픈 롱보드 유튜브 생중계 경품 응모 페이지입니다.',
+    '2026 대한서핑협회장배 코리아 오픈 SUP 서핑 유튜브 생중계 경품 응모 페이지입니다.',
   robots: { index: false, follow: false },
 };
 
 export default async function LivePage() {
   // is_open 은 마감 시각까지 반영해 서버(DB)에서 판정한 값이다.
   const state = await getState();
-  const prizes = state.prizes;
+  // 남은 수량(qty − 당첨 수)만 보여 준다. 추첨이 진행되면 줄어들고, 다 소진된 경품은 숨긴다.
+  const prizes = state.prizes
+    .map((p) => ({ ...p, remaining: p.qty - p.won }))
+    .filter((p) => p.remaining > 0);
   const open = state.is_open;
 
   return (
@@ -27,7 +30,7 @@ export default async function LivePage() {
           경품 응모
         </h1>
         <p className="mt-4 leading-relaxed text-navy/70">
-          2026 대한서핑협회장배 코리아 오픈 롱보드 오픈부 생중계를 보시는 분들께 경품을
+          2026 대한서핑협회장배 코리아 오픈 SUP 서핑 오픈부 생중계를 보시는 분들께 경품을
           드립니다. 아래에 응모하시면 추첨에 참여됩니다.
         </p>
 
@@ -49,7 +52,7 @@ export default async function LivePage() {
                     <p className="mt-1 font-bold text-navy">{p.title}</p>
                   </div>
                   <span className="shrink-0 rounded-lg bg-foam px-3 py-1 text-sm font-bold text-ocean">
-                    {p.qty}명
+                    {p.remaining}명
                   </span>
                 </li>
               ))}
