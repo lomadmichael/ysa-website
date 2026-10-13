@@ -16,7 +16,16 @@ export default async function LivePage() {
   const state = await getState();
   // 남은 수량(qty − 당첨 수)만 보여 준다. 추첨이 진행되면 줄어들고, 다 소진된 경품은 숨긴다.
   const prizes = state.prizes
-    .map((p) => ({ ...p, remaining: p.qty - p.won }))
+    .map((p) => {
+      // 경품명에 「(1팀)」이 붙어 있으면 단위를 '팀'으로 보여 주고 이름에서는 뗀다
+      const team = /\s*\(\d+팀\)$/.test(p.title);
+      return {
+        ...p,
+        remaining: p.qty - p.won,
+        label: team ? p.title.replace(/\s*\(\d+팀\)$/, '') : p.title,
+        unit: team ? '팀' : '명',
+      };
+    })
     .filter((p) => p.remaining > 0);
   const open = state.is_open;
 
@@ -35,7 +44,7 @@ export default async function LivePage() {
         </p>
 
         <div className="mt-8">
-          <LiveEntryForm isOpen={open} />
+          <LiveEntryForm isOpen={open} notStarted={state.entry_count === 0} />
         </div>
 
         {prizes.length > 0 && (
@@ -49,10 +58,11 @@ export default async function LivePage() {
                 >
                   <div>
                     <p className="text-sm font-semibold text-teal">{p.sponsor}</p>
-                    <p className="mt-1 font-bold text-navy">{p.title}</p>
+                    <p className="mt-1 font-bold text-navy">{p.label}</p>
                   </div>
                   <span className="shrink-0 rounded-lg bg-foam px-3 py-1 text-sm font-bold text-ocean">
-                    {p.remaining}명
+                    {p.remaining}
+                    {p.unit}
                   </span>
                 </li>
               ))}

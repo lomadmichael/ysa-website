@@ -5,7 +5,11 @@ import { submitLiveEntry, type EntryState } from '@/app/live/actions';
 
 const INITIAL: EntryState = { status: 'idle', message: '' };
 
-export default function LiveEntryForm({ isOpen }: { isOpen: boolean }) {
+/**
+ * notStarted: 응모를 아직 한 번도 열지 않은 상태(응모자 0명).
+ * 이때는 '마감'이 아니라 '생중계가 시작되면 열린다'로 안내한다. 추첨 후 닫으면 다시 '마감'.
+ */
+export default function LiveEntryForm({ isOpen, notStarted = false }: { isOpen: boolean; notStarted?: boolean }) {
   const [state, action, pending] = useActionState(submitLiveEntry, INITIAL);
 
   if (state.status === 'ok') {
@@ -13,6 +17,19 @@ export default function LiveEntryForm({ isOpen }: { isOpen: boolean }) {
       <div className="rounded-2xl border-2 border-teal bg-teal/5 p-6 text-center md:p-8">
         <p className="text-2xl font-bold text-ocean">응모 완료</p>
         <p className="mt-3 leading-relaxed text-navy/75">{state.message}</p>
+      </div>
+    );
+  }
+
+  if (!isOpen && notStarted) {
+    return (
+      <div className="rounded-2xl border border-teal/40 bg-teal/5 p-6 text-center md:p-8">
+        <p className="text-xl font-bold text-ocean">응모는 생중계가 시작되면 열립니다</p>
+        <p className="mt-2 leading-relaxed text-navy/70">
+          10월 14일(수) SUP 서핑 유튜브 생중계 중에 이 페이지에서 응모하실 수 있습니다.
+          <br />
+          경기 시작 후 다시 들어와 주세요.
+        </p>
       </div>
     );
   }
