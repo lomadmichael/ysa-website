@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import BirthDatePicker from "./BirthDatePicker";
 import AddressSearch from "./AddressSearch";
+import EnglishNameHint from "./EnglishNameHint";
 
 // cert-manager moved to golineup.kr; the old cert-manager-taupe.vercel.app
 // host now responds with a 308 permanent redirect, which CORS preflight
@@ -448,6 +449,11 @@ export default function ApplyForm({
               onChange={(e) => updateField("applicant_name_en", e.target.value)}
               placeholder="Gildong Hong"
               className={inputCls}
+            />
+            <EnglishNameHint
+              nameKo={form.applicant_name}
+              nameEn={form.applicant_name_en}
+              onChange={(v) => updateField("applicant_name_en", v)}
             />
           </Field>
           <Field label="생년월일" required>
