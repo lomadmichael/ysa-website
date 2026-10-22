@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { NAV_ITEMS } from '@/lib/constants';
+import { NAV_ITEMS, isExternalHref } from '@/lib/constants';
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,12 +37,21 @@ export default function Header() {
                   <ul className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-foam py-2 min-w-[180px]">
                     {item.children.map((child) => (
                       <li key={child.label}>
-                        <Link
-                          href={child.href}
-                          className="block px-4 py-2 text-sm text-navy hover:bg-foam hover:text-ocean transition-colors"
-                        >
-                          {child.label}
-                        </Link>
+                        {isExternalHref(child.href) ? (
+                          <a
+                            href={child.href}
+                            className="block px-4 py-2 text-sm text-navy hover:bg-foam hover:text-ocean transition-colors"
+                          >
+                            {child.label}
+                          </a>
+                        ) : (
+                          <Link
+                            href={child.href}
+                            className="block px-4 py-2 text-sm text-navy hover:bg-foam hover:text-ocean transition-colors"
+                          >
+                            {child.label}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -92,13 +101,23 @@ export default function Header() {
                   <ul className="pl-4 pb-2">
                     {item.children.map((child) => (
                       <li key={child.label}>
-                        <Link
-                          href={child.href}
-                          className="block py-2 text-sm text-navy/70 hover:text-ocean"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          {child.label}
-                        </Link>
+                        {isExternalHref(child.href) ? (
+                          <a
+                            href={child.href}
+                            className="block py-2 text-sm text-navy/70 hover:text-ocean"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {child.label}
+                          </a>
+                        ) : (
+                          <Link
+                            href={child.href}
+                            className="block py-2 text-sm text-navy/70 hover:text-ocean"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {child.label}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>

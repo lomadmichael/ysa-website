@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SITE, NAV_ITEMS } from '@/lib/constants';
+import { SITE, NAV_ITEMS, CERT_SITE_URL } from '@/lib/constants';
 
 export default function Footer() {
   return (
@@ -25,6 +25,11 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a href={`${CERT_SITE_URL}/verify/search`} className="text-sm text-white/60 hover:text-white transition-colors">
+                  자격증 진위 조회
+                </a>
+              </li>
             </ul>
           </div>
 

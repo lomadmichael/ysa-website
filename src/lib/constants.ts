@@ -11,6 +11,12 @@ export const SITE = {
   copyright: `© ${new Date().getFullYear()} 양양군 서핑협회 All rights reserved.`,
 } as const;
 
+/** 자격시험·자격증 사이트 (cert-manager 공개 도메인). API 호출 base(golineup.kr)와는 별개. */
+export const CERT_SITE_URL = 'https://cert.ysakorea.com';
+
+/** http(s):// 로 시작하는 외부 링크 여부 — 메뉴에서 <a>로 렌더링 */
+export const isExternalHref = (href: string) => /^https?:\/\//.test(href);
+
 export const NAV_ITEMS = [
   {
     label: '협회소개',
@@ -40,6 +46,10 @@ export const NAV_ITEMS = [
       { label: '강사 교육', href: '/programs/instructor' },
       { label: '심판 교육', href: '/programs/referee' },
       { label: '서핑특화 교육', href: '/programs/specialized' },
+      // 자격시험·자격증 (외부 사이트 cert.ysakorea.com — 같은 탭으로 이동)
+      { label: '자격시험 응시(로그인)', href: `${CERT_SITE_URL}/login` },
+      { label: '자격증 진위 조회', href: `${CERT_SITE_URL}/verify/search` },
+      { label: '응시자 회원가입', href: `${CERT_SITE_URL}/signup` },
     ],
   },
   {

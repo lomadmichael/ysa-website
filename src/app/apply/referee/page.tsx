@@ -15,7 +15,7 @@ export const revalidate = 60;
 
 const CERT_API =
   process.env.NEXT_PUBLIC_CERT_API_BASE ??
-  "https://cert-manager-taupe.vercel.app";
+  "https://golineup.kr";
 
 interface Schedule {
   id: string;

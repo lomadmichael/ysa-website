@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import PageHeader from '@/components/shared/PageHeader';
 import EducationFAQ from '@/components/programs/EducationFAQ';
+import { CERT_SITE_URL } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: '강사 교육',
@@ -102,6 +103,13 @@ export default function InstructorPage() {
                   className="mt-8 w-full flex items-center justify-center gap-2 bg-sunset text-white px-6 py-4 rounded-xl font-medium hover:bg-sunset/90 transition-colors"
                 >
                   교육 신청
+                </a>
+
+                <a
+                  href={CERT_SITE_URL}
+                  className="mt-3 block text-center text-sm text-ocean hover:underline"
+                >
+                  교육 수료 후 자격시험·자격증 조회는 자격시험 사이트에서 →
                 </a>
               </div>
             </div>
