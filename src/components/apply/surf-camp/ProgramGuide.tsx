@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ANNOUNCED_CAPACITY,
+  FINAL_WAITLIST,
   EVENT,
   INQUIRY_TEL,
   LESSON_MIN_AGE,
@@ -151,6 +152,7 @@ export default function ProgramGuide({
           accent="var(--color-ocean)"
           title={programLabel('lesson')}
           capacity={`정원 ${capLesson}명`}
+          waitlist={`대기 ${FINAL_WAITLIST.lesson}명`}
           closed={lessonClosed}
           rows={lessonRows(capLesson)}
         />
@@ -158,6 +160,7 @@ export default function ProgramGuide({
           accent="var(--color-teal)"
           title={programLabel('special')}
           capacity={`정원 ${capSpecial}명`}
+          waitlist={`대기 ${FINAL_WAITLIST.special}명`}
           closed={specialClosed}
           rows={specialRows(capSpecial)}
         />
@@ -314,12 +317,15 @@ function ProgramCard({
   accent,
   title,
   capacity,
+  waitlist,
   closed,
   rows,
 }: {
   accent: string;
   title: string;
   capacity: string;
+  /** 모집 마감 시점의 대기 인원 배지. 공시 정원을 넘겨 접수된 인원을 보여준다. */
+  waitlist?: string;
   /** 신규 접수가 마감된 프로그램. 기존 확정·대기에는 영향이 없다. */
   closed?: boolean;
   rows: GuideRow[];
@@ -354,6 +360,14 @@ function ProgramCard({
           >
             {capacity}
           </span>
+          {/* 대기 인원 — 정원을 넘겨 접수된 수. 정원 배지와 색을 나눠 정원과 헷갈리지 않게 한다. */}
+          {waitlist && (
+            <span
+              className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-navy/65"
+            >
+              {waitlist}
+            </span>
+          )}
         </span>
       </div>
       {/* 마감된 프로그램은 상세(일시·자격·정원·진행)를 접는다. 신청 못 하는 프로그램의

@@ -76,7 +76,25 @@ export const KILL_SWITCH = false;
  */
 // special 330: 2026-09-16 특화 추가 접수 때 300 → 330 으로 상향(현장접수 포함 400명 운영 기준).
 // DB special_total_cap(330)과 맞춘다 — 표기 300 / 잔여석 330 기준이면 신청자가 헷갈린다.
-export const ANNOUNCED_CAPACITY = { lesson: 200, special: 330 } as const;
+/**
+ * 홍보물·공고에 나간 공시 정원.
+ *
+ * ★ 2026-11-04 특화를 330 → 300 으로 되돌렸다. 330 은 접수 당일(8/10) 정원이 차자
+ *   현장 운영 여력을 보고 올린 운영상의 숫자이고, 모집 공고와 홍보물에 나간 공시 정원은
+ *   300 이다. 행사가 끝난 지금 화면은 모집 결과를 보여주는 용도라 공시 기준으로 적는다.
+ *   (DB `surfcamp.config.capacity_special` 은 330 그대로 — 접수 판정용이라 건드리지 않는다.)
+ */
+export const ANNOUNCED_CAPACITY = { lesson: 200, special: 300 } as const;
+
+/**
+ * 모집 마감 시점의 대기 인원 — 공시 정원을 초과해 접수된 인원.
+ *
+ * 접수 당일(2026-08-10) 두 프로그램 모두 정원이 찼고, 최종 신청은
+ * 서핑강습 302명(정원 200 + 대기 102) · 특화 체험 322명(정원 300 + 대기 22)이었다.
+ * 지금 DB 의 대기자는 0명(전원 승급 또는 취소)이라 실시간 조회로는 나오지 않는다.
+ * 그래서 모집 성과를 보여주는 고정값으로 둔다. 출처: 접수 운영 기록(2026-08-10).
+ */
+export const FINAL_WAITLIST = { lesson: 102, special: 22 } as const;
 
 /** @deprecated 표기는 ANNOUNCED_CAPACITY 를 쓸 것. 폴백 값 용도로만 남긴다. */
 export const DEFAULT_CAPACITY = ANNOUNCED_CAPACITY;
