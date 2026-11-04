@@ -4,16 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 import { IconSurf, IconRescue, IconSkate, IconYoga, IconAthlete, IconGym } from '@/components/icons';
-import {
-  EVENT,
-  LESSON_MIN_AGE,
-  LESSON_MIN_HEIGHT,
-  programLabel,
-} from '@/lib/surfcamp-config';
+import { EVENT, FINAL_WAITLIST, programLabel } from '@/lib/surfcamp-config';
 
 export const metadata: Metadata = {
   title: '서핑특화 교육',
-  description: '양양군서핑협회 서핑특화 교육 - 2026 양양 서핑캠프(접수 중), 서프레스큐, 랜드서핑, 서핑요가, 선수교육, 전문체육교실',
+  description: '양양군서핑협회 서핑특화 교육 - 2026 양양 서핑캠프, 서프레스큐, 랜드서핑, 서핑요가, 선수교육, 전문체육교실',
 };
 
 const CATEGORIES: {
@@ -28,12 +23,12 @@ const CATEGORIES: {
   {
     title: '2026 양양 서핑캠프',
     description:
-      `2026 지역자율형 생활체육활동지원 사업으로 진행하는 서핑캠프입니다. ${EVENT.lessonDateLabel} 13:00·15:00 ${programLabel('lesson')} 200명, ${EVENT.specialDateLabel} ${programLabel('special')}(${EVENT.specialTitle}) 300명을 모집합니다. ${EVENT.specialScheduleNote} 양양군민 및 양양 생활인구라면 누구나 신청할 수 있으며, ${programLabel('lesson')}은 만 ${LESSON_MIN_AGE}세 이상·신장 ${LESSON_MIN_HEIGHT}cm 이상만 참여할 수 있습니다. 기준에 미치지 않는 분은 ${programLabel('special')}에 신청해 주세요.`,
+      `2026 지역자율형 생활체육활동지원 사업으로 진행한 서핑캠프입니다. ${EVENT.lessonDateLabel} 13:00·15:00 ${programLabel('lesson')} 200명, ${EVENT.specialDateLabel} ${programLabel('special')}(${EVENT.specialTitle}) 300명을 모집했습니다. 양양군민 및 양양 생활인구를 대상으로 접수했고, 두 프로그램 모두 접수 첫날 정원이 마감되었습니다. ${programLabel('lesson')}은 대기 ${FINAL_WAITLIST.lesson}명, ${programLabel('special')}은 대기 ${FINAL_WAITLIST.special}명이 접수했습니다.`,
     color: 'sunset',
     icon: <IconSurf className="w-7 h-7" />,
-    badge: '접수 중',
+    badge: '접수 마감',
     href: '/apply/surf-camp',
-    ctaLabel: '서핑캠프 접수하기',
+    ctaLabel: '서핑캠프 안내 보기',
   },
   {
     title: '서프레스큐',
@@ -161,7 +156,7 @@ export default function SpecializedPage() {
           <div className="mt-16 bg-ocean/5 rounded-2xl p-8 md:p-12">
             <h3 className="text-lg font-bold text-navy mb-4">교육 신청 안내</h3>
             <p className="text-navy/70 text-sm leading-relaxed mb-6">
-              「2026 양양 서핑캠프」는 현재 온라인 접수 중입니다.
+              「2026 양양 서핑캠프」는 접수와 행사 운영이 모두 종료되었습니다.
               그 외 서핑특화 교육 프로그램은 시즌별로 일정이 다르게 운영되며,
               각 프로그램의 상세 일정과 모집 정보는 공지사항을 통해 안내됩니다.
               교육 관련 문의는 협회로 연락해주세요.
@@ -171,7 +166,7 @@ export default function SpecializedPage() {
                 href="/apply/surf-camp"
                 className="inline-flex items-center gap-2 bg-sunset text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-sunset/90 transition-colors"
               >
-                2026 양양 서핑캠프 접수
+                2026 양양 서핑캠프 안내
               </Link>
               <a
                 href="https://bpscomm.kr/yysports/"
